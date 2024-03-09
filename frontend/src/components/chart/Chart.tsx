@@ -1,12 +1,13 @@
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
 
 import styles from "./Chart.module.css";
 
+import ButtonSend from "../../ui/button-send/ButtonSend";
 import Globe from "../../ui/globe/Globe";
 import EmojiIcon from "../../ui/icons/emoji/EmojiIcon";
-import Input from "../../ui/input/Input";
+import InputFile from "../../ui/input-file/InputFile";
+import Textarea from "../../ui/textarea/Textarea";
 import { countLines } from "../../utils/helpers";
 import { contacts, messages } from "../../utils/mockData";
 import MessageFrom from "../message/Message";
@@ -19,6 +20,8 @@ export default function Chart() {
   const [caretPos, setCaretPos] = useState(0);
   const [rows, setRows] = useState(2);
   const [imageSrc, setImageSrc] = useState("");
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  // const [emojiPickerPos, setEmojiPickerPos] = useState({ position: "absolute", bottom: "75px", left: "10px" });
 
   const handleImagePaste = async (event: any) => {
     try {
@@ -35,6 +38,8 @@ export default function Chart() {
           const blob = await clipboardItem.getType(imageTypes);
           const url = URL.createObjectURL(blob);
           setImageSrc(url);
+          setIsPopupOpen(true);
+          setIsEmojiOpen(false);
           break;
         }
       }
@@ -70,6 +75,10 @@ export default function Chart() {
       setIsEmojiOpen(false);
     }
   };
+
+  const closePopup = () => {
+    setIsPopupOpen(false);
+  };
   // console.log(pos);
   // const onEmojiClick = React.useCallback(
   //   (emoji: EmojiClickData) => {
@@ -77,7 +86,7 @@ export default function Chart() {
   //   },
   //   [caretPos],
   // );
-
+  // console.log(emojiPickerPos);
   return (
     <div className={styles.wrapper} onClick={closeEmoji}>
       <div className={styles.contact}>
@@ -93,14 +102,15 @@ export default function Chart() {
       <Globe />
       <div className={styles.container}>
         <EmojiIcon onClick={emojiToggle} />
-        <textarea
+        <Textarea
           rows={rows}
-          className={styles.textarea}
           value={value}
-          onChange={handleChange}
-          onPaste={handleImagePaste}
+          handleChange={handleChange}
+          handleImagePaste={handleImagePaste}
           onClick={(e: any) => setCaretPos(e.target.selectionStart)}
-        ></textarea>
+        />
+        <InputFile />
+        <ButtonSend />
       </div>
       <EmojiPicker
         onEmojiClick={(emojiData) => onEmojiClick(emojiData.emoji)}
@@ -108,9 +118,28 @@ export default function Chart() {
         autoFocusSearch={false}
         open={isEmojiOpen}
         className={styles.emoji}
-        style={{ position: "absolute" }}
+        style={{ position: "absolute", transition: " all 0s linear" }}
+        lazyLoadEmojis={true}
       />
-      {imageSrc && <OverLay children={<PopupImage image={imageSrc} />} />}
+      {isPopupOpen && (
+        <OverLay closePopup={closePopup}>
+          <div className={styles.popupWrapper}>
+            <PopupImage image={imageSrc} />
+            <div className={styles.container}>
+              <EmojiIcon onClick={emojiToggle} />
+              <Textarea
+                rows={rows}
+                value={value}
+                handleChange={handleChange}
+                handleImagePaste={handleImagePaste}
+                onClick={(e: any) => setCaretPos(e.target.selectionStart)}
+                // width='calc(100% - 50px)'
+              />
+              <ButtonSend />
+            </div>
+          </div>
+        </OverLay>
+      )}
     </div>
   );
 }
