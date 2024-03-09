@@ -1,0 +1,19 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: fit-content;
+  min-width: 15px;
+  height: 25px;
+  margin-top: 5px;
+  padding-right: 5px;
+  padding-left: 5px;
+
+  font-size: var(--font-size-default);
+  font-weight: bold;
+  color: var(--white);
+
+  background-color: var(--green);
+  border-radius: 25px;
+}

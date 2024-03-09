@@ -1,0 +1,33 @@
+.wrapper {
+  position: relative;
+
+  flex: none;
+
+  width: 400px;
+  height: 95vh;
+
+  background-color: var(--beige-dark);
+  border-radius: var(--border-radius);
+}
+
+.menu {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+}
+
+.avatar {
+  align-self: center;
+
+  width: 60px;
+  height: 60px;
+  padding: 10px;
+
+  object-fit: cover;
+  border-radius: 50%;
+
+  /* float: right; */
+}
