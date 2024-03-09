@@ -1,0 +1,17 @@
+.wrapper {
+  position: relative;
+  z-index: 2;
+
+  max-width: 60%;
+  padding: 10px;
+
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+
+  /* border-top-left-radius: 0; */
+}
+
+.text {
+  font-size: var(--font-size-default);
+  line-height: 18px;
+}

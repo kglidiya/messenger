@@ -1,0 +1,117 @@
+.wrapper {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+
+  /* position: absolute;   */
+
+  /* display: inline-block; */
+
+  /* margin: 30px; */
+  transform: scale(1.1);
+  transform: translate(-50%, -30%);
+
+  aspect-ratio: 1/1;
+  width: 83%;
+  max-width: 83vh;
+
+  /* overflow: hidden; */
+}
+
+.content {
+  position: relative;
+  top: 0;
+  left: 0;
+
+  display: block;
+
+  aspect-ratio: 1/1;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.map,
+.sphere {
+  position: absolute;
+  display: block;
+  margin: 0;
+}
+
+.sphere {
+  top: 0;
+  left: 0;
+
+  aspect-ratio: 1/1;
+  width: 100%;
+
+  background-repeat: no-repeat;
+  background-position: 0 0;
+}
+
+.map {
+  overflow: hidden;
+
+  aspect-ratio: 1/1;
+
+  /* left: 0; 
+    top: 0;  */
+  width: 100%;
+
+  background-color: #ddd6c7;
+  border-radius: 50%;
+
+  /* background: radial-gradient(circle at 65% 10%, #eeebe4, #ddd6c7); */
+}
+
+.map_front {
+  display: block;
+
+  width: 500%;
+  height: 100%;
+  margin: 0;
+
+  /* overflow: visible; */
+  background-image: url("./map_front.svg");
+  background-repeat: repeat-x;
+  background-size: contain;
+
+  animation: textureSpinreverse 100s linear infinite;
+}
+
+.map_back {
+  display: block;
+
+  width: 500%;
+  height: 100%;
+  margin: 0;
+
+  opacity: 0.3;
+
+  /* overflow: visible; */
+  background-image: url("./map_back.svg");
+  background-repeat: repeat-x;
+  background-position: -50% 50%;
+  background-size: contain;
+
+  animation: textureSpin 100s linear infinite;
+}
+
+@keyframes textureSpin {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-47.5%);
+  }
+}
+@keyframes textureSpinreverse {
+  from {
+    transform: translateX(-47.5%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
