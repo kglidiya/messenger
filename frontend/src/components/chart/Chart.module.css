@@ -79,76 +79,19 @@
   height: auto;
   height: 50px;
   margin: auto;
-
-  /* display: flex; */
-
-  /* justify-content: center;
-  align-items: center; */
-
-  /* margin-left: 70px;
-  vertical-align: middle; */
-
-  /* height: 100%; */
   margin-top: auto;
 
-  background-color: red;
-  border-radius: var(--border-radius);
-}
-
-.textarea {
-  resize: none;
-
-  overflow-y: scroll;
-  display: flex;
-
-  /* justify-content: center;
-  align-items: center; */
-
-  /* background-color: aquamarine; */
-  box-sizing: border-box;
-  width: 100%;
-  min-height: 50px;
-
-  /* min-height: 50px; */
-  max-height: 200px;
-  padding: 15px 0 0 70px;
-
-  font-size: 16px;
-
-  border: none;
-
-  /* height: auto;
-	 min-height: 50px;
-  max-height: 200px;
- line-height: 20px;
-	/* border: 1px solid #ccc; */
-  border-radius: var(--border-radius);
-  outline: none;
-}
-
-.textarea::-webkit-scrollbar-track {
-  background-color: transparent;
-
-  /* height: 90%; */
-}
-
-.textarea::-webkit-scrollbar {
-  width: 6px;
-  background-color: transparent;
-}
-
-.textarea::-webkit-scrollbar-thumb {
-  background-color: #ddd6c7;
-  border-radius: 100px;
   border-radius: var(--border-radius);
 }
 
 .emoji {
-  z-index: 30;
+  z-index: 100;
   bottom: 75px;
-
-  /* position: absolute; */
-  left: 10px;
+  left: 2.5%;
+  /* transition: all 0s linear; */
+  -webkit-box-shadow: -10px -7px 13px 0px rgba(5, 6, 6, 0.2);
+  -moz-box-shadow: -10px -7px 13px 0px rgba(5, 6, 6, 0.2);
+  box-shadow: -10px -7px 13px 0px rgba(5, 6, 6, 0.2);
 }
 
 #count {
@@ -161,4 +104,11 @@
   box-sizing: border-box;
 
   white-space: pre-wrap;
+}
+
+.popupWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }

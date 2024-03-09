@@ -1,0 +1,14 @@
+.button {
+  position: absolute;
+  bottom: 3px;
+  right: 5px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: var(--white);
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
