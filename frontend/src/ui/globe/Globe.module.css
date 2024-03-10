@@ -65,14 +65,15 @@
 }
 
 .map_front {
+  position: absolute;
+  top: 0;
+  left: 0;
+
   display: block;
 
   width: 500%;
   height: 100%;
   margin: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
 
   /* overflow: visible; */
   background-image: url("./map_front.svg");

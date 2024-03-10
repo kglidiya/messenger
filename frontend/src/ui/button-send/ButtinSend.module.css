@@ -1,14 +1,18 @@
 .button {
+  cursor: pointer;
+
   position: absolute;
-  bottom: 3px;
   right: 5px;
+  bottom: 3px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   width: 42px;
   height: 42px;
-  border-radius: 50%;
+
   background-color: var(--white);
   border: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
+  border-radius: 50%;
 }
