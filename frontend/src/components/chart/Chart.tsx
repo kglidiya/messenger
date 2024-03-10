@@ -10,7 +10,7 @@ import InputFile from "../../ui/input-file/InputFile";
 import Textarea from "../../ui/textarea/Textarea";
 import { countLines } from "../../utils/helpers";
 import { contacts, messages } from "../../utils/mockData";
-import MessageFrom from "../message/Message";
+import Message from "../message/Message";
 import OverLay from "../overlay/Overlay";
 import PopupImage from "../popup-image/PopupImage";
 
@@ -95,7 +95,7 @@ export default function Chart() {
       </div>
       <div className={styles.content} style={{ height: `calc(100% - 120px - ${rows * 18}px)` }}>
         {messages.map((message, i: number) => {
-          return <MessageFrom {...message} key={i} />;
+          return <Message {...message} key={i} />;
         })}
       </div>
 
@@ -113,7 +113,10 @@ export default function Chart() {
         <ButtonSend />
       </div>
       <EmojiPicker
-        onEmojiClick={(emojiData) => onEmojiClick(emojiData.emoji)}
+        onEmojiClick={(emojiData) => {
+          console.log(emojiData);
+          onEmojiClick(emojiData.emoji);
+        }}
         key={caretPos}
         autoFocusSearch={false}
         open={isEmojiOpen}

@@ -1,6 +1,7 @@
 .wrapper {
   position: relative;
-  z-index: 2;
+
+  /* z-index: 2; */
 
   max-width: 60%;
   padding: 10px;
@@ -14,4 +15,126 @@
 .text {
   font-size: var(--font-size-default);
   line-height: 18px;
+}
+
+.reaction {
+  cursor: pointer;
+
+  position: absolute;
+  bottom: -10px;
+
+  display: flex;
+  flex-direction: row;
+
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: -1px -4px 18px 0 rgb(102 105 82 / 20%);
+  box-shadow: -1px -4px 18px 0 rgb(102 105 82 / 20%);
+  box-shadow: -1px -4px 18px 0 rgb(102 105 82 / 20%);
+}
+
+.counter {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.count {
+  padding-right: 3px;
+
+  /* position: absolute;
+  bottom: 0;
+  right: 0; */
+  font-size: var(--font-size-small);
+}
+
+.popup {
+  cursor: default;
+
+  position: absolute;
+  z-index: 300;
+  top: 50%;
+
+  /* left: 50;
+  right: auto; */
+
+  /* transform: translate(-50%, -50%); */
+  width: 300px;
+  height: auto;
+  max-height: 400px;
+
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: 4px 3px 20px -1px rgb(34 60 80 / 20%);
+  box-shadow: 4px 3px 20px -1px rgb(34 60 80 / 20%);
+  box-shadow: 4px 3px 20px -1px rgb(34 60 80 / 20%);
+}
+
+.closeBtn {
+  cursor: pointer;
+
+  float: right;
+
+  padding-right: 5px;
+
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.summary_list {
+  display: flex;
+  flex-direction: column;
+
+  margin: 0 0 0 7px;
+
+  /* gap: 7px; */
+  padding: 0;
+
+  list-style: none;
+
+  /* border-bottom: 1px solid var(--beige-dark); */
+}
+
+.summary_item {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+
+  width: 95%;
+  height: 50px;
+  margin: auto;
+
+  border-bottom: 1px solid var(--beige-dark);
+
+  /* text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden; */
+
+  /* font-size: var(--font-size-small); */
+}
+
+.summary_item:last-of-type {
+  border-bottom: none;
+}
+
+.summary_reaction {
+  font-size: 22px;
+}
+
+.summary_name {
+  overflow: hidden;
+  width: 65%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summary_avatar {
+  width: 40px;
+  height: 40px;
+  margin-left: auto;
+
+  object-fit: cover;
+  border-radius: 50%;
 }

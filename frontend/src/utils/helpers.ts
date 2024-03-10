@@ -1,4 +1,20 @@
-export function countLines(textarea: any) {
+export const findUserById = (arr: any, id: any) => {
+  return arr.filter((user: any) => String(user.id) === id);
+};
+
+export const countArrayItems = (arr: any) => {
+  const output = [] as any;
+  const reactions = arr.reduce((acc: any, el: any) => {
+    acc[el.reaction] = (acc[el.reaction] || 0) + 1;
+    return acc;
+  }, {});
+  for (let key in reactions) {
+    output.push({ reaction: key, count: reactions[key] });
+  }
+  return output;
+};
+
+export const countLines = (textarea: any) => {
   let _buffer: any;
   if (_buffer == null) {
     _buffer = document.createElement("textarea");
@@ -38,4 +54,4 @@ export function countLines(textarea: any) {
   var result = Math.floor(_buffer.scrollHeight / lh);
   if (result === 0) result = 1;
   return result;
-}
+};
