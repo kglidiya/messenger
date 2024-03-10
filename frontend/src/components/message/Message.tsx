@@ -9,33 +9,51 @@ import { contacts } from "../../utils/mockData";
 const messageIn = {
   marginLeft: "auto",
   borderTopRightRadius: 0,
+  // backgroundColor: "rgb(183 203 215)",
+  // backgroundColor: "rgb(176 205 209)",
+  backgroundColor: "rgb(193 218 221)",
 };
 
 const messageFrom = { borderTopLeftRadius: 0 };
 
-export default function Message({ message, from, reactions }: { message: string; from: string; reactions: any }) {
+export default function Message({
+  id,
+  message,
+  from,
+  reactions,
+  setMessageClicked,
+  isPopupReactionOpen,
+  openReactionPopup,
+  isPopupMessageActionsOpen,
+  openMessageActionsPopup,
+}: {
+  id: string;
+  message: string;
+  from: string;
+  reactions: any;
+  setMessageClicked: any;
+  isPopupReactionOpen: any;
+  openReactionPopup: VoidFunction;
+  isPopupMessageActionsOpen: boolean;
+  openMessageActionsPopup: VoidFunction;
+}) {
   const [reactionsCount] = useState(countArrayItems(reactions));
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const openPopup = () => {
-    setIsPopupOpen(true);
-  };
-  const closePopup = () => {
-    setIsPopupOpen(false);
-  };
-  // console.log(reactionsCount);
   return (
     <article
       className={styles.wrapper}
       style={from === "2" ? messageIn : messageFrom}
-      // style={t}
+      onClick={() => setMessageClicked(id)}
     >
       <Corner
         right={from === "2" ? "-15px" : ""}
         left={from !== "2" ? "-15px" : ""}
         rotate={from === "2" ? "180deg" : ""}
         borderWidth={from === "2" ? "10px 15px 0 0" : "0 15px 10px 0"}
+        borderColor={from === "2" ? "transparent rgb(193 218 221) transparent transparent" : ""}
       />
-      <p className={styles.text}>{message}</p>
+      <p className={styles.text} onClick={openMessageActionsPopup}>
+        {message}
+      </p>
       {reactions.length > 0 && (
         <div
           className={styles.reaction}
@@ -43,17 +61,14 @@ export default function Message({ message, from, reactions }: { message: string;
         >
           {reactionsCount.map((el: any, i: number) => {
             return (
-              <div key={i} className={styles.counter} onClick={openPopup}>
+              <div key={i} className={styles.counter} onClick={openReactionPopup}>
                 <p>{el.reaction}</p>
                 {reactionsCount.length > 1 && <p className={styles.count}>{el.count}</p>}
               </div>
             );
           })}
-          {isPopupOpen && (
+          {isPopupReactionOpen && (
             <div className={styles.popup} style={{ right: from === "2" ? "50%" : "", left: from !== "2" ? "50%" : "" }}>
-              <span className={styles.closeBtn} onClick={closePopup}>
-                x
-              </span>
               <ul className={styles.summary_list}>
                 {reactions.map((el: any, i: number) => {
                   return (
@@ -72,6 +87,14 @@ export default function Message({ message, from, reactions }: { message: string;
             </div>
           )}
         </div>
+      )}
+      {isPopupMessageActionsOpen && (
+        <ul className={styles.actions}>
+          <li className={styles.action}>Отреагировать</li>
+          <li className={styles.action}>Переслать</li>
+          {from === "2" && <li className={styles.action}>Изменить</li>}
+          {from === "2" && <li className={styles.action}>Удалить</li>}
+        </ul>
       )}
     </article>
   );
