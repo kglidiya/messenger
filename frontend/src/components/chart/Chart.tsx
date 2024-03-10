@@ -20,7 +20,25 @@ export default function Chart() {
   const [caretPos, setCaretPos] = useState(0);
   const [rows, setRows] = useState(2);
   const [imageSrc, setImageSrc] = useState("");
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isPopupFileOpen, setIsPopupFileOpen] = useState(false);
+  const [messageClicked, setMessageClicked] = useState("");
+  const [isPopupReactionOpen, setIsPopupReactionOpen] = useState(false);
+  const [isPopupMessageActionsOpen, setIsPopupMessageActionsOpen] = useState(false);
+
+  const openReactionPopup = () => {
+    setIsPopupReactionOpen(true);
+  };
+  const closeReactionPopup = () => {
+    setIsPopupReactionOpen(false);
+  };
+
+  const openMessageActionsPopup = () => {
+    setIsPopupMessageActionsOpen(true);
+  };
+  const closeMessageActionsPopup = () => {
+    setIsPopupMessageActionsOpen(false);
+  };
+  // console.log(messageClicked);
   // const [emojiPickerPos, setEmojiPickerPos] = useState({ position: "absolute", bottom: "75px", left: "10px" });
 
   const handleImagePaste = async (event: any) => {
@@ -38,7 +56,7 @@ export default function Chart() {
           const blob = await clipboardItem.getType(imageTypes);
           const url = URL.createObjectURL(blob);
           setImageSrc(url);
-          setIsPopupOpen(true);
+          setIsPopupFileOpen(true);
           setIsEmojiOpen(false);
           break;
         }
@@ -73,13 +91,15 @@ export default function Chart() {
   const closeEmoji = (e: any) => {
     if (e.target.nodeName === "DIV") {
       setIsEmojiOpen(false);
+      closeReactionPopup();
+      closeMessageActionsPopup();
     }
   };
 
-  const closePopup = () => {
-    setIsPopupOpen(false);
+  const closePopupFile = () => {
+    setIsPopupFileOpen(false);
   };
-  // console.log(pos);
+
   // const onEmojiClick = React.useCallback(
   //   (emoji: EmojiClickData) => {
   //     console.log(caretPos);
@@ -95,7 +115,17 @@ export default function Chart() {
       </div>
       <div className={styles.content} style={{ height: `calc(100% - 120px - ${rows * 18}px)` }}>
         {messages.map((message, i: number) => {
-          return <Message {...message} key={i} />;
+          return (
+            <Message
+              {...message}
+              key={i}
+              setMessageClicked={setMessageClicked}
+              isPopupReactionOpen={isPopupReactionOpen && messageClicked === message.id}
+              openReactionPopup={openReactionPopup}
+              isPopupMessageActionsOpen={isPopupMessageActionsOpen && messageClicked === message.id}
+              openMessageActionsPopup={openMessageActionsPopup}
+            />
+          );
         })}
       </div>
 
@@ -124,8 +154,8 @@ export default function Chart() {
         style={{ position: "absolute", transition: " all 0s linear" }}
         lazyLoadEmojis={true}
       />
-      {isPopupOpen && (
-        <OverLay closePopup={closePopup}>
+      {isPopupFileOpen && (
+        <OverLay closePopup={closePopupFile}>
           <div className={styles.popupWrapper}>
             <PopupImage image={imageSrc} />
             <div className={styles.container}>

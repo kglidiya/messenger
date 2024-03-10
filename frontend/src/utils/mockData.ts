@@ -35,49 +35,65 @@ export const contacts = [
 ];
 
 export const messages = [
-  { from: "1", message: "Привет", reactions: [] },
+  { id: "1", from: "1", message: "Привет", reactions: [] },
   {
+    id: "2",
     from: "1",
     message:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
     reactions: [],
   },
   {
+    id: "3",
     from: "2",
     message:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     reactions: [],
   },
   {
+    id: "4",
     from: "1",
     message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt",
     reactions: [{ reaction: "❤️", from: "2" }],
   },
-  { from: "1", message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit", reactions: [] },
+  { id: "5", from: "1", message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit", reactions: [] },
   {
+    id: "6",
     from: "1",
     message:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
     reactions: [{ reaction: "🤣", from: "1" }],
   },
   {
+    id: "7",
     from: "2",
     message:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     reactions: [],
   },
   {
+    id: "8",
     from: "1",
     message:
       "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
     reactions: [{ reaction: "❤️", from: "2" }],
   },
   {
+    id: "9",
     from: "1",
     message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt",
-    reactions: [{ reaction: "❤️", from: "2" }],
+    reactions: [
+      { reaction: "❤️", from: "2" },
+      { reaction: "🌻", from: "3" },
+      { reaction: "❤️", from: "4" },
+      { reaction: "❤️", from: "1" },
+      { reaction: "🤣", from: "1" },
+      { reaction: "🤣", from: "4" },
+      { reaction: "😳", from: "3" },
+    ],
   },
   {
+    id: "10",
     from: "1",
     message:
       "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
@@ -88,14 +104,16 @@ export const messages = [
     ],
   },
   {
+    id: "11",
     from: "2",
     message:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     reactions: [
       { reaction: "🤗", from: "1" },
       { reaction: "🌻", from: "4" },
+      { reaction: "❤️", from: "3" },
     ],
   },
-  { from: "2", message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit", reactions: [] },
-  { from: "2", message: "Мяу", reactions: [] },
+  { id: "12", from: "2", message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit", reactions: [] },
+  { id: "13", from: "2", message: "Мяу", reactions: [] },
 ];
