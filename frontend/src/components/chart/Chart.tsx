@@ -24,6 +24,7 @@ export default function Chart() {
   const [messageClicked, setMessageClicked] = useState("");
   const [isPopupReactionOpen, setIsPopupReactionOpen] = useState(false);
   const [isPopupMessageActionsOpen, setIsPopupMessageActionsOpen] = useState(false);
+  const [isPopupEmojiReactionsOpen, setIsPopupEmojiReactionsOpen] = useState(false);
 
   const openReactionPopup = () => {
     setIsPopupReactionOpen(true);
@@ -37,6 +38,14 @@ export default function Chart() {
   };
   const closeMessageActionsPopup = () => {
     setIsPopupMessageActionsOpen(false);
+  };
+
+  const openEmojiReactionsPopup = () => {
+    setIsPopupEmojiReactionsOpen(true);
+    closeMessageActionsPopup();
+  };
+  const closeEmojiReactionsPopup = () => {
+    setIsPopupEmojiReactionsOpen(false);
   };
   // console.log(messageClicked);
   // const [emojiPickerPos, setEmojiPickerPos] = useState({ position: "absolute", bottom: "75px", left: "10px" });
@@ -93,6 +102,7 @@ export default function Chart() {
       setIsEmojiOpen(false);
       closeReactionPopup();
       closeMessageActionsPopup();
+      closeEmojiReactionsPopup();
     }
   };
 
@@ -124,6 +134,8 @@ export default function Chart() {
               openReactionPopup={openReactionPopup}
               isPopupMessageActionsOpen={isPopupMessageActionsOpen && messageClicked === message.id}
               openMessageActionsPopup={openMessageActionsPopup}
+              isPopupEmojiReactionsOpen={isPopupEmojiReactionsOpen && messageClicked === message.id}
+              openEmojiReactionsPopup={openEmojiReactionsPopup}
             />
           );
         })}

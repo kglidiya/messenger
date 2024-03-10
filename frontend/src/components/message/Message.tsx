@@ -1,3 +1,4 @@
+import Picker from "emoji-picker-react";
 import React, { useEffect, useState } from "react";
 
 import styles from "./Message.module.css";
@@ -26,6 +27,8 @@ export default function Message({
   openReactionPopup,
   isPopupMessageActionsOpen,
   openMessageActionsPopup,
+  isPopupEmojiReactionsOpen,
+  openEmojiReactionsPopup,
 }: {
   id: string;
   message: string;
@@ -36,6 +39,8 @@ export default function Message({
   openReactionPopup: VoidFunction;
   isPopupMessageActionsOpen: boolean;
   openMessageActionsPopup: VoidFunction;
+  isPopupEmojiReactionsOpen: boolean;
+  openEmojiReactionsPopup: VoidFunction;
 }) {
   const [reactionsCount] = useState(countArrayItems(reactions));
   return (
@@ -90,11 +95,22 @@ export default function Message({
       )}
       {isPopupMessageActionsOpen && (
         <ul className={styles.actions}>
-          <li className={styles.action}>Отреагировать</li>
+          <li className={styles.action} onClick={openEmojiReactionsPopup}>
+            Отреагировать
+          </li>
           <li className={styles.action}>Переслать</li>
           {from === "2" && <li className={styles.action}>Изменить</li>}
           {from === "2" && <li className={styles.action}>Удалить</li>}
         </ul>
+      )}
+      {isPopupEmojiReactionsOpen && (
+        // <Picker reactionsDefaultOpen={true} />
+        <Picker
+          reactionsDefaultOpen={true}
+          className={styles.emoji}
+          style={{ position: "absolute", transition: " all 0s linear" }}
+          lazyLoadEmojis={true}
+        />
       )}
     </article>
   );
