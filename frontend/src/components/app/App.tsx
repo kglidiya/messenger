@@ -6,13 +6,15 @@ import Chart from "../chart/Chart";
 import Layout from "../layout/Layout";
 import SideBar from "../side-bar/SideBar";
 
-export const App = () => {
+export function App() {
   return (
     <div className={styles.wrapper}>
       <div className={styles.content}>
         <SideBar />
-        <Layout children={<Chart />} />;
+        <Layout>
+          <Chart />
+        </Layout>
       </div>
     </div>
   );
-};
+}
