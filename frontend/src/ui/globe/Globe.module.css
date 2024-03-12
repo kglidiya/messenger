@@ -80,7 +80,7 @@
   background-repeat: repeat-x;
   background-size: contain;
 
-  /* animation: textureSpinreverse 200s linear infinite; */
+  animation: textureSpinreverse 200s linear infinite;
 }
 
 .map_back {
