@@ -1,5 +1,5 @@
 export const findUserById = (arr: any, id: any) => {
-  return arr.filter((user: any) => String(user.id) === id);
+  return arr.filter((user: any) => user.id === id);
 };
 
 export const countArrayItems = (arr: any) => {

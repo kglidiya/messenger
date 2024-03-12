@@ -6,6 +6,8 @@ interface ILayout {
   children: ReactNode;
 }
 
-export default function Layout({ children }: ILayout) {
+const Layout = ({ children }: ILayout) => {
   return <main className={styles.wrapper}>{children}</main>;
-}
+};
+
+export default Layout;
