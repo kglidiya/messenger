@@ -1,39 +1,36 @@
 import Picker from "emoji-picker-react";
-import React, { useEffect, useState } from "react";
+import { observer } from "mobx-react-lite";
+
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 import styles from "./Message.module.css";
 
+import { Context } from "../..";
 import Corner from "../../ui/corner/Corner";
+import ForwardedMessageIcon from "../../ui/icons/forwarded-message/ForwardedMessageIcon";
+import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
 import { countArrayItems, findUserById } from "../../utils/helpers";
-import { contacts } from "../../utils/mockData";
+import { files, users } from "../../utils/mockData";
 
-const messageIn = {
+const messageFromMe = {
   marginLeft: "auto",
   borderTopRightRadius: 0,
-  // backgroundColor: "rgb(183 203 215)",
-  // backgroundColor: "rgb(176 205 209)",
   backgroundColor: "rgb(193 218 221)",
 };
 
-const messageFrom = { borderTopLeftRadius: 0 };
+const messageToMe = { borderTopLeftRadius: 0 };
 
-export default function Message({
-  id,
-  message,
-  from,
-  reactions,
-  setMessageClicked,
-  isPopupReactionOpen,
-  openReactionPopup,
-  isPopupMessageActionsOpen,
-  openMessageActionsPopup,
-  isPopupEmojiReactionsOpen,
-  openEmojiReactionsPopup,
-}: {
+interface IMessage {
   id: string;
   message: string;
-  from: string;
+  creatorId: string;
   reactions: any;
+  createdAt: string;
+  forwarded: boolean;
+  isRead: boolean;
+  isSent: boolean;
+  isDelivered: boolean;
+  fileId: string;
   setMessageClicked: any;
   isPopupReactionOpen: any;
   openReactionPopup: VoidFunction;
@@ -41,77 +38,181 @@ export default function Message({
   openMessageActionsPopup: VoidFunction;
   isPopupEmojiReactionsOpen: boolean;
   openEmojiReactionsPopup: VoidFunction;
-}) {
-  const [reactionsCount] = useState(countArrayItems(reactions));
-  return (
-    <article
-      className={styles.wrapper}
-      style={from === "2" ? messageIn : messageFrom}
-      onClick={() => setMessageClicked(id)}
-    >
-      <Corner
-        right={from === "2" ? "-15px" : ""}
-        left={from !== "2" ? "-15px" : ""}
-        rotate={from === "2" ? "180deg" : ""}
-        borderWidth={from === "2" ? "10px 15px 0 0" : "0 15px 10px 0"}
-        borderColor={from === "2" ? "transparent rgb(193 218 221) transparent transparent" : ""}
-      />
-      <p className={styles.text} onClick={openMessageActionsPopup}>
-        {message}
-      </p>
-      {reactions.length > 0 && (
-        <div
-          className={styles.reaction}
-          style={{ right: from === "2" ? "25px" : "", left: from !== "2" ? "25px" : "" }}
-        >
-          {reactionsCount.map((el: any, i: number) => {
-            return (
-              <div key={i} className={styles.counter} onClick={openReactionPopup}>
-                <p>{el.reaction}</p>
-                {reactionsCount.length > 1 && <p className={styles.count}>{el.count}</p>}
-              </div>
-            );
-          })}
-          {isPopupReactionOpen && (
-            <div className={styles.popup} style={{ right: from === "2" ? "50%" : "", left: from !== "2" ? "50%" : "" }}>
-              <ul className={styles.summary_list}>
-                {reactions.map((el: any, i: number) => {
-                  return (
-                    <li key={i} className={styles.summary_item}>
-                      <p className={styles.summary_reaction}>{el.reaction}</p>
-                      <p className={styles.summary_name}>{findUserById(contacts, el.from)[0].name}</p>
-                      <img
-                        className={styles.summary_avatar}
-                        src={findUserById(contacts, el.from)[0].avatar}
-                        alt='Аватар'
-                      />
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
-      {isPopupMessageActionsOpen && (
-        <ul className={styles.actions}>
-          <li className={styles.action} onClick={openEmojiReactionsPopup}>
-            Отреагировать
-          </li>
-          <li className={styles.action}>Переслать</li>
-          {from === "2" && <li className={styles.action}>Изменить</li>}
-          {from === "2" && <li className={styles.action}>Удалить</li>}
-        </ul>
-      )}
-      {isPopupEmojiReactionsOpen && (
-        // <Picker reactionsDefaultOpen={true} />
-        <Picker
-          reactionsDefaultOpen={true}
-          className={styles.emoji}
-          style={{ position: "absolute", transition: " all 0s linear" }}
-          lazyLoadEmojis={true}
-        />
-      )}
-    </article>
-  );
 }
+const Message = observer(
+  ({
+    id,
+    message,
+    creatorId,
+    reactions,
+    createdAt,
+    forwarded,
+    isRead,
+    isSent,
+    isDelivered,
+    fileId,
+    setMessageClicked,
+    isPopupReactionOpen,
+    openReactionPopup,
+    isPopupMessageActionsOpen,
+    openMessageActionsPopup,
+    isPopupEmojiReactionsOpen,
+    openEmojiReactionsPopup,
+  }: IMessage) => {
+    const [reactionsCount] = useState(countArrayItems(reactions));
+    const userStore = useContext(Context).user;
+    const ref = useRef<HTMLParagraphElement>(null);
+    const refWrapper = useRef<HTMLDivElement>(null);
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [height, setHeight] = useState("200px");
+    const [file, setFile] = useState<any>({});
+    // console.log(ref.current && ref.current?.scrollHeight);
+    useEffect(() => {
+      if (ref.current && refWrapper.current) {
+        if (ref.current?.scrollHeight > refWrapper.current?.clientHeight) {
+          setIsCollapsed(true);
+        } else setIsCollapsed(false);
+      }
+    }, [ref.current?.scrollHeight, refWrapper.current?.clientHeight, id]);
+    useEffect(() => {
+      if (fileId) {
+        // console.log(fileId);
+        const file = files.filter((file: any) => file.messageId === id);
+        setFile(file[0]);
+      }
+    }, [fileId, id]);
+    // console.log(userStore);
+    const toggleHeight = () => {
+      setHeight("100%");
+      setIsCollapsed(false);
+    };
+    // console.log(timeStamp);
+    return (
+      <article
+        className={styles.wrapper}
+        style={userStore.user.id === creatorId ? messageFromMe : messageToMe}
+        onClick={() => setMessageClicked(id)}
+        ref={refWrapper}
+      >
+        <Corner
+          right={userStore.user.id === creatorId ? "-15px" : ""}
+          left={userStore.user.id !== creatorId ? "-15px" : ""}
+          rotate={userStore.user.id === creatorId ? "180deg" : ""}
+          borderWidth={userStore.user.id === creatorId ? "10px 15px 0 0" : "0 15px 10px 0"}
+          borderColor={userStore.user.id === creatorId ? "transparent rgb(193 218 221) transparent transparent" : ""}
+        />
+        {forwarded && (
+          <span className={styles.forwarded}>
+            <ForwardedMessageIcon /> Пересланное сообщение
+          </span>
+        )}
+        {file && file.type === "image" && (
+          <img
+            src={file.thumbnailPath}
+            alt='Картинка'
+            className={styles.thumbnailImage}
+            onClick={openMessageActionsPopup}
+          />
+        )}
+        <p className={styles.text} onClick={openMessageActionsPopup} ref={ref} style={{ maxHeight: height }}>
+          {message}
+        </p>
+        <span
+          className={styles.timeStamp}
+          style={{
+            right: userStore.user.id === creatorId ? "10px" : "",
+            left: userStore.user.id !== creatorId ? "10px" : "",
+          }}
+        >
+          {createdAt}
+        </span>
+        {isCollapsed && (
+          <span
+            onClick={toggleHeight}
+            className={styles.hideButton}
+            style={{
+              left: userStore.user.id === creatorId ? "10px" : "",
+              right: userStore.user.id !== creatorId ? "10px" : "",
+              backgroundColor: userStore.user.id !== creatorId ? "white" : "rgb(193 218 221)",
+            }}
+          >
+            Читать далее...
+          </span>
+        )}
+        {reactions.length > 0 && (
+          <div
+            className={styles.reaction}
+            style={{
+              right: userStore.user.id === creatorId ? "25px" : "",
+              left: userStore.user.id !== creatorId ? "25px" : "",
+            }}
+          >
+            {reactionsCount.map((el: any, i: number) => {
+              return (
+                <div key={i} className={styles.counter} onClick={openReactionPopup}>
+                  <p>{el.reaction}</p>
+                  {reactionsCount.length > 1 && <p className={styles.count}>{el.count}</p>}
+                </div>
+              );
+            })}
+            {isPopupReactionOpen && (
+              <div
+                className={styles.popup}
+                style={{
+                  right: userStore.user.id === creatorId ? "50%" : "",
+                  left: userStore.user.id !== creatorId ? "50%" : "",
+                }}
+              >
+                <ul className={styles.summary_list}>
+                  {reactions.map((el: any, i: number) => {
+                    return (
+                      <li key={i} className={styles.summary_item}>
+                        <p className={styles.summary_reaction}>{el.reaction}</p>
+                        <p className={styles.summary_name}>
+                          {findUserById(users, el.creatorId)[0].username
+                            ? findUserById(users, el.creatorId)[0].username
+                            : findUserById(users, el.creatorId)[0].email}
+                        </p>
+
+                        {findUserById(users, el.creatorId)[0].avatar ? (
+                          <img
+                            className={styles.summary_avatar}
+                            src={findUserById(users, el.creatorId)[0].avatar}
+                            alt='Аватар'
+                          />
+                        ) : (
+                          <NoAvatar />
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+        {isPopupMessageActionsOpen && (
+          <ul className={styles.actions}>
+            <li className={styles.action} onClick={openEmojiReactionsPopup}>
+              Отреагировать
+            </li>
+            <li className={styles.action}>Переслать</li>
+            {userStore.user.id === creatorId && <li className={styles.action}>Изменить</li>}
+            {userStore.user.id === creatorId && <li className={styles.action}>Удалить</li>}
+          </ul>
+        )}
+        {isPopupEmojiReactionsOpen && (
+          // <Picker reactionsDefaultOpen={true} />
+          <Picker
+            reactionsDefaultOpen={true}
+            className={styles.emoji}
+            style={{ position: "absolute", transition: " all 0s linear", backgroundColor: "white" }}
+            lazyLoadEmojis={true}
+          />
+        )}
+      </article>
+    );
+  },
+);
+
+export default Message;

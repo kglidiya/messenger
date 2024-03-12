@@ -1,17 +1,23 @@
-import React from "react";
+import React, { createContext } from "react";
 import ReactDOM from "react-dom/client";
 
 import "./index.scss";
 import { BrowserRouter as Router } from "react-router-dom";
 
 import { App } from "./components/app/App";
+import UserStore from "./store/UserStore";
+
+export const Context = createContext<any>(null);
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
-
 root.render(
   <React.StrictMode>
-    <Router>
+    <Context.Provider
+      value={{
+        user: new UserStore(),
+      }}
+    >
       <App />
-    </Router>
+    </Context.Provider>
   </React.StrictMode>,
 );

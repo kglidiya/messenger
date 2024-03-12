@@ -1,27 +1,35 @@
-import React from "react";
+import { observer } from "mobx-react-lite";
+import React, { useContext } from "react";
 
 import styles from "./Contact.module.css";
 
+import { Context } from "../..";
 import Counter from "../../ui/counter/Counter";
+import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
 
 interface IContactProps {
-  name: string;
+  id: string;
+  username: string;
   avatar: string;
   message: string;
   timeStamp: string;
   unread: number;
+  email: string;
 }
 
-export default function Contact({ name, avatar, message, timeStamp, unread }: IContactProps) {
+const Contact = observer(({ id, username, avatar, message, timeStamp, unread, email }: IContactProps) => {
+  const userStore = useContext(Context).user;
   return (
-    <article className={styles.wrapper}>
-      <img src={avatar} alt='аватар' className={styles.avatar} />
+    <article className={styles.wrapper} onClick={() => userStore.setChatingWith(id)}>
+      {avatar ? <img src={avatar} alt='аватар' className={styles.avatar} /> : <NoAvatar />}
       <div className={styles.text}>
-        <p className={styles.name}>{name}</p>
+        <p className={styles.name}>{username ? username : email}</p>
         <p className={styles.timeStamp}>{timeStamp}</p>
         <p className={styles.message}> {message}</p>
         {unread > 0 && <Counter messages={unread} />}
       </div>
     </article>
   );
-}
+});
+
+export default Contact;
