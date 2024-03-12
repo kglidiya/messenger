@@ -98,7 +98,7 @@
   background-position: -50% 50%;
   background-size: contain;
 
-  /* animation: textureSpin 200s linear infinite; */
+  animation: textureSpin 200s linear infinite;
 }
 
 @keyframes textureSpin {
