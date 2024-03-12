@@ -32,14 +32,15 @@ const Chart = observer(() => {
   const scrollToBottom = () => {
     ref.current?.scrollIntoView({ block: "end" });
   };
-  useEffect(() => {
-    scrollToBottom();
-  }, [userStore.chat.length]);
   // console.log(userStore.chat.length);
 
   useEffect(() => {
     userStore.setChat(userStore.user.id, userStore.chatingWith);
   }, [userStore.user.id, userStore.chatingWith]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [userStore.chat.length]);
 
   const openReactionPopup = () => {
     setIsPopupReactionOpen(true);
@@ -136,6 +137,7 @@ const Chart = observer(() => {
     const files = (e.target as HTMLInputElement).files;
     console.log(files);
   };
+
   return (
     <div className={styles.wrapper} onClick={closeEmoji}>
       <div className={styles.contact}>

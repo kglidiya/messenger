@@ -9,6 +9,7 @@ import { Context } from "../..";
 import Corner from "../../ui/corner/Corner";
 import ForwardedMessageIcon from "../../ui/icons/forwarded-message/ForwardedMessageIcon";
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
+import MessageStatus from "../../ui/message-status/MessageStatus";
 import { countArrayItems, findUserById } from "../../utils/helpers";
 import { files, users } from "../../utils/mockData";
 
@@ -75,8 +76,7 @@ const Message = observer(
       }
     }, [ref.current?.scrollHeight, refWrapper.current?.clientHeight, id]);
     useEffect(() => {
-      if (fileId) {
-        // console.log(fileId);
+      if (fileId !== "") {
         const file = files.filter((file: any) => file.messageId === id);
         setFile(file[0]);
       }
@@ -117,11 +117,12 @@ const Message = observer(
         <p className={styles.text} onClick={openMessageActionsPopup} ref={ref} style={{ maxHeight: height }}>
           {message}
         </p>
+        <MessageStatus isDelivered={true} isRead={true} user={userStore.user.id} creator={creatorId} />
         <span
           className={styles.timeStamp}
           style={{
-            right: userStore.user.id === creatorId ? "10px" : "",
-            left: userStore.user.id !== creatorId ? "10px" : "",
+            right: userStore.user.id === creatorId ? "30px" : "",
+            left: userStore.user.id !== creatorId ? "30px" : "",
           }}
         >
           {createdAt}
