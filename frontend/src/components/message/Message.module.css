@@ -4,6 +4,7 @@
   /* z-index: 2; */
 
   max-width: 60%;
+  min-width: 50px;
   padding: 10px 10px 25px 10px;
 
   background-color: var(--white);
