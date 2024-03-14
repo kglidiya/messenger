@@ -6,12 +6,15 @@ import styles from "./Chart.module.css";
 
 import { Context } from "../..";
 import ButtonSend from "../../ui/button-send/ButtonSend";
+import DetailsButton from "../../ui/details-button/DetaillsButton";
 import Globe from "../../ui/globe/Globe";
 import EmojiIcon from "../../ui/icons/emoji/EmojiIcon";
+import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
 import InputFile from "../../ui/input-file/InputFile";
 import Textarea from "../../ui/textarea/Textarea";
-import { countLines } from "../../utils/helpers";
+import { countLines, findUserById } from "../../utils/helpers";
 import { users, messages } from "../../utils/mockData";
+import ContactDetails from "../contact-details/ContactDetails";
 import Message from "../message/Message";
 import OverLay from "../overlay/Overlay";
 import PopupImage from "../popup-image/PopupImage";
@@ -28,6 +31,8 @@ const Chart = observer(() => {
   const [isPopupReactionOpen, setIsPopupReactionOpen] = useState(false);
   const [isPopupMessageActionsOpen, setIsPopupMessageActionsOpen] = useState(false);
   const [isPopupEmojiReactionsOpen, setIsPopupEmojiReactionsOpen] = useState(false);
+  const [isPopupDetailsOpen, setIsPopupDetailsOpen] = useState(false);
+  const [currentContact, setCurrentContact] = useState<any>({});
   const ref = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => {
     ref.current?.scrollIntoView({ block: "end" });
@@ -36,7 +41,12 @@ const Chart = observer(() => {
 
   useEffect(() => {
     userStore.setChat(userStore.user.id, userStore.chatingWith);
+    closeDetailsPopup();
   }, [userStore.user.id, userStore.chatingWith]);
+
+  useEffect(() => {
+    setCurrentContact(findUserById(users, userStore.chatingWith)[0]);
+  }, [userStore.chatingWith]);
 
   useEffect(() => {
     scrollToBottom();
@@ -49,7 +59,13 @@ const Chart = observer(() => {
   const closeReactionPopup = () => {
     setIsPopupReactionOpen(false);
   };
-
+  const openDetailsPopup = () => {
+    setIsPopupDetailsOpen(true);
+    closeMessageActionsPopup();
+  };
+  const closeDetailsPopup = () => {
+    setIsPopupDetailsOpen(false);
+  };
   const openMessageActionsPopup = () => {
     setIsPopupMessageActionsOpen(true);
     closeReactionPopup();
@@ -119,6 +135,7 @@ const Chart = observer(() => {
       closeReactionPopup();
       closeMessageActionsPopup();
       closeEmojiReactionsPopup();
+      closeDetailsPopup();
     }
   };
 
@@ -137,12 +154,20 @@ const Chart = observer(() => {
   //   const files = (e.target as HTMLInputElement).files;
   //   console.log(files);
   // };
-
+  // console.log(currentContact);
   return (
     <div className={styles.wrapper} onClick={closeEmoji}>
       <div className={styles.contact}>
-        <img src={users[0].avatar} alt='Аватар' className={styles.contact__avatar} />
-        <p className={styles.contact__name}>{users[0].username}</p>
+        {currentContact.avatar ? (
+          <img src={currentContact.avatar} alt='Аватар' className={styles.contact__avatar} />
+        ) : (
+          <NoAvatar width={44} height={44} />
+        )}
+        <p className={styles.contact__name}>
+          {currentContact.username ? currentContact.username : currentContact.email}
+        </p>
+        <DetailsButton onClick={openDetailsPopup} />
+        {isPopupDetailsOpen && <ContactDetails {...currentContact} />}
       </div>
       <div className={styles.content} style={{ height: `calc(100% - 120px - ${rows * 18}px)` }}>
         {userStore.chat.length > 0 &&

@@ -1,0 +1,35 @@
+.button {
+  cursor: pointer;
+
+  position: relative;
+
+  width: 40px;
+  height: 40px;
+  margin-left: auto;
+  /* margin-right: 20px; */
+}
+
+.button span {
+  position: absolute;
+  right: 20px;
+
+  display: block;
+
+  width: 6px;
+  height: 6px;
+  background: var(--white);
+  border-radius: 50%;
+}
+
+.button span:nth-child(1) {
+  top: 0;
+}
+
+.button span:nth-child(2),
+.button span:nth-child(3) {
+  top: 12px;
+}
+
+.button span:nth-child(4) {
+  top: 24px;
+}
