@@ -39,9 +39,9 @@ export default function MessageStatus({ isRead, isSent, isDelivered, user, creat
                 points='3.7 14.3 9.6 19 20.3 5'
                 fill='none'
                 stroke={!isRead ? "#9d9898" : "#3f3fb1"}
-                stroke-linecap='round'
-                stroke-linejoin='round'
-                stroke-width='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth='2'
               />
             </g>
           </g>
@@ -60,9 +60,9 @@ export default function MessageStatus({ isRead, isSent, isDelivered, user, creat
                 points='3.7 14.3 9.6 19 20.3 5'
                 fill='none'
                 stroke={!isRead ? "#9d9898" : "#3f3fb1"}
-                stroke-linecap='round'
-                stroke-linejoin='round'
-                stroke-width='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth='2'
               />
             </g>
           </g>

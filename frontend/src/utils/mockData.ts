@@ -35,7 +35,7 @@ export const users = [
     username: "Кисюленька",
     email: "cattt@mail.ru",
     password: "hash",
-    avatar: "https://klopik.com/uploads/posts/2020-05/1590685479_i-16.jpg",
+    avatar: "https://proprikol.ru/wp-content/uploads/2020/08/krasivye-kartinki-kotov-37.jpg",
     isOnline: true, //пока не реализовано
     userContacts: [],
     isPrinting: false, //пока не реализовано
