@@ -21,7 +21,7 @@ const Contact = observer(({ id, username, avatar, message, timeStamp, unread, em
   const userStore = useContext(Context).user;
   return (
     <article className={styles.wrapper} onClick={() => userStore.setChatingWith(id)}>
-      {avatar ? <img src={avatar} alt='аватар' className={styles.avatar} /> : <NoAvatar />}
+      {avatar ? <img src={avatar} alt='аватар' className={styles.avatar} /> : <NoAvatar width={44} height={44} />}
       <div className={styles.text}>
         <p className={styles.name}>{username ? username : email}</p>
         <p className={styles.timeStamp}>{timeStamp}</p>

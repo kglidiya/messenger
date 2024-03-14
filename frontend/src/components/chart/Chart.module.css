@@ -55,6 +55,7 @@
   align-items: center;
 
   padding: 10px 0;
+  position: relative;
 }
 
 .contact__avatar {

@@ -182,7 +182,7 @@ const Message = observer(
                             alt='Аватар'
                           />
                         ) : (
-                          <NoAvatar />
+                          <NoAvatar width={44} height={44} />
                         )}
                       </li>
                     );

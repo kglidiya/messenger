@@ -1,7 +1,7 @@
 .wrapper {
   align-self: center;
-  width: 44px;
-  height: 44px;
+  /* width: 44px;
+  height: 44px; */
   border-radius: 50%;
   background-color: var(--white);
   display: flex;

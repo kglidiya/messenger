@@ -2,13 +2,17 @@ import React from "react";
 
 import styles from "./NoAvatar.module.css";
 
-export default function NoAvatar() {
+interface INoAvatarProps {
+  width: number;
+  height: number;
+}
+export default function NoAvatar({ width, height }: INoAvatarProps) {
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} style={{ width: `${width}px`, height: `${height}px` }}>
       <svg
         fill='#ddd6c7'
-        height='42px'
-        width='42px'
+        height={`${height - 2}px`}
+        width={`${width - 2}px`}
         version='1.1'
         id='Layer_1'
         xmlns='http://www.w3.org/2000/svg'
