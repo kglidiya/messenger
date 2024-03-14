@@ -39,7 +39,6 @@
   bottom: 7px;
   font-size: var(--font-size-small);
   color: gray;
-  
 }
 .reaction {
   cursor: pointer;
@@ -214,10 +213,10 @@
 }
 
 .thumbnailImage {
- max-width: 20vw;
- min-width: 10vw;
- object-fit: contain;
- border-radius: var(--border-radius);
- margin: 5px auto;
- display: block;
+  max-width: 20vw;
+  min-width: 10vw;
+  object-fit: contain;
+  border-radius: var(--border-radius);
+  margin: 5px auto;
+  display: block;
 }
