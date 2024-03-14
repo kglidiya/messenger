@@ -133,10 +133,10 @@ const Chart = observer(() => {
   //   [caretPos],
   // );
   // console.log(userStore.chatingWith);
-  const handleInputFileChange = (e: any) => {
-    const files = (e.target as HTMLInputElement).files;
-    console.log(files);
-  };
+  // const handleInputFileChange = (e: any) => {
+  //   const files = (e.target as HTMLInputElement).files;
+  //   console.log(files);
+  // };
 
   return (
     <div className={styles.wrapper} onClick={closeEmoji}>
@@ -175,7 +175,19 @@ const Chart = observer(() => {
           handleImagePaste={handleImagePaste}
           onClick={(e: any) => setCaretPos(e.target.selectionStart)}
         />
-        <InputFile handleChange={handleInputFileChange} />
+        <InputFile>
+          <div className={styles.container}>
+            <EmojiIcon onClick={emojiToggle} />
+            <Textarea
+              rows={2}
+              value={value}
+              handleChange={handleChange}
+              handleImagePaste={handleImagePaste}
+              onClick={(e: any) => setCaretPos(e.target.selectionStart)}
+            />
+            <ButtonSend />
+          </div>
+        </InputFile>
         <ButtonSend />
       </div>
       <EmojiPicker
@@ -202,7 +214,6 @@ const Chart = observer(() => {
                 handleChange={handleChange}
                 handleImagePaste={handleImagePaste}
                 onClick={(e: any) => setCaretPos(e.target.selectionStart)}
-                // width='calc(100% - 50px)'
               />
               <ButtonSend />
             </div>
