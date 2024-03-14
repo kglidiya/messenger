@@ -26,7 +26,7 @@
 
 .container {
   min-height: 60vh;
-  max-height: 80vh;
+  max-height: 75vh;
   max-width: 60vw;
   min-width: 40vw;
   display: grid;
@@ -37,6 +37,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 30px;
+  margin-bottom: 30px;
   /* background-color: var(--beige-light); */
 }
 
