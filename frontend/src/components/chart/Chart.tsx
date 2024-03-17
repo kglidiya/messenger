@@ -14,9 +14,10 @@ import InputFile from "../../ui/input-file/InputFile";
 import Textarea from "../../ui/textarea/Textarea";
 import { countLines, findUserById } from "../../utils/helpers";
 import { users, messages } from "../../utils/mockData";
-import ContactDetails from "../contact-details/ContactDetails";
 import Message from "../message/Message";
 import OverLay from "../overlay/Overlay";
+import ContactDetails from "../popup-contact-details/ContactDetails";
+import PopupFowardContact from "../popup-foward-contact/PopupFowardContact";
 import PopupImage from "../popup-image/PopupImage";
 
 const Chart = observer(() => {
@@ -32,6 +33,7 @@ const Chart = observer(() => {
   const [isPopupMessageActionsOpen, setIsPopupMessageActionsOpen] = useState(false);
   const [isPopupEmojiReactionsOpen, setIsPopupEmojiReactionsOpen] = useState(false);
   const [isPopupDetailsOpen, setIsPopupDetailsOpen] = useState(false);
+  const [isPopupForwardContact, setIsPopupForwardContact] = useState(false);
   const [currentContact, setCurrentContact] = useState<any>({});
   const ref = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => {
@@ -80,6 +82,14 @@ const Chart = observer(() => {
   };
   const closeEmojiReactionsPopup = () => {
     setIsPopupEmojiReactionsOpen(false);
+  };
+
+  const openForwardContactPopup = () => {
+    setIsPopupForwardContact(true);
+    closeDetailsPopup();
+  };
+  const closeForwardContactPopup = () => {
+    setIsPopupForwardContact(false);
   };
   // console.log(messageClicked);
   // const [emojiPickerPos, setEmojiPickerPos] = useState({ position: "absolute", bottom: "75px", left: "10px" });
@@ -136,6 +146,7 @@ const Chart = observer(() => {
       closeMessageActionsPopup();
       closeEmojiReactionsPopup();
       closeDetailsPopup();
+      closeForwardContactPopup();
     }
   };
 
@@ -167,7 +178,12 @@ const Chart = observer(() => {
           {currentContact.username ? currentContact.username : currentContact.email}
         </p>
         <DetailsButton onClick={openDetailsPopup} />
-        {isPopupDetailsOpen && <ContactDetails {...currentContact} />}
+
+        <ContactDetails
+          {...currentContact}
+          onClick={() => openForwardContactPopup()}
+          isPopupDetailsOpen={isPopupDetailsOpen}
+        />
       </div>
       <div className={styles.content} style={{ height: `calc(100% - 120px - ${rows * 18}px)` }}>
         {userStore.chat.length > 0 &&
@@ -245,6 +261,7 @@ const Chart = observer(() => {
           </div>
         </OverLay>
       )}
+      <PopupFowardContact currentContactId={currentContact.id} isPopupForwardContact={isPopupForwardContact} />
     </div>
   );
 });

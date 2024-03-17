@@ -17,16 +17,16 @@
   cursor: pointer;
 }
 
-.avatar {
+/* .avatar {
   align-self: center;
 
   width: 50px;
   height: 50px;
-  /* margin-left: 10px; */
+
 
   object-fit: cover;
   border-radius: 50%;
-}
+} */
 
 .text {
   /* height: 40px; */
