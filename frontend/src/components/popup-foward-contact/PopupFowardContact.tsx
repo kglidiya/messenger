@@ -19,6 +19,7 @@ export default function PopupFowardMessage({ currentContactId, isPopupForwardCon
   return (
     <motion.div
       className={styles.wrapper}
+      initial={{ height: 0, opacity: 0 }}
       animate={{
         height: isPopupForwardContact ? "auto" : 0,
         opacity: isPopupForwardContact ? 1 : 0,

@@ -56,6 +56,7 @@ const ProfilePhoto: FC<IProfilePhoto> = ({ avatar, setValue, isProfileEditOpen, 
   return (
     <motion.div
       className={styles.avatar}
+      initial={{ height: 0, opacity: 0 }}
       animate={{ height: isProfileEditOpen ? "auto" : 0, opacity: isProfileEditOpen ? 1 : 0 }}
       transition={{ duration: 0.3 }}
     >

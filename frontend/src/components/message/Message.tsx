@@ -165,6 +165,7 @@ const Message = observer(
                 left: userStore.user.id !== creatorId ? "50%" : "",
                 transformOrigin: userStore.user.id === creatorId ? "right top" : "left top",
               }}
+              initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: isPopupReactionOpen ? 1 : 0, opacity: isPopupReactionOpen ? 1 : 0 }}
               transition={{ duration: 0.3 }}
             >
@@ -196,18 +197,21 @@ const Message = observer(
           </div>
         )}
 
-        <motion.ul
-          className={styles.actions}
-          animate={{ height: isPopupMessageActionsOpen ? "auto" : 0, opacity: isPopupMessageActionsOpen ? 1 : 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <li className={styles.action} onClick={openEmojiReactionsPopup}>
-            Отреагировать
-          </li>
-          <li className={styles.action}>Переслать</li>
-          {userStore.user.id === creatorId && <li className={styles.action}>Изменить</li>}
-          {userStore.user.id === creatorId && <li className={styles.action}>Удалить</li>}
-        </motion.ul>
+        {
+          <motion.ul
+            className={styles.actions}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: isPopupMessageActionsOpen ? "auto" : 0, opacity: isPopupMessageActionsOpen ? 1 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <li className={styles.action} onClick={openEmojiReactionsPopup}>
+              Отреагировать
+            </li>
+            <li className={styles.action}>Переслать</li>
+            {userStore.user.id === creatorId && <li className={styles.action}>Изменить</li>}
+            {userStore.user.id === creatorId && <li className={styles.action}>Удалить</li>}
+          </motion.ul>
+        }
 
         {isPopupEmojiReactionsOpen && (
           // <Picker reactionsDefaultOpen={true} />
