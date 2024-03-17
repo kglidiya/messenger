@@ -5,6 +5,7 @@ import styles from "./SideBar.module.css";
 
 import { Context } from "../..";
 import Logo from "../../ui/icons/Logo/Logo";
+import SearchIcon from "../../ui/icons/search-icon/SearchIcon";
 import MenuButton from "../../ui/menu-button/MenuButton";
 import { users } from "../../utils/mockData";
 import Contact from "../contact/Contact";
@@ -33,8 +34,13 @@ const SideBar = observer(() => {
           <Contact key={user.id} {...user} />
         ))}
       </div>
-
+      <div className={styles.searchContainer}>
+        <input type='text' className={styles.searchInput} placeholder='Email пользователя' />
+      </div>
       <Logo bottom={5} left={5} color='#23425a' />
+      <span className={styles.searchIcon}>
+        <SearchIcon />
+      </span>
     </div>
   );
 });

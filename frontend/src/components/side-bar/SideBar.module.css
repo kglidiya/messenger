@@ -50,3 +50,34 @@
 
   /* float: right; */
 }
+.searchContainer {
+  width: calc(100% - 127px);
+  margin: 82px 10px 10px 110px;
+  position: relative;
+}
+
+.searchInput {
+  width: 80%;
+  height: 50px;
+  border: none;
+
+  border-radius: var(--border-radius);
+  outline: none;
+  padding-left: 10px;
+  padding-right: 50px;
+  font-size: var(--text-large);
+  /* margin-right: 30px; */
+  /* margin: 82px 10px 10px 110px; */
+}
+.searchInput::placeholder {
+  color: gray;
+  font-size: var(--text-large);
+}
+.searchIcon {
+  /* display: block;
+  width: 40px;
+  height: 40px; */
+  position: absolute;
+  bottom: 18px;
+  right: 15px;
+}
