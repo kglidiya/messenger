@@ -17,6 +17,7 @@ export default function ContactDetails({ avatar, email, username, onClick, isPop
   return (
     <motion.ul
       className={styles.list}
+      initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: isPopupDetailsOpen ? 1 : 0, opacity: isPopupDetailsOpen ? 1 : 0 }}
       transition={{ duration: 0.3 }}
     >

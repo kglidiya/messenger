@@ -36,6 +36,7 @@ export default function UserProfile({
   return (
     <motion.div
       className={styles.wrapper}
+      initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: isMenuOpen ? 1 : 0, opacity: isMenuOpen ? 1 : 0 }}
       transition={{ duration: 0.3 }}
     >
@@ -47,6 +48,7 @@ export default function UserProfile({
           Редактировать профиль <EditIcon color='#ddd6c7' />
         </li>
         <motion.li
+          initial={{ height: 0, opacity: 0 }}
           animate={{ height: isProfileEditOpen ? "auto" : 0, opacity: isProfileEditOpen ? 1 : 0 }}
           transition={{ duration: 0.3 }}
           className={styles.list__item}
