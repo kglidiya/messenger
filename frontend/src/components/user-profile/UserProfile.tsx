@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import styles from "./UserProfile.module.css";
 
@@ -33,6 +33,11 @@ export default function UserProfile({
     e.preventDefault();
     console.log(values);
   };
+  useEffect(() => {
+    if (!isMenuOpen) {
+      setIsProfileEditOpen(false);
+    }
+  }, [isMenuOpen]);
   return (
     <motion.div
       className={styles.wrapper}
