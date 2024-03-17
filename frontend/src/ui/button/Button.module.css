@@ -1,0 +1,26 @@
+.button {
+	display: flex;
+	height: 50px;
+	/* background-image: url(../../images/flower.png); */
+	background-color: var(--beige-dark);
+	background-size: contain;
+	border-radius: 15px;
+	border: none;
+	color: var(--background-dark);
+	font-weight: bold;
+	/* text-shadow: 1px 1px 3px rgb(88, 98, 120); */
+	box-shadow: -4px -3px 11px 0px rgb(88 98 120 / 68%) inset, 4px 4px 11px 0px rgb(88 98 120 / 68%) inset;
+	align-self: center;
+	align-items: center;
+	justify-content: center;
+	padding: 10px 15px;
+	cursor: pointer;
+}
+
+.button:disabled {
+	/* background-image: url(../../images/9fc30091671ad69c012b184feacbde67.png),
+		linear-gradient(45deg, #eee9e9, #eedcdc); */
+	background-size: contain;
+	background-blend-mode: overlay;
+	box-shadow: 5px 5px 15px rgb(217, 200, 200);
+}

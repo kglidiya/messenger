@@ -1,12 +1,30 @@
 import styles from "./ShareIcone.module.css";
 
-export default function ShareIcon({ onClick }: { onClick: VoidFunction }) {
+interface IShareIconProps {
+  width: number;
+  height: number;
+  onClick: VoidFunction;
+  bottom?: number;
+  top?: number;
+  left?: number;
+  right?: number;
+}
+export default function ShareIcon({ width, height, bottom, top, left, right, onClick }: IShareIconProps) {
   return (
-    <div className={styles.icon} onClick={onClick}>
+    <div
+      className={styles.icon}
+      onClick={onClick}
+      style={{
+        bottom: `${bottom}px`,
+        top: `${top}px`,
+        left: `${left}px`,
+        right: `${right}px`,
+      }}
+    >
       <svg
         fill='#ddd6c7'
-        width='48px'
-        height='48px'
+        width={width}
+        height={height}
         viewBox='0 0 32 32'
         version='1.1'
         xmlns='http://www.w3.org/2000/svg'

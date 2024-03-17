@@ -9,12 +9,14 @@ export default class UserStore {
   _contacts: any[];
   _chatingWith: string;
   _chat: any[];
+  _isAuth: boolean;
 
   constructor() {
     this._user = DEFAULT_STATE;
     this._contacts = [];
     this._chatingWith = "2";
     this._chat = [];
+    this._isAuth = false;
 
     makeAutoObservable(this);
   }
@@ -45,6 +47,11 @@ export default class UserStore {
     });
     this._chat = chat;
   }
+
+  setAuth(auth: boolean) {
+    this._isAuth = auth;
+  }
+
   get user() {
     return this._user;
   }
@@ -59,5 +66,9 @@ export default class UserStore {
 
   get chat() {
     return this._chat;
+  }
+
+  get isAuth() {
+    return this._isAuth;
   }
 }

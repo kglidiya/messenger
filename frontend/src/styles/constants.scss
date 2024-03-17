@@ -4,6 +4,7 @@
   --text-light: rgb(163 163 163 / 100%);
   --text-white: rgb(240 240 240 / 100%);
   --background-dark: rgb(38 68 92 / 100%);
+  // --background-color: rgb(38 68 92 / 97%);
   --beige-dark: rgb(234 226 204);
   --beige-light: rgb(248 243 233 / 100%);
   --input-hover: rgb(102 102 102 / 100%);
@@ -17,6 +18,8 @@
   --blue: rgb(59 35 183 / 100%);
   --button-hover: rgb(249 249 249 / 100%);
   --border-radius: 10px;
+  --box-shadow-down: 10px 7px 13px 0 rgb(5 6 6 / 20%);
+  --box-shadow-up: -10px -7px 13px 0 rgb(5 6 6 / 20%);
 
   // Градиенты
   --gradient-button-main: linear-gradient(269.17deg, #3b23b7 30.28%, #c914e7 63.24%);

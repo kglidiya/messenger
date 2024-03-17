@@ -14,6 +14,7 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
+  transform-origin: right top;
 }
 /* .list__item {
   display: block;

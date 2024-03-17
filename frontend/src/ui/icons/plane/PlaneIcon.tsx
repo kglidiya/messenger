@@ -6,8 +6,8 @@ export default function PlaneIcon() {
       version='1.1'
       id='Uploaded to svgrepo.com'
       xmlns='http://www.w3.org/2000/svg'
-      width='64px'
-      height='64px'
+      width='38px'
+      height='38px'
       viewBox='0 0 32 32'
       fill='#ddd6c7'
     >

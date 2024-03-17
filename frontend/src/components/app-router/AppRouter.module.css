@@ -1,0 +1,20 @@
+.main {
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+
+  width: 100vw;
+  height: 100vh; 
+  /* background-color: var(--background-dark); */
+  background-color: rgb(38 68 92 / 97%);
+  background-image: url("../../images/background.png");
+  background-size: 20vw;
+
+  background-blend-mode: color;
+} 
+
+@media (max-width: 768px) {
+  .main {
+    background-size: 100%;
+  }
+} 
