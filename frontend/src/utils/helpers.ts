@@ -55,3 +55,5 @@ export const countLines = (textarea: any) => {
   if (result === 0) result = 1;
   return result;
 };
+
+export const emailRegex = /^\S+@\S+\.\S+$/;

@@ -1,4 +1,5 @@
 import Picker from "emoji-picker-react";
+import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
 
 import React, { useContext, useEffect, useRef, useState } from "react";
@@ -156,52 +157,58 @@ const Message = observer(
                 </div>
               );
             })}
-            {isPopupReactionOpen && (
-              <div
-                className={styles.popup}
-                style={{
-                  right: userStore.user.id === creatorId ? "50%" : "",
-                  left: userStore.user.id !== creatorId ? "50%" : "",
-                }}
-              >
-                <ul className={styles.summary_list}>
-                  {reactions.map((el: any, i: number) => {
-                    return (
-                      <li key={i} className={styles.summary_item}>
-                        <p className={styles.summary_reaction}>{el.reaction}</p>
-                        <p className={styles.summary_name}>
-                          {findUserById(users, el.creatorId)[0].username
-                            ? findUserById(users, el.creatorId)[0].username
-                            : findUserById(users, el.creatorId)[0].email}
-                        </p>
 
-                        {findUserById(users, el.creatorId)[0].avatar ? (
-                          <img
-                            className={styles.summary_avatar}
-                            src={findUserById(users, el.creatorId)[0].avatar}
-                            alt='Аватар'
-                          />
-                        ) : (
-                          <NoAvatar width={44} height={44} />
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            )}
+            <motion.div
+              className={styles.popup}
+              style={{
+                right: userStore.user.id === creatorId ? "50%" : "",
+                left: userStore.user.id !== creatorId ? "50%" : "",
+                transformOrigin: userStore.user.id === creatorId ? "right top" : "left top",
+              }}
+              animate={{ scale: isPopupReactionOpen ? 1 : 0, opacity: isPopupReactionOpen ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ul className={styles.summary_list}>
+                {reactions.map((el: any, i: number) => {
+                  return (
+                    <li key={i} className={styles.summary_item}>
+                      <p className={styles.summary_reaction}>{el.reaction}</p>
+                      <p className={styles.summary_name}>
+                        {findUserById(users, el.creatorId)[0].username
+                          ? findUserById(users, el.creatorId)[0].username
+                          : findUserById(users, el.creatorId)[0].email}
+                      </p>
+
+                      {findUserById(users, el.creatorId)[0].avatar ? (
+                        <img
+                          className={styles.summary_avatar}
+                          src={findUserById(users, el.creatorId)[0].avatar}
+                          alt='Аватар'
+                        />
+                      ) : (
+                        <NoAvatar width={44} height={44} />
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </motion.div>
           </div>
         )}
-        {isPopupMessageActionsOpen && (
-          <ul className={styles.actions}>
-            <li className={styles.action} onClick={openEmojiReactionsPopup}>
-              Отреагировать
-            </li>
-            <li className={styles.action}>Переслать</li>
-            {userStore.user.id === creatorId && <li className={styles.action}>Изменить</li>}
-            {userStore.user.id === creatorId && <li className={styles.action}>Удалить</li>}
-          </ul>
-        )}
+
+        <motion.ul
+          className={styles.actions}
+          animate={{ height: isPopupMessageActionsOpen ? "auto" : 0, opacity: isPopupMessageActionsOpen ? 1 : 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <li className={styles.action} onClick={openEmojiReactionsPopup}>
+            Отреагировать
+          </li>
+          <li className={styles.action}>Переслать</li>
+          {userStore.user.id === creatorId && <li className={styles.action}>Изменить</li>}
+          {userStore.user.id === creatorId && <li className={styles.action}>Удалить</li>}
+        </motion.ul>
+
         {isPopupEmojiReactionsOpen && (
           // <Picker reactionsDefaultOpen={true} />
           <Picker

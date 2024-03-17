@@ -85,6 +85,7 @@
   box-shadow: 4px 3px 20px -1px rgb(34 60 80 / 20%);
   box-shadow: 4px 3px 20px -1px rgb(34 60 80 / 20%);
   box-shadow: 4px 3px 20px -1px rgb(34 60 80 / 20%);
+  /* transform-origin: right top; */
 }
 
 .summary_list {

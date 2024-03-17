@@ -7,7 +7,7 @@ export const users = [
     password: "hash",
     avatar: "https://nztcdn.com/files/5b5ebf93-199c-4420-aea7-fabdade62ede.webp",
     isOnline: false, //пока не реализовано
-    userContacts: ["2", "3", "4", "5"],
+    userContacts: ["2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13"],
     isPrinting: false, //пока не реализовано
     //полей ниже в БД быть не должно, они просто для отрисовки, планирую брать из ответа сервера
     message: "Привет",
@@ -74,6 +74,126 @@ export const users = [
     message: "Пока",
     timeStamp: "12:53",
     unread: 7895,
+  },
+  {
+    createdAt: "111", // по сути мне это не нужно
+    id: "6",
+    username: "Кисюленька",
+    email: "cattt@mail.ru",
+    password: "hash",
+    avatar: "https://proprikol.ru/wp-content/uploads/2020/08/krasivye-kartinki-kotov-37.jpg",
+    isOnline: true, //пока не реализовано
+    userContacts: [],
+    isPrinting: false, //пока не реализовано
+    //полей ниже в БД быть не должно, они просто для отрисовки, планирую брать из ответа сервера
+    message: "",
+    timeStamp: "",
+    unread: 0,
+  },
+  {
+    createdAt: "111", // по сути мне это не нужно
+    id: "7",
+    username: "Кисюленька",
+    email: "cattt@mail.ru",
+    password: "hash",
+    avatar: "https://proprikol.ru/wp-content/uploads/2020/08/krasivye-kartinki-kotov-37.jpg",
+    isOnline: true, //пока не реализовано
+    userContacts: [],
+    isPrinting: false, //пока не реализовано
+    //полей ниже в БД быть не должно, они просто для отрисовки, планирую брать из ответа сервера
+    message: "",
+    timeStamp: "",
+    unread: 0,
+  },
+  {
+    createdAt: "111", // по сути мне это не нужно
+    id: "8",
+    username: "Кисюленька",
+    email: "cattt@mail.ru",
+    password: "hash",
+    avatar: "https://proprikol.ru/wp-content/uploads/2020/08/krasivye-kartinki-kotov-37.jpg",
+    isOnline: true, //пока не реализовано
+    userContacts: [],
+    isPrinting: false, //пока не реализовано
+    //полей ниже в БД быть не должно, они просто для отрисовки, планирую брать из ответа сервера
+    message: "",
+    timeStamp: "",
+    unread: 0,
+  },
+  {
+    createdAt: "111", // по сути мне это не нужно
+    id: "9",
+    username: "Кисюленька",
+    email: "cattt@mail.ru",
+    password: "hash",
+    avatar: "https://proprikol.ru/wp-content/uploads/2020/08/krasivye-kartinki-kotov-37.jpg",
+    isOnline: true, //пока не реализовано
+    userContacts: [],
+    isPrinting: false, //пока не реализовано
+    //полей ниже в БД быть не должно, они просто для отрисовки, планирую брать из ответа сервера
+    message: "",
+    timeStamp: "",
+    unread: 0,
+  },
+  {
+    createdAt: "111", // по сути мне это не нужно
+    id: "10",
+    username: "Кисюленька",
+    email: "cattt@mail.ru",
+    password: "hash",
+    avatar: "https://proprikol.ru/wp-content/uploads/2020/08/krasivye-kartinki-kotov-37.jpg",
+    isOnline: true, //пока не реализовано
+    userContacts: [],
+    isPrinting: false, //пока не реализовано
+    //полей ниже в БД быть не должно, они просто для отрисовки, планирую брать из ответа сервера
+    message: "",
+    timeStamp: "",
+    unread: 0,
+  },
+  {
+    createdAt: "111", // по сути мне это не нужно
+    id: "11",
+    username: "Кисюленька",
+    email: "cattt@mail.ru",
+    password: "hash",
+    avatar: "https://proprikol.ru/wp-content/uploads/2020/08/krasivye-kartinki-kotov-37.jpg",
+    isOnline: true, //пока не реализовано
+    userContacts: [],
+    isPrinting: false, //пока не реализовано
+    //полей ниже в БД быть не должно, они просто для отрисовки, планирую брать из ответа сервера
+    message: "",
+    timeStamp: "",
+    unread: 0,
+  },
+  {
+    createdAt: "111", // по сути мне это не нужно
+    id: "12",
+    username: "Кисюленька",
+    email: "cattt@mail.ru",
+    password: "hash",
+    avatar: "https://proprikol.ru/wp-content/uploads/2020/08/krasivye-kartinki-kotov-37.jpg",
+    isOnline: true, //пока не реализовано
+    userContacts: [],
+    isPrinting: false, //пока не реализовано
+    //полей ниже в БД быть не должно, они просто для отрисовки, планирую брать из ответа сервера
+    message: "",
+    timeStamp: "",
+    unread: 0,
+  },
+  {
+    createdAt: "111", // по сути мне это не нужно
+    id: "13",
+    username: "Кисюленька",
+    email: "cattt@mail.ru",
+    password: "hash",
+    avatar: "https://proprikol.ru/wp-content/uploads/2020/08/krasivye-kartinki-kotov-37.jpg",
+    isOnline: true, //пока не реализовано
+    userContacts: [],
+    isPrinting: false, //пока не реализовано
+    //полей ниже в БД быть не должно, они просто для отрисовки, планирую брать из ответа сервера
+    message: "",
+    timeStamp: "",
+    unread: 0,
   },
 ];
 
