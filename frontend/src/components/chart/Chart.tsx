@@ -17,7 +17,7 @@ import { users, messages } from "../../utils/mockData";
 import Message from "../message/Message";
 import OverLay from "../overlay/Overlay";
 import ContactDetails from "../popup-contact-details/ContactDetails";
-import PopupFowardContact from "../popup-foward-contact/PopupFowardContact";
+import PopupFoward from "../popup-foward/PopupFoward";
 import PopupImage from "../popup-image/PopupImage";
 
 const Chart = observer(() => {
@@ -34,10 +34,13 @@ const Chart = observer(() => {
   const [isPopupEmojiReactionsOpen, setIsPopupEmojiReactionsOpen] = useState(false);
   const [isPopupDetailsOpen, setIsPopupDetailsOpen] = useState(false);
   const [isPopupForwardContact, setIsPopupForwardContact] = useState(false);
+  const [isReplyToMessageOpen, setIsReplyToMessageOpen] = useState(true);
+  const [parentMessage, setParentMessage] = useState("");
   const [currentContact, setCurrentContact] = useState<any>({});
   const ref = useRef<HTMLDivElement>(null);
+  const refChart = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => {
-    ref.current?.scrollIntoView({ block: "end" });
+    ref.current?.scrollIntoView();
   };
   // console.log(userStore.chat.length);
 
@@ -90,6 +93,12 @@ const Chart = observer(() => {
   };
   const closeForwardContactPopup = () => {
     setIsPopupForwardContact(false);
+  };
+  const showReplyToMessage = () => {
+    setIsReplyToMessageOpen(true);
+  };
+  const hideReplyToMessage = () => {
+    setIsReplyToMessageOpen(false);
   };
   // console.log(messageClicked);
   // const [emojiPickerPos, setEmojiPickerPos] = useState({ position: "absolute", bottom: "75px", left: "10px" });
@@ -166,8 +175,9 @@ const Chart = observer(() => {
   //   console.log(files);
   // };
   // console.log(currentContact);
+  const [contentEditable, setContentEditable] = useState(false);
   return (
-    <div className={styles.wrapper} onClick={closeEmoji}>
+    <div className={styles.wrapper} onClick={closeEmoji} ref={refChart}>
       <div className={styles.contact}>
         {currentContact.avatar ? (
           <img src={currentContact.avatar} alt='Аватар' className={styles.contact__avatar} />
@@ -199,38 +209,51 @@ const Chart = observer(() => {
                 openMessageActionsPopup={openMessageActionsPopup}
                 isPopupEmojiReactionsOpen={isPopupEmojiReactionsOpen && messageClicked === message.id}
                 openEmojiReactionsPopup={openEmojiReactionsPopup}
+                openForwardContactPopup={openForwardContactPopup}
+                closeMessageActionsPopup={closeMessageActionsPopup}
+                setParentMessage={setParentMessage}
+                scrollToBottom={scrollToBottom}
               />
             );
           })}
-        <div ref={ref}></div>
+
+        <div ref={ref} style={{ margin: 0 }}></div>
       </div>
-      {/* <div ref={ref} /> */}
 
       <Globe />
-      <div className={styles.container}>
-        <EmojiIcon onClick={emojiToggle} />
-        <Textarea
-          rows={rows}
-          value={value}
-          handleChange={handleChange}
-          handleImagePaste={handleImagePaste}
-          onClick={(e: any) => setCaretPos(e.target.selectionStart)}
-        />
-        <InputFile>
-          <div className={styles.container}>
-            <EmojiIcon onClick={emojiToggle} />
-            <Textarea
-              rows={2}
-              value={value}
-              handleChange={handleChange}
-              handleImagePaste={handleImagePaste}
-              onClick={(e: any) => setCaretPos(e.target.selectionStart)}
-            />
-            <ButtonSend />
-          </div>
-        </InputFile>
+      {parentMessage && (
+        <div className={styles.replyContainer}>
+          <p className={styles.reply}>{parentMessage}</p>
+        </div>
+      )}
+      <div style={{ position: "relative" }}>
+        <div className={styles.container}>
+          <EmojiIcon onClick={emojiToggle} />
+          <Textarea
+            rows={rows}
+            value={value}
+            handleChange={handleChange}
+            handleImagePaste={handleImagePaste}
+            onClick={(e: any) => setCaretPos(e.target.selectionStart)}
+          />
+          <InputFile>
+            <div className={styles.container}>
+              <EmojiIcon onClick={emojiToggle} />
+              <Textarea
+                rows={2}
+                value={value}
+                handleChange={handleChange}
+                handleImagePaste={handleImagePaste}
+                onClick={(e: any) => setCaretPos(e.target.selectionStart)}
+              />
+              {/* <ButtonSend /> */}
+            </div>
+          </InputFile>
+          {/* <ButtonSend /> */}
+        </div>
         <ButtonSend />
       </div>
+
       <EmojiPicker
         onEmojiClick={(emojiData) => {
           console.log(emojiData);
@@ -261,7 +284,7 @@ const Chart = observer(() => {
           </div>
         </OverLay>
       )}
-      <PopupFowardContact currentContactId={currentContact.id} isPopupForwardContact={isPopupForwardContact} />
+      <PopupFoward currentContactId={currentContact.id} isPopupForwardContact={isPopupForwardContact} />
     </div>
   );
 });

@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import React, { useContext } from "react";
 
-import styles from "./PopupFowardContact.module.css";
+import styles from "./PopupFoward.module.css";
 
 import { Context } from "../..";
 import Avatar from "../../ui/avatar/Avatar";
@@ -9,12 +9,12 @@ import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
 import ShareIcon from "../../ui/icons/share-icon/ShareIcon";
 import InputCheckbox from "../../ui/input-checkbox/InputCheckbox";
 
-interface IPopupFowardMessageProps {
+interface IPopupFowardProps {
   currentContactId: number;
   isPopupForwardContact: boolean;
 }
 
-export default function PopupFowardMessage({ currentContactId, isPopupForwardContact }: IPopupFowardMessageProps) {
+export default function PopupFoward({ currentContactId, isPopupForwardContact }: IPopupFowardProps) {
   const userStore = useContext(Context).user;
   return (
     <motion.div
@@ -27,7 +27,7 @@ export default function PopupFowardMessage({ currentContactId, isPopupForwardCon
       }}
       transition={{ duration: 0.3 }}
     >
-      <p className={styles.title}>Переслать контакт</p>
+      <p className={styles.title}>Переслать</p>
       <ShareIcon onClick={() => {}} width={32} height={32} top={15} right={20} />
       <ul className={styles.list}>
         {userStore.contacts.map((user: any) => {
