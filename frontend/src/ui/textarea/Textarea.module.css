@@ -18,6 +18,8 @@
 
   border-radius: var(--border-radius);
   outline: none;
+  --moz-scrollbar-color: #eae2cc #fff;
+  --moz-scrollbar-width: thin;
 }
 
 .textarea::-webkit-scrollbar-track {

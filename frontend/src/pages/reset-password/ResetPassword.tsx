@@ -4,80 +4,50 @@ import { useNavigate } from "react-router-dom";
 
 import styles from "./ResetPassword.module.css";
 
+import useMediaQuery from "../../hooks/useMediaQuery";
+import Button from "../../ui/button/Button";
 import Logo from "../../ui/icons/Logo/Logo";
 import Input from "../../ui/input/Input";
-
+import { resetPassword } from "../../utils/api";
+interface FormValues {
+  password: string;
+  repeatPassword: string;
+  code: string;
+}
 const ResetPassword = () => {
   const {
     register,
     setValue,
     watch,
-    setFocus,
+    handleSubmit,
     formState: { errors },
   } = useForm({
     values: {
       password: "",
       repeatPassword: "",
-      digit1: "",
-      digit2: "",
-      digit3: "",
-      digit4: "",
+      code: "",
     },
   });
 
   const navigate = useNavigate();
+  const matches = useMediaQuery("(min-width: 576px)");
 
-  const [code, setCode] = useState<number[] | []>([]);
-
-  const handleCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const target = e.target as HTMLInputElement;
-
-    if (target.name === "digit1" && target.value !== "") {
-      setCode(Object.assign(code.slice(), { 0: +target.value }));
-    }
-    if (target.name === "digit2" && target.value !== "") {
-      setCode(Object.assign(code.slice(), { 1: +target.value }));
-    }
-    if (target.name === "digit3" && target.value !== "") {
-      setCode(Object.assign(code.slice(), { 2: +target.value }));
-    }
-    if (target.name === "digit4" && target.value !== "") {
-      setCode(Object.assign(code.slice(), { 3: +target.value }));
-    }
-  };
-  //   useEffect(() => {
-  //     if (status.error) {
-  //       setCode([]);
-  //       setValue("digit1", "");
-  //       setValue("digit2", "");
-  //       setValue("digit3", "");
-  //       setValue("digit4", "");
-  //     }
-  //   }, [status.error]);
-
-  useEffect(() => {
-    const subscription = watch((value) => {
-      if (value.password && value.password === value.repeatPassword && value.digit1?.length === 0) {
-        setFocus("digit1");
-      }
-      if (value.digit1?.length === 1) {
-        setFocus("digit2");
-      }
-      if (value.digit2?.length === 1) {
-        setFocus("digit3");
-      }
-      if (value.digit3?.length === 1) {
-        setFocus("digit4");
-      }
+  const onSubmit = (values: FormValues) => {
+    resetPassword({
+      recoveryCode: Number(values.code),
+      password: values.password,
     });
-
-    return () => subscription.unsubscribe();
-  }, [code.length, setFocus, watch]);
+    // handleRequest(status, setStatus, `${RESET_PASSWORD_URL}`, "POST", {
+    //   recoveryCode: Number(values.code),
+    //   password: values.password,
+    // });
+    navigate("/signin");
+  };
 
   return (
     <main className={styles.container}>
       <h3 className={styles.title}>Восстановление пароля</h3>
-      <form className={styles.form}>
+      <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
         <Logo top={-115} right={0} color='#eae2cc' />
         {/* <h3 className={styles.title}>Восстановление пароля</h3> */}
 
@@ -110,53 +80,19 @@ const ResetPassword = () => {
         />
 
         <p className={styles.subtitle}>Введите код восстановления</p>
-        <div className={styles.otpCodeGroup}>
-          <Input
-            clearButton={false}
-            required
-            type='text'
-            name='digit1'
-            maxLength={1}
-            error={errors}
-            errorMessage='Введите число'
-            register={register}
-            onChange={handleCodeChange}
-          />
-          <Input
-            clearButton={false}
-            required
-            type='text'
-            maxLength={1}
-            name='digit2'
-            error={errors}
-            errorMessage='Введите число'
-            register={register}
-            onChange={handleCodeChange}
-          />
-          <Input
-            clearButton={false}
-            required
-            type='text'
-            name='digit3'
-            maxLength={1}
-            error={errors}
-            errorMessage='Введите число'
-            register={register}
-            onChange={handleCodeChange}
-          />
-          <Input
-            clearButton={false}
-            required
-            type='text'
-            name='digit4'
-            maxLength={1}
-            error={errors}
-            errorMessage='Введите число'
-            register={register}
-            onChange={handleCodeChange}
-          />
-        </div>
-        {/* {status.error && <p>Введен некорректный код</p>} */}
+        <Input
+          type='number'
+          placeholder='Введите код'
+          name='code'
+          required
+          register={register}
+          error={errors}
+          errorMessage='Заполните это поле'
+          clearButton
+          setValue={setValue}
+        />
+        <Button type='submit' text='Отправить' width={matches ? "300px" : "95%"} fontSize={matches ? "24px" : "18px"} />
+        {/* {status.error && <p className={styles.error}>{status.error}</p>} */}
       </form>
     </main>
   );

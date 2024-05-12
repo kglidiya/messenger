@@ -30,7 +30,7 @@
   max-width: 60vw;
   min-width: 40vw;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 30px 40px;
   justify-content: center;
   align-items: center;

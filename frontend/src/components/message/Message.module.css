@@ -3,8 +3,8 @@
 
   /* z-index: 2; */
 
-  max-width: 60%;
-  min-width: 50px;
+  /* max-width: 60%; */
+  min-width: 100px;
   padding: 10px 10px 25px 10px;
 
   background-color: var(--white);
@@ -29,10 +29,12 @@
   overflow-y: hidden;
   position: relative;
   transition: all 0.1s linear;
-  /* display: -webkit-box;
+  word-wrap: break-word;
+  /* white-space: pre; */
+  display: -webkit-box;
   -webkit-line-clamp: 8;
   -webkit-box-orient: vertical;
-  overflow: hidden; */
+  overflow: hidden;
 }
 .timeStamp {
   position: absolute;
@@ -51,8 +53,6 @@
 
   background-color: var(--white);
   border-radius: var(--border-radius);
-  box-shadow: -1px -4px 18px 0 rgb(102 105 82 / 20%);
-  box-shadow: -1px -4px 18px 0 rgb(102 105 82 / 20%);
   box-shadow: -1px -4px 18px 0 rgb(102 105 82 / 20%);
 }
 
@@ -83,8 +83,6 @@
   background-color: var(--white);
   border-radius: var(--border-radius);
   box-shadow: 4px 3px 20px -1px rgb(34 60 80 / 20%);
-  box-shadow: 4px 3px 20px -1px rgb(34 60 80 / 20%);
-  box-shadow: 4px 3px 20px -1px rgb(34 60 80 / 20%);
   /* transform-origin: right top; */
 }
 
@@ -96,6 +94,8 @@
   padding: 0;
   list-style: none;
   overflow-y: scroll;
+  --moz-scrollbar-color: #eae2cc #fff;
+  --moz-scrollbar-width: thin;
 }
 
 .summary_list::-webkit-scrollbar-track {
@@ -125,7 +125,7 @@
   margin: auto;
 
   border-bottom: 1px solid var(--beige-dark);
-
+  position: relative;
   /* text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden; */
@@ -143,7 +143,7 @@
 
 .summary_name {
   overflow: hidden;
-  width: 65%;
+  width: 50%;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -166,7 +166,7 @@
   background-color: var(--white);
   cursor: pointer;
   position: absolute;
-  z-index: 300;
+  z-index: 3000;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -174,6 +174,7 @@
   background-color: var(--white);
   border-radius: var(--border-radius);
   box-shadow: 4px 3px 20px -1px rgb(34 60 80 / 20%);
+  white-space: nowrap;
 }
 
 .action {
@@ -188,11 +189,11 @@
 .emoji {
   z-index: 100;
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: -10px -7px 13px 0 rgb(5 6 6 / 20%);
-  box-shadow: -10px -7px 13px 0 rgb(5 6 6 / 20%);
-  box-shadow: -10px -7px 13px 0 rgb(5 6 6 / 20%);
+  /* left: 50%; */
+  transform: translate(0, -50%);
+  box-shadow: var(--box-shadow-up);
+  /* box-shadow: -10px -7px 13px 0 rgb(5 6 6 / 20%);
+  box-shadow: -10px -7px 13px 0 rgb(5 6 6 / 20%); */
 }
 
 .hideButton {
@@ -213,11 +214,47 @@
   color: gray;
 }
 
-.thumbnailImage {
-  max-width: 20vw;
-  min-width: 10vw;
-  object-fit: contain;
-  border-radius: var(--border-radius);
-  margin: 5px auto;
+.authorContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+}
+
+.author_avatar {
+  width: 24px;
+  height: 24px;
+  /* margin-left: auto; */
+
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.author_name {
+  font-size: var(--font-size-small);
+  color: gray;
+  width: 80%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.delete_reaction {
+  position: absolute;
+  top: 10px;
+  right: 75px;
+  font-size: var(--font-size-small);
+  color: gray;
+  width: 20px;
+  cursor: pointer;
+}
+
+.deletedMessage {
   display: block;
+  height: 24px;
+  width: 24px;
+  padding: 3px;
+  margin: auto;
+  background-color: var(--white);
+  border-radius: var(--border-radius);
 }

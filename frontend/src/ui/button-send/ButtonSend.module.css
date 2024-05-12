@@ -1,0 +1,19 @@
+.button {
+  cursor: pointer;
+
+  position: absolute;
+  /* right: 15px;
+  bottom: 3px; */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+
+  background-color: var(--white);
+  border: none;
+  border-radius: 50%;
+  /* box-shadow:  1px 1px 13px 4px rgb(102 105 82 / 20%) */
+}

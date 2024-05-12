@@ -1,7 +1,7 @@
 .wrapper {
   position: relative;
 
-  width: 100%;
+  width: calc(100% - 400px);
   height: 95vh;
 
   background-color: var(--beige-dark);
@@ -19,7 +19,7 @@
 .content {
   position: relative;
   z-index: 5;
-
+  /* margin-top: 70px; */
   overflow-y: scroll;
 
   /* height: calc(100% - 160px); */
@@ -30,8 +30,10 @@
   margin-bottom: 20px;
   padding-right: 20px;
   padding-left: 20px;
-
+  padding-top: 60px;
   overflow-x: hidden;
+  --moz-scrollbar-color: #eae2cc #fff;
+  --moz-scrollbar-width: thin;
 }
 
 .content::-webkit-scrollbar {
@@ -54,25 +56,39 @@
   gap: 15px;
   align-items: center;
 
-  padding: 10px 0;
+  padding: 10px 0 20px 20px;
   position: relative;
 }
-
+.details {
+  display: flex;
+  flex-direction: column;
+  /* align-items: center;
+  justify-content: flex-start; */
+  gap: 5px;
+  width: 90%;
+}
 .contact__avatar {
   align-self: center;
 
   width: 50px;
   height: 50px;
-  padding-left: 10px;
+
 
   object-fit: cover;
   border-radius: 50%;
+  flex: none;
 }
 
 .contact__name {
   font-size: var(--font-size-large);
+  width: 80%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
+.isOnline {
+  font-size: var(--font-size-default);
+}
 .container {
   position: relative;
 
@@ -121,27 +137,27 @@
   justify-content: center;
 }
 
-.replyContainer {
-  height: 70px;
-  width: calc(100% - 90px);
-  background-color: var(--beige-light);
-  border-radius: var(--border-radius);
-  /* margin-bottom: -60px; */
-  box-shadow: 0px 18px 14px -2px var(--beige-light), 0 -6px 14px -4px rgba(0, 0, 0, 0.1);
-  position: absolute;
-  bottom: 90px;
-  /* right: 100px; */
-  left: 20px;
-  z-index: 100;
+.popupImage {
+  max-width: 60%;
+  max-height: 80%;
+  object-fit: contain;
 }
 
-.reply {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  margin: 10px;
-  text-align: justify;
+.messageDate {
+  margin-left: auto;
+  margin-right: auto;
+  color: #b9ac91;
   font-size: var(--font-size-default);
-  color: gray;
+  font-weight: bold;
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+  padding: 3px 6px;
+}
+
+.searchIcon {
+  display: block;
+  cursor: pointer;
+  margin-top: -5px;
+  /* width: 40px;
+  height: 40px; */
 }

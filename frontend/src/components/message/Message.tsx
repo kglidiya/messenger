@@ -1,18 +1,36 @@
 import Picker from "emoji-picker-react";
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
+import { findIndex } from "lodash";
+import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-
-import React, { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from "react";
+import * as moment from "moment";
+import React, {
+  Dispatch,
+  MouseEventHandler,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
+import { Socket, io } from "socket.io-client";
 
 import styles from "./Message.module.css";
 
 import { Context } from "../..";
+import { SocketContext } from "../../hoc/SocketProvider";
 import Corner from "../../ui/corner/Corner";
 import ForwardedMessageIcon from "../../ui/icons/forwarded-message/ForwardedMessageIcon";
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
+import TrashIcon from "../../ui/icons/trash-icon/TrashIcon";
 import MessageStatus from "../../ui/message-status/MessageStatus";
-import { countArrayItems, findUserById } from "../../utils/helpers";
-import { files, users } from "../../utils/mockData";
+import { createChat } from "../../utils/api";
+import { countArrayItems, findItemById, getFormattedTime } from "../../utils/helpers";
+import { IMessageStatus } from "../../utils/types";
+import MessageFileElement from "../message-file-element/MessageFileElement";
+import MessageContactElement from "../messageContactElement/MessageContactElement";
+import ParentElement from "../parentElement/ParentElement";
 
 const messageFromMe = {
   marginLeft: "auto",
@@ -25,13 +43,18 @@ const messageToMe = { borderTopLeftRadius: 0 };
 interface IMessage {
   id: string;
   message: string;
-  creatorId: string;
+  file: any;
+  parentMessage: IMessage;
+  contact: any;
+  currentUserId: string;
+  recipientUserId: string;
   reactions: any;
   createdAt: string;
-  forwarded: boolean;
-  isRead: boolean;
-  isSent: boolean;
-  isDelivered: boolean;
+  isForwarded: boolean;
+  isDeleted: boolean;
+  status: IMessageStatus;
+  readBy: string[];
+  // unreadCount: number;
   fileId: string;
   setMessageClicked: any;
   isPopupReactionOpen: any;
@@ -40,233 +63,448 @@ interface IMessage {
   openMessageActionsPopup: VoidFunction;
   isPopupEmojiReactionsOpen: boolean;
   openEmojiReactionsPopup: VoidFunction;
+  closeEmojiReactionsPopup: VoidFunction;
   openForwardContactPopup: VoidFunction;
+  // closeForwardContactPopup: VoidFunction;
   closeMessageActionsPopup: VoidFunction;
-  setParentMessage: Dispatch<SetStateAction<string>>;
+  // setParentMessage: Dispatch<SetStateAction<string>>;
   scrollToBottom: VoidFunction;
+  socket: any;
+  roomId: string;
+  scrollIntoView: VoidFunction;
+  setImageToShow: any;
+  setVideoToShow: any;
 }
-const Message = observer(
-  ({
-    id,
-    message,
-    creatorId,
-    reactions,
-    createdAt,
-    forwarded,
-    isRead,
-    isSent,
-    isDelivered,
-    fileId,
-    setMessageClicked,
-    isPopupReactionOpen,
-    openReactionPopup,
-    isPopupMessageActionsOpen,
-    openMessageActionsPopup,
-    isPopupEmojiReactionsOpen,
-    openEmojiReactionsPopup,
-    openForwardContactPopup,
-    closeMessageActionsPopup,
-    setParentMessage,
-    scrollToBottom,
-  }: IMessage) => {
-    // const refMessage = useRef<HTMLParagraphElement>(null);
-    // const [contentEditable, setContentEditable] = useState(false);
-    const [reactionsCount] = useState(countArrayItems(reactions));
-    const userStore = useContext(Context).user;
-    const ref = useRef<HTMLParagraphElement>(null);
-    const refWrapper = useRef<HTMLDivElement>(null);
-    const [isCollapsed, setIsCollapsed] = useState(false);
-    const [height, setHeight] = useState("200px");
-    const [file, setFile] = useState<any>({});
-    // console.log(ref.current && ref.current?.scrollHeight);
-    useEffect(() => {
-      if (ref.current && refWrapper.current) {
-        if (ref.current?.scrollHeight > refWrapper.current?.clientHeight) {
-          setIsCollapsed(true);
-        } else setIsCollapsed(false);
-      }
-    }, [ref.current?.scrollHeight, refWrapper.current?.clientHeight, id]);
-    useEffect(() => {
-      if (fileId !== "") {
-        const file = files.filter((file: any) => file.messageId === id);
-        setFile(file[0]);
-      }
-    }, [fileId, id]);
-    // console.log(userStore);
-    const toggleHeight = () => {
-      setHeight("100%");
-      setIsCollapsed(false);
-    };
-    // console.log(contentEditable);
-    const replyToMessage = () => {
-      setParentMessage(message);
-      closeMessageActionsPopup();
-      scrollToBottom();
-    };
-    return (
-      <article
-        className={styles.wrapper}
-        style={userStore.user.id === creatorId ? messageFromMe : messageToMe}
-        onClick={() => setMessageClicked(id)}
-        ref={refWrapper}
-      >
-        <Corner
-          right={userStore.user.id === creatorId ? "-15px" : ""}
-          left={userStore.user.id !== creatorId ? "-15px" : ""}
-          rotate={userStore.user.id === creatorId ? "180deg" : ""}
-          borderWidth={userStore.user.id === creatorId ? "10px 15px 0 0" : "0 15px 10px 0"}
-          borderColor={userStore.user.id === creatorId ? "transparent rgb(193 218 221) transparent transparent" : ""}
-        />
-        {forwarded && (
-          <span className={styles.forwarded}>
-            <ForwardedMessageIcon /> Пересланное сообщение
-          </span>
-        )}
-        {file && file.type === "image" && (
-          <img
-            src={file.thumbnailPath}
-            alt='Картинка'
-            className={styles.thumbnailImage}
-            onClick={openMessageActionsPopup}
-          />
-        )}
-        <p
-          // contentEditable={contentEditable}
-          // suppressContentEditableWarning
-          className={styles.text}
-          onClick={openMessageActionsPopup}
-          ref={ref}
-          style={{ maxHeight: height }}
-        >
-          {message}
-        </p>
-        <MessageStatus isDelivered={true} isRead={true} user={userStore.user.id} creator={creatorId} />
-        <span
-          className={styles.timeStamp}
-          style={{
-            right: userStore.user.id === creatorId ? "30px" : "",
-            left: userStore.user.id !== creatorId ? "30px" : "",
+const MessageWithForwardRef = React.forwardRef(
+  (
+    {
+      id,
+      message,
+      file,
+      parentMessage,
+      currentUserId,
+      recipientUserId,
+      contact,
+      reactions,
+      createdAt,
+      isForwarded,
+      isDeleted,
+      status,
+      readBy,
+      fileId,
+      setMessageClicked,
+      isPopupReactionOpen,
+      openReactionPopup,
+      isPopupMessageActionsOpen,
+      openMessageActionsPopup,
+      // closeForwardContactPopup,
+      isPopupEmojiReactionsOpen,
+      openEmojiReactionsPopup,
+      closeEmojiReactionsPopup,
+      openForwardContactPopup,
+      closeMessageActionsPopup,
+      // setParentMessage,
+      scrollToBottom,
+      // socket,
+      roomId,
+      scrollIntoView,
+      setImageToShow,
+      setVideoToShow,
+    }: IMessage,
+    ref,
+  ) =>
+    // ref,
+    {
+      // const refMessage = useRef<HTMLParagraphElement>(null);
+      // const [contentEditable, setContentEditable] = useState(false);
+      // const [messaget, setMessage] = useState<IMessage | undefined>(undefined);
+      const [reactionsCount, setReactionCount] = useState<any>(countArrayItems(reactions));
+      const userStore = useContext(Context).user;
+      const socket = useContext(SocketContext);
+      const refText = useRef<HTMLParagraphElement>(null);
+      const refWrapper = useRef<HTMLDivElement>(null);
+      const [isCollapsed, setIsCollapsed] = useState(false);
+      const [height, setHeight] = useState("200px");
+      const isMessageToGroupChart = roomId === recipientUserId;
+      const [author, setAuthor] = useState<any>(null);
+      const refMessage = useRef(null);
+      const isInView = useInView(refMessage);
+      // const [file, setFile] = useState<any>({});
+      // console.log(reactions.length);
+      // console.log(isMessageToGroupChart);
+      // console.log(toJS(author));
+      // console.log(roomId);
+      useEffect(() => {
+        if (isMessageToGroupChart) {
+          setAuthor(
+            userStore.currentRoom.participants.filter(
+              (user: any) => user.id === currentUserId && user.id !== userStore.user.id,
+            )[0] || null,
+          );
+        }
+      }, [isMessageToGroupChart]);
+      useEffect(() => {
+        setReactionCount(countArrayItems(reactions));
+      }, [reactions]);
+      useEffect(() => {
+        if (refText.current && refWrapper.current) {
+          if (refText.current?.scrollHeight > refWrapper.current?.clientHeight) {
+            setIsCollapsed(true);
+          } else setIsCollapsed(false);
+        }
+      }, [refText.current?.scrollHeight, refWrapper.current?.clientHeight, id]);
+      // useEffect(() => {
+      //   if (fileId !== "") {
+      //     const file = files.filter((file: any) => file.messageId == id);
+      //     setFile(file[0]);
+      //   }
+      // }, [fileId, id]);
+      const toggleHeight = () => {
+        setHeight("100%");
+        setIsCollapsed(false);
+      };
+      const replyToMessage = () => {
+        // setParentMessage(findItemById(userStore.prevMessages, id));
+        userStore.setParentMessage(findItemById(userStore.prevMessages, id)[0]);
+        closeMessageActionsPopup();
+        // scrollToBottom();
+        // console.log(id);
+      };
+
+      const onEmojiClick = (emoji: any) => {
+        // moment.locale();
+        const reaction = {
+          reaction: emoji,
+          from: userStore.user.id,
+          messageId: id,
+          roomId: roomId,
+        };
+        socket && socket.emit("react-to-message", reaction);
+        closeEmojiReactionsPopup();
+        // setReactionCount(countArrayItems(reactions));
+      };
+      const deleteReaction = () => {
+        // moment.locale();
+        const reaction = {
+          from: userStore.user.id,
+          messageId: id,
+          roomId: roomId,
+        };
+        socket && socket.emit("delete-reaction", reaction);
+        closeEmojiReactionsPopup();
+        // setReactionCount(countArrayItems(reactions));
+      };
+      const deleteMessage = () => {
+        // moment.locale();
+        const data = {
+          messageId: id,
+          roomId: roomId,
+        };
+        socket && socket.emit("delete-message", data);
+        closeMessageActionsPopup();
+        // setReactionCount(countArrayItems(reactions));
+      };
+      const innerRef = useRef<HTMLInputElement>(null);
+      useImperativeHandle(ref, () => innerRef.current!, []);
+      // console.log(userStore.parentMessage);
+      const [hover, setHover] = useState(false);
+      const handleHover: MouseEventHandler<any> = (e) => {
+        if (e.type === "mouseenter") {
+          setHover(true);
+        } else setHover(false);
+      };
+      // const [isInView, setIsInView] = useState(false);
+
+      useEffect(() => {
+        if (
+          isInView &&
+          userStore.user.id !== currentUserId &&
+          // status !== IMessageStatus.READ &&
+          !readBy.includes(userStore.user.id)
+        ) {
+          const message = {
+            messageId: id,
+            roomId: roomId,
+            readBy: userStore.user.id,
+          };
+          socket && socket.emit("update-message-status", message);
+          // userStore.decrementRoomUndeadIndex(roomId);
+        }
+
+        // console.log("Element is in view: ", isInView);
+      }, [isInView]);
+
+      const addContact = async () => {
+        try {
+          const chat = await createChat({ usersId: [contact.id, userStore.user.id] });
+
+          setTimeout(() => {
+            if (chat) {
+              socket && socket.emit("create-chat", chat);
+              // userStore.clearMessages();
+              // userStore.setContacts();
+              // userStore.setUnreadCount();
+            }
+            // userStore.setContacts();
+            // userStore.setUnreadCount();
+            // userStore.setChatingWith(contact);
+            // userStore.clearMessages();
+
+            // setMenuIsOpen(false);
+            //   setSearchResult([]);
+          }, 0);
+        } catch (e: any) {
+          console.log(e);
+        }
+      };
+      // console.log(toJS(userStore.chatingWith));
+      // console.log(toJS(author));
+      return (
+        <motion.article
+          className={styles.wrapper}
+          style={
+            userStore.user.id === currentUserId
+              ? { ...messageFromMe, maxWidth: file ? "40%" : "60%" }
+              : { ...messageToMe, maxWidth: file ? "40%" : "60%" }
+          }
+          onClick={() => {
+            setMessageClicked(id);
           }}
+          ref={innerRef}
+          onMouseEnter={handleHover}
+          onMouseLeave={handleHover}
+          // ref={el => itemsRef.current[i] = el}
         >
-          {createdAt}
-        </span>
-        {isCollapsed && (
-          <span
-            onClick={toggleHeight}
-            className={styles.hideButton}
-            style={{
-              left: userStore.user.id === creatorId ? "10px" : "",
-              right: userStore.user.id !== creatorId ? "10px" : "",
-              backgroundColor: userStore.user.id !== creatorId ? "white" : "rgb(193 218 221)",
-            }}
-          >
-            Читать далее...
-          </span>
-        )}
-        {reactions.length > 0 && (
-          <div
-            className={styles.reaction}
-            style={{
-              right: userStore.user.id === creatorId ? "25px" : "",
-              left: userStore.user.id !== creatorId ? "25px" : "",
-            }}
-          >
-            {reactionsCount.map((el: any, i: number) => {
-              return (
-                <span key={i} className={styles.counter} onClick={openReactionPopup}>
-                  <p>{el.reaction}</p>
-                  {reactionsCount.length > 1 && <p className={styles.count}>{el.count}</p>}
-                </span>
-              );
-            })}
-
-            {/* Попап с пользователями, поставившими реакции */}
-
-            {isPopupReactionOpen && (
-              <motion.div
-                className={styles.popup}
-                style={{
-                  right: userStore.user.id === creatorId ? "50%" : "",
-                  left: userStore.user.id !== creatorId ? "50%" : "",
-                  transformOrigin: userStore.user.id === creatorId ? "right top" : "left top",
-                }}
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: isPopupReactionOpen ? 1 : 0, opacity: isPopupReactionOpen ? 1 : 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <ul className={styles.summary_list}>
-                  {reactions.map((el: any, i: number) => {
-                    return (
-                      <li key={i} className={styles.summary_item}>
-                        <p className={styles.summary_reaction}>{el.reaction}</p>
-                        <p className={styles.summary_name}>
-                          {findUserById(users, el.creatorId)[0].username
-                            ? findUserById(users, el.creatorId)[0].username
-                            : findUserById(users, el.creatorId)[0].email}
-                        </p>
-
-                        {findUserById(users, el.creatorId)[0].avatar ? (
-                          <img
-                            className={styles.summary_avatar}
-                            src={findUserById(users, el.creatorId)[0].avatar}
-                            alt='Аватар'
-                          />
-                        ) : (
-                          <NoAvatar width={44} height={44} />
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </motion.div>
-            )}
-          </div>
-        )}
-        {/* попап с доступними для сообщения действиями */}
-
-        {isPopupMessageActionsOpen && (
-          <motion.ul
-            className={styles.actions}
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: isPopupMessageActionsOpen ? "auto" : 0, opacity: isPopupMessageActionsOpen ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <li className={styles.action} onClick={openEmojiReactionsPopup}>
-              Отреагировать
-            </li>
-            <li className={styles.action} onClick={openForwardContactPopup}>
-              Переслать
-            </li>
-            <li className={styles.action} onClick={replyToMessage}>
-              Ответить
-            </li>
-            {userStore.user.id === creatorId && (
-              <li
-                className={styles.action}
-                onClick={() => {
-                  closeMessageActionsPopup();
-                  // setContentEditable(true);
-                }}
-              >
-                Изменить
-              </li>
-            )}
-            {userStore.user.id === creatorId && <li className={styles.action}>Удалить</li>}
-          </motion.ul>
-        )}
-
-        {isPopupEmojiReactionsOpen && (
-          // <Picker reactionsDefaultOpen={true} />
-          <Picker
-            reactionsDefaultOpen={true}
-            className={styles.emoji}
-            style={{ position: "absolute", transition: " all 0s linear", backgroundColor: "white" }}
-            lazyLoadEmojis={true}
+          <div ref={refMessage}></div>
+          {isMessageToGroupChart && author && userStore.user.id !== currentUserId && (
+            <div className={styles.authorContainer}>
+              {author.avatar ? (
+                <img className={styles.author_avatar} src={author.avatar} alt='Аватар' />
+              ) : (
+                <NoAvatar width={24} height={24} />
+              )}
+              <p className={styles.author_name}>{author.userName ? author.userName : author.email}</p>
+            </div>
+          )}
+          <Corner
+            right={userStore.user.id === currentUserId ? "-15px" : ""}
+            left={userStore.user.id !== currentUserId ? "-15px" : ""}
+            rotate={userStore.user.id === currentUserId ? "180deg" : ""}
+            borderWidth={userStore.user.id === currentUserId ? "10px 15px 0 0" : "0 15px 10px 0"}
+            borderColor={
+              userStore.user.id === currentUserId ? "transparent rgb(193 218 221) transparent transparent" : ""
+            }
           />
-        )}
-      </article>
-    );
-  },
+          {isForwarded && (
+            <span className={styles.forwarded}>
+              <ForwardedMessageIcon /> Пересланное сообщение
+            </span>
+          )}
+          {file && !isDeleted && (
+            <MessageFileElement
+              hover={hover}
+              path={file.path}
+              type={file.type}
+              name={file.name}
+              openMessageActionsPopup={openMessageActionsPopup}
+              myMessage={userStore.user.id === currentUserId}
+            />
+          )}
+          {parentMessage && <ParentElement parentMessage={parentMessage} onClick={scrollIntoView} />}
+          {!isDeleted && (
+            <p className={styles.text} onClick={openMessageActionsPopup} ref={refText} style={{ maxHeight: height }}>
+              {message}
+            </p>
+          )}
+          {contact && !isDeleted && (
+            <MessageContactElement contact={contact} openMessageActionsPopup={openMessageActionsPopup} />
+          )}
+          {!isDeleted && <MessageStatus status={status} user={userStore.user.id} creator={currentUserId} />}
+          <span
+            className={styles.timeStamp}
+            style={{
+              right: userStore.user.id === currentUserId ? "30px" : "",
+              left: userStore.user.id !== currentUserId ? "30px" : "",
+            }}
+          >
+            {getFormattedTime(createdAt)}
+          </span>
+          {isCollapsed && (
+            <span
+              onClick={toggleHeight}
+              className={styles.hideButton}
+              style={{
+                left: userStore.user.id === currentUserId ? "10px" : "",
+                right: userStore.user.id !== currentUserId ? "10px" : "",
+                backgroundColor: userStore.user.id !== currentUserId ? "white" : "rgb(193 218 221)",
+              }}
+            >
+              Читать далее...
+            </span>
+          )}
+          {!isDeleted && reactions.length > 0 && (
+            <div
+              className={styles.reaction}
+              style={{
+                right: userStore.user.id === currentUserId ? "25px" : "",
+                left: userStore.user.id !== currentUserId ? "25px" : "",
+              }}
+            >
+              {reactionsCount.map((el: any, i: number) => {
+                return (
+                  <span key={i} className={styles.counter} onClick={openReactionPopup}>
+                    <p>{el.reaction}</p>
+                    {reactionsCount.length > 1 && <p className={styles.count}>{el.count}</p>}
+                  </span>
+                );
+              })}
+              {isPopupReactionOpen && (
+                <motion.div
+                  className={styles.popup}
+                  style={{
+                    right: userStore.user.id === currentUserId ? "50%" : "",
+                    left: userStore.user.id !== currentUserId ? "50%" : "",
+                    transformOrigin: userStore.user.id === currentUserId ? "right top" : "left top",
+                  }}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: isPopupReactionOpen ? 1 : 0, opacity: isPopupReactionOpen ? 1 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ul className={styles.summary_list}>
+                    {reactions.map((el: any, i: number) => {
+                      return (
+                        <li key={i} className={styles.summary_item}>
+                          <p className={styles.summary_reaction}>{el.reaction}</p>
+                          <p className={styles.summary_name}>
+                            {findItemById(userStore.contacts.concat(userStore.user), el.from)[0].userName !== ""
+                              ? findItemById(userStore.contacts.concat(userStore.user), el.from)[0].userName
+                              : findItemById(userStore.contacts.concat(userStore.user), el.from)[0].email}
+                          </p>
+
+                          {findItemById(userStore.contacts.concat(userStore.user), el.from)[0].avatar ? (
+                            <img
+                              className={styles.summary_avatar}
+                              src={findItemById(userStore.contacts.concat(userStore.user), el.from)[0].avatar}
+                              alt='Аватар'
+                            />
+                          ) : (
+                            <NoAvatar width={44} height={44} />
+                          )}
+                          {el.from === userStore.user.id && (
+                            <span className={styles.delete_reaction} onClick={deleteReaction}>
+                              Удалить реакцию
+                            </span>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </motion.div>
+              )}
+            </div>
+          )}
+          {isDeleted && (
+            <span className={styles.deletedMessage}>
+              <TrashIcon width={24} height={24} />
+            </span>
+          )}
+          {isPopupMessageActionsOpen && (
+            <motion.ul
+              className={styles.actions}
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: isPopupMessageActionsOpen ? "auto" : 0, opacity: isPopupMessageActionsOpen ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <li className={styles.action} onClick={openEmojiReactionsPopup}>
+                Отреагировать
+              </li>
+              {userStore.contacts.length > 1 && (
+                <li
+                  className={styles.action}
+                  onClick={() => {
+                    openForwardContactPopup();
+                    userStore.setMessageToForward(id);
+                  }}
+                >
+                  Переслать
+                </li>
+              )}
+              <li className={styles.action} onClick={replyToMessage}>
+                Ответить
+              </li>
+              {userStore.user.id !== currentUserId &&
+                contact &&
+                findIndex(userStore.contacts, {
+                  id: contact.id,
+                }) === -1 && (
+                  <li className={styles.action} onClick={addContact}>
+                    Добавить в контакты
+                  </li>
+                )}
+
+              {file && file.type.includes("image") && (
+                <li
+                  className={styles.action}
+                  onClick={() => {
+                    setImageToShow(file.path);
+                    closeMessageActionsPopup();
+                  }}
+                >
+                  Открыть
+                </li>
+              )}
+              {file && file.type.includes("video") && (
+                <li
+                  className={styles.action}
+                  onClick={() => {
+                    setVideoToShow(file.path);
+                    closeMessageActionsPopup();
+                  }}
+                >
+                  Открыть
+                </li>
+              )}
+              {/* {userStore.user.id === currentUserId && (
+                <li
+                  className={styles.action}
+                  onClick={() => {
+                    closeMessageActionsPopup();
+                  }}
+                >
+                  Изменить
+                </li>
+              )} */}
+              {userStore.user.id === currentUserId && (
+                <li className={styles.action} onClick={deleteMessage}>
+                  Удалить
+                </li>
+              )}
+            </motion.ul>
+          )}
+
+          {isPopupEmojiReactionsOpen && (
+            <Picker
+              reactionsDefaultOpen={true}
+              className={styles.emoji}
+              style={{
+                position: "absolute",
+                transition: " all 0s linear",
+                backgroundColor: "white",
+                right: userStore.user.id === currentUserId ? 0 : "",
+                left: userStore.user.id !== currentUserId ? 0 : "",
+              }}
+              lazyLoadEmojis={true}
+              onEmojiClick={(emojiData) => {
+                // console.log(emojiData);
+                onEmojiClick(emojiData.emoji);
+              }}
+            />
+          )}
+        </motion.article>
+      );
+    },
 );
 
+const Message = observer(MessageWithForwardRef);
 export default Message;
+// const ObserverComponentWithForwardRef = observer(ComponentWithForwardRef);

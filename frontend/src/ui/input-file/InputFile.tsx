@@ -1,11 +1,17 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import styles from "./InputFile.module.css";
 
+import { Context } from "../..";
 import OverLay from "../../components/overlay/Overlay";
+import PdfLoader from "../../components/pdf-loader/PdfLoader";
+import { SocketContext } from "../../hoc/SocketProvider";
+import { chunkFile } from "../../utils/helpers";
+import { IMessage } from "../../utils/types";
+import ButtonSend from "../button-send/ButtonSend";
 import DeleteIcon from "../icons/delete-icon/DeleteIcon";
 import Paperclip from "../icons/paperclip/Paperclip";
 
@@ -13,20 +19,61 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 interface IInputFileProps {
   children: ReactNode;
+  roomId: string;
+  setFilesToSend: any;
+  setFilesToRemove: any;
+  setIsPopupFileOpen: any;
+  isPopupFileOpen: boolean;
 }
-export default function InputFile({ children }: IInputFileProps) {
+
+const { v4: uuidv4 } = require("uuid");
+
+export default function InputFile({
+  children,
+  roomId,
+  setFilesToSend,
+  setFilesToRemove,
+  setIsPopupFileOpen,
+  isPopupFileOpen,
+}: IInputFileProps) {
   const [files, setFiles] = useState<any>([]);
+  const ref = useRef<HTMLInputElement>(null);
+  // const [filesToSend, setFilesToSend] = useState<any>([]);
+  const socket = useContext(SocketContext);
+  const userStore = useContext(Context).user;
+  // const [roomId, setRoomId] = useState<string>("");
   // const [numPages, setNumPages] = useState<number>();
   // const [pageNumber, setPageNumber] = useState<number>(1);
-  const [isPopupFileOpen, setIsPopupFileOpen] = useState(false);
+  // const [isPopupFileOpen, setIsPopupFileOpen] = useState(false);
   const closeFilePopup = () => {
     setIsPopupFileOpen(false);
     setFiles([]);
+    setFilesToSend([]);
   };
 
-  // function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
-  // setNumPages(numPages);
-  // }
+  // useEffect(() => {
+  //   // console.log(socket);
+  //   socket &&
+  //     socket.on("receive-file", (message: IMessage) => {
+  //       console.log("message");
+  //       // userStore.addMessage(message);
+  //     });
+  // }, []);
+
+  // const connectToRoom = async () => {
+  //   try {
+  //     const response = await connectToChart({
+  //       currentUserId: userStore.user.id,
+  //       recipientUserId: userStore.chatingWith.id,
+  //     });
+  //     // setRoomId(response);
+  //     userStore.getPrevMessages(response);
+  //     socket && socket.emit("meeting", { roomId: response });
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
+
   const readFiles = (file: any) => {
     return new Promise((res, rej) => {
       const reader = new FileReader();
@@ -37,6 +84,8 @@ export default function InputFile({ children }: IInputFileProps) {
   };
   const handleInputFileChange = async (e: any) => {
     const files = (e.target as HTMLInputElement).files;
+    setFilesToSend(files);
+    // console.log(files);
     const validFiles = [];
     if (files && files.length) {
       for (let i = 0; i < files.length; i++) {
@@ -54,10 +103,34 @@ export default function InputFile({ children }: IInputFileProps) {
   // console.log(files);
   const removeFile = (i: number) => {
     setFiles((prev: any) => prev.filter((_: any, index: number) => index !== i));
+    setFilesToRemove((prev: any) => prev.concat(files[i].fileName));
   };
+  // useEffect(() => {
+  //   setFilesToSend(files);
+  // }, [files.length]);
+  // const sendMessage = async (files: FileList) => {
+  //   for (let index = 0; index < files.length; index++) {
+  //     const form = new FormData();
+  //     form.append("file", files[index]);
+  //     const data = {
+  //       currentUserId: userStore.user.id,
+  //       recipientUserId: userStore.chatingWith.id,
+  //       parentMessage: userStore.parentMessage,
+  //       roomId: roomId,
+  //       form,
+  //     };
+  //     const message = await sendFile(form, data);
+
+  //     setTimeout(() => {
+  //       socket.emit("send-file", message);
+  //     }, 0);
+  //   }
+  //   closeFilePopup();
+  // };
   return (
     <>
       <input
+        ref={ref}
         type='file'
         id='file'
         className={styles.input}
@@ -86,7 +159,7 @@ export default function InputFile({ children }: IInputFileProps) {
                     return (
                       <div style={{ position: "relative", width: "fit-content" }} key={i}>
                         <DeleteIcon onClick={() => removeFile(i)} />
-                        <Document file={file.fileContent}>
+                        <Document file={file.fileContent} loading={<PdfLoader color='white' />}>
                           <Page pageNumber={1} scale={0.5} className={styles.pdf} />
                         </Document>
                       </div>
@@ -115,6 +188,8 @@ export default function InputFile({ children }: IInputFileProps) {
                 })}
             </div>
             {children}
+            {/* <ButtonSend onClick={() => sendMessage(filesToSend)} /> */}
+            {/* <button onClick={() => sendMessage(filesToSend)}>send</button> */}
           </div>
         </OverLay>
       )}

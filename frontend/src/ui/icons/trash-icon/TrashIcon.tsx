@@ -3,7 +3,7 @@ import styles from "./TrashIcone.module.css";
 interface ITrashIconProps {
   width: number;
   height: number;
-  onClick: VoidFunction;
+  onClick?: VoidFunction;
   bottom?: number;
   top?: number;
   left?: number;

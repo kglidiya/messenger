@@ -1,74 +1,459 @@
-import { makeAutoObservable } from "mobx";
+import { extendObservable, makeAutoObservable, observe, runInAction, toJS } from "mobx";
+import { makePersistable } from "mobx-persist-store";
+import { Socket, io } from "socket.io-client";
 
+import {
+  // getAvatar,
+  getMyChats,
+  getOneRoom,
+  getPrevMessage,
+  login,
+  registerUser,
+  // updateAvatar,
+} from "../utils/api";
 import { files, messages, users } from "../utils/mockData";
+import { IContact, ILoginDto, IMessage, IMessageStatus, IRoom, IUnreadCount } from "../utils/types";
 
 export const DEFAULT_STATE = users[0];
+const streamToBlob = require("stream-to-blob");
 
+// interface IRoom {
+//   id: string;
+//   name: string;
+// }
 export default class UserStore {
-  _user: any | {};
-  _contacts: any[];
-  _chatingWith: string;
-  _chat: any[];
+  _user: any | null;
   _isAuth: boolean;
+  _contacts: IContact[];
+  _chatingWith: IContact | null;
+  _prevMessages: IMessage[];
+  _messageToForward: IMessage | null;
+  _contactToForward: IContact | null;
+  _parentMessage: IMessage | null;
+  _selectedUsers: string[];
+  _roomAll: IRoom[];
+  _currentRoom: IRoom | null;
+  _roomId: string | null;
+  _unreadCount: IUnreadCount[];
+  _totalUnread: number;
 
   constructor() {
-    this._user = DEFAULT_STATE;
-    this._contacts = [];
-    this._chatingWith = "2";
-    this._chat = [];
+    this._user = null;
     this._isAuth = false;
+    this._contacts = [];
+    this._chatingWith = null;
+    this._prevMessages = [];
+    this._contactToForward = null;
+    this._messageToForward = null;
+    this._parentMessage = null;
+    this._selectedUsers = [];
+    this._roomAll = [];
+    this._currentRoom = null;
+    this._roomId = null;
+    this._unreadCount = [];
+    this._totalUnread = 0;
 
     makeAutoObservable(this);
   }
 
-  setUser(user: any | {}) {
+  async registerUser(data: ILoginDto) {
+    const res = await registerUser(data);
+    // console.log(toJS(res));
+    runInAction(() => {
+      this._user = res;
+    });
+  }
+
+  async login(data: ILoginDto) {
+    const res = await login(data);
+    runInAction(() => {
+      const { accessToken, refreshToken, ...rest } = res;
+      this._user = rest;
+    });
+  }
+
+  setRoomId(id: string) {
+    if (id) {
+      this._roomId = id;
+    } else this._roomId = null;
+  }
+
+  setUser(user: IContact | null) {
     this._user = user;
   }
 
-  setContacts() {
-    const contacts = users.filter((user: any) => {
-      return this._user.userContacts.indexOf(user.id) !== -1;
-    });
-    this._contacts = contacts;
+  // setAvatar(id: any) {
+  //   if (id) {
+  //     this._avatar = `http://localhost:3001/avatar/${id}`;
+  //   } else this._avatar = null;
+  // }
+  // async getOneRoom(roomId: string) {
+  //   const result = await getOneRoom(roomId);
+  //   runInAction(() => {
+  //     const room = this._roomAll.filter((room: any) => room.id === result.id)[0];
+  //     this._currentRoom = room;
+  //     const oldRoom = this._roomAll.findIndex((el) => el.id === result.id);
+  //     this._roomAll.splice(oldRoom, 1, result);
+  //   });
+  // }
+
+  async setCurrentRoom(usersId: string) {
+    // console.log("setCurrentRoom usersId", usersId);
+    if (!usersId) {
+      this._currentRoom = null;
+    } else {
+      // console.log("this._roomAll.length", this._roomAll.length);
+      // const room = this._roomAll.filter((room: any) => room.usersId === usersId && room.name !== "private")[0];
+      const room = this._roomAll.filter((room) => room.usersId === usersId)[0];
+      // console.log("setCurrentRoom room u", room);
+      const newRoom = await getOneRoom({ roomId: room.id });
+      runInAction(() => {
+        this._currentRoom = newRoom;
+        // console.log(newRoom);
+        // this._roomId = newRoom.id;
+        const oldRoom = this._roomAll.findIndex((el) => el.id === newRoom.id);
+        this._roomAll.splice(oldRoom, 1, newRoom);
+        // this.updateGroup(newRoom);
+      });
+    }
   }
 
-  setChatingWith(id: string) {
-    this._chatingWith = id;
+  updateCurrentRoomLastMsgId(id: string) {
+    if (this._currentRoom) {
+      this._currentRoom.lastMessageId = id;
+    }
   }
-
-  setChat(userId: string, chatingWith: string) {
-    const chat = messages.filter((message: any) => {
-      if (
-        (message.recipientId === userId && message.creatorId === chatingWith) ||
-        (message.recipientId === chatingWith && message.creatorId === userId)
-      ) {
-        return message;
+  async setContacts() {
+    const result = await getMyChats({ userId: this._user.id });
+    // console.log(toJS(result));
+    runInAction(() => {
+      if (result.length) {
+        this._contacts = result[0];
+        this._roomAll = result[1];
+        // this.setCurrentRoom(this.chatingWith.id);
       }
     });
-    this._chat = chat;
   }
+
+  async getPrevMessages(limit: number, offset: number, roomId: string) {
+    const messages = await getPrevMessage({
+      limit,
+      offset,
+      roomId,
+    });
+    runInAction(() => {
+      if (messages.length) {
+        this._prevMessages = messages;
+      }
+    });
+  }
+
+  setMessages(messages: IMessage[]) {
+    this._prevMessages = messages;
+  }
+
+  async setUnreadCount() {
+    const unreadCount = [];
+    // console.log(toJS(this._roomAll));
+    for (let room of this._roomAll) {
+      unreadCount.push({ roomId: room.id, unread: room.unread || 0 });
+      this._totalUnread += room.unread || 0;
+    }
+    this._unreadCount = unreadCount;
+  }
+
+  incrementUnreadCount(message: IMessage) {
+    // console.log(message);
+    const room = this._roomAll.filter((room) => room.id === message.roomId)[0];
+    const isPrivate = room.name === "private";
+    if (isPrivate) {
+      this._unreadCount.map((m) => {
+        if (
+          m.roomId === message.roomId &&
+          message.status !== IMessageStatus.READ &&
+          message.recipientUserId === this._user.id
+        ) {
+          this._totalUnread++;
+          return m.unread++;
+        } else return m;
+      });
+    } else {
+      // console.log("message.readBy.findIndex((i: string) => i === this._user.id");
+      this._unreadCount.map((m: any) => {
+        if (
+          m.roomId === message.roomId &&
+          message.currentUserId !== this._user.id &&
+          message.readBy.findIndex((i) => i === this._user.id) === -1
+        ) {
+          console.log("incrementUnreadCount");
+          console.log(message.readBy.findIndex((i) => i === this._user.id));
+          this._totalUnread++;
+          return m.unread++;
+        } else return m;
+      });
+    }
+  }
+
+  decrementUnreadCount(message: IMessage) {
+    const room = this._roomAll.filter((room) => room.id === message.roomId)[0];
+    const isPrivate = room.name === "private";
+    if (isPrivate) {
+      this._unreadCount.map((m) => {
+        if (
+          m.roomId === message.roomId &&
+          message.status === IMessageStatus.READ &&
+          message.recipientUserId === this._user.id
+        ) {
+          this._totalUnread--;
+          return m.unread--;
+        } else return m;
+      });
+    } else {
+      this._unreadCount.map((m) => {
+        if (
+          m.roomId === message.roomId &&
+          message.currentUserId !== this._user.id &&
+          message.readBy.findIndex((i) => i === this._user.id) !== -1
+        ) {
+          console.log("message.readBy.findIndex((i: string) => i === this._user.id");
+          this._totalUnread--;
+          return m.unread--;
+        } else return m;
+      });
+    }
+  }
+
+  addMessage(message: IMessage) {
+    // console.log(toJS(message));
+    this._prevMessages.push(message);
+  }
+
+  updateMessage(newMessage: IMessage) {
+    // console.log(newMessage);
+    const oldMessage = this._prevMessages.findIndex((el) => el.id === newMessage.id);
+    this._prevMessages.splice(oldMessage, 1, newMessage);
+  }
+
+  updateUserData(newUser: IContact) {
+    // console.log(this._chatingWith.id === newUser.id);
+    // console.log(this._user.id);
+    // if (this._user && newUser) {
+    if (newUser.id !== this._user.id) {
+      const oldUser = this._contacts.findIndex((el) => el.id === newUser.id);
+      // console.log(oldUser);
+      this._contacts.splice(oldUser, 1, newUser);
+      // this._contacts = t;
+      //this._chatingWith = newUser;
+      if (this._chatingWith?.id === newUser.id) {
+        this._chatingWith = newUser;
+      }
+    } else this._user = newUser;
+    // }
+  }
+
+  clearMessages() {
+    this._prevMessages = [];
+  }
+
+  updateRooms(roomId: string, lastMessageId: string) {
+    // const oldRoom = this._roomAll.findIndex((el) => el.id === roomId);
+    // this._contacts.splice(oldUser, 1, newUser);
+    this._roomAll.map((room: any) => {
+      if (room.id === roomId) {
+        return (room.lastMessageId = lastMessageId);
+      } else return room;
+    });
+  }
+
+  // decrementRoomUndeadIndex(roomId: string) {
+  //   // const oldRoom = this._roomAll.findIndex((el) => el.id === roomId);
+  //   // this._contacts.splice(oldUser, 1, newUser);
+  //   this._roomAll.map((room) => {
+  //     if (room.id === roomId) {
+  //       return room.firstUnreadMessageIndex--;
+  //     } else return room;
+  //   });
+  // }
+
+  // incrementRoomUndeadIndex(roomId: string) {
+  //   // const oldRoom = this._roomAll.findIndex((el) => el.id === roomId);
+  //   // this._contacts.splice(oldUser, 1, newUser);
+  //   this._roomAll.map((room: any) => {
+  //     if (room.id === roomId) {
+  //       return room.firstUnreadMessageIndex++;
+  //     } else return room;
+  //   });
+  // }
+
+  clearContacts() {
+    this._contacts = [];
+    this._roomAll = [];
+  }
+  clearUnreadCount() {
+    this._unreadCount = [];
+  }
+  setChatingWith(user: IContact) {
+    this._chatingWith = user;
+  }
+  // async setChat(userId: string, chatingWith: string) {
+  //   const chart = await connectToChart({ currentUserId: userId, recipientUserId: chatingWith });
+  //   runInAction(() => {
+  //     this._chat = chart;
+  //   });
+  // }
 
   setAuth(auth: boolean) {
     this._isAuth = auth;
   }
 
+  setMessageToForward(id: string) {
+    const message = this._prevMessages.filter((el) => el.id === id);
+    if (message.length) {
+      this._messageToForward = message[0];
+    } else this._messageToForward = null;
+  }
+
+  setParentMessage(message: IMessage) {
+    this._parentMessage = message;
+  }
+
+  setContactToForward(contact: IContact) {
+    this._contactToForward = contact;
+  }
+  setSelectedUsers(id: string, checked: boolean) {
+    // console.log(checked);
+    if (checked) {
+      this._selectedUsers.push(id);
+    } else {
+      const ids = this._selectedUsers.filter((el) => el !== id);
+      this._selectedUsers = ids;
+    }
+    // this._forwardTo = arr;
+  }
+
+  clearSelectedUsers() {
+    this._selectedUsers = [];
+  }
+
+  // setCurrentRoom(usersId: any) {
+  //   // console.log(usersId);
+  //   if (!usersId) {
+  //     this._currentRoom = null;
+  //   } else {
+  //     const room = this._roomAll.filter((room: any) => room.usersId === usersId && room.name !== "private")[0];
+  //     this._currentRoom = room;
+  //   }
+  // }
+
+  updateGroup(newRoomData: IRoom) {
+    // const { ...newRoom } = newRoomData;
+    // console.log(`newRoom`, newRoomData);
+    const oldRoom = this._roomAll.findIndex((room) => room.id === newRoomData.id);
+    // console.log(`oldRoom`, oldRoom);
+    if (oldRoom !== -1) {
+      this._roomAll.splice(oldRoom, 1, newRoomData);
+      if (this._currentRoom && this._currentRoom.id === newRoomData.id) {
+        this._currentRoom = newRoomData;
+      }
+      // if (this._currentRoom) {
+      //   this._currentRoom = newRoomData;
+      // }
+      // this._currentRoom = newRoom;
+      // console.log(
+      //   `newRoom.usersId
+      // `,
+      //   newRoom.usersId.split(","),
+      // );
+      const contactIndex = this._contacts.findIndex((el) => {
+        if (el.groupId) {
+          return el.groupId === newRoomData.id;
+        }
+      });
+      const contact = this._contacts[contactIndex];
+      const contactUpdated = {
+        ...contact,
+        avatar: newRoomData.avatar,
+        userName: newRoomData.name,
+        id: newRoomData.usersId,
+        // participants: newRoomData.participants,
+      };
+
+      this._contacts.splice(contactIndex, 1, contactUpdated);
+
+      if (this._chatingWith?.groupId === newRoomData.id) {
+        // this._chatingWith = newRoomData;
+        const usersId = newRoomData.usersId.split(",");
+        this._chatingWith = {
+          ...this._chatingWith,
+          avatar: newRoomData.avatar,
+          userName: newRoomData.name,
+          id: newRoomData.usersId,
+          // participants: newRoomData.participants,
+        };
+      }
+    }
+  }
+
   get user() {
+    // console.log("this._user", toJS(this._user));
     return this._user;
   }
 
   get contacts() {
+    // console.log(toJS(this._contacts));
     return this._contacts;
   }
 
   get chatingWith() {
+    // console.log("this._chatingWith", toJS(this._chatingWith));
     return this._chatingWith;
-  }
-
-  get chat() {
-    return this._chat;
   }
 
   get isAuth() {
     return this._isAuth;
+  }
+
+  get prevMessages() {
+    // console.log("this._prevMessages", toJS(this._prevMessages));
+    return this._prevMessages;
+  }
+
+  get messageToForward() {
+    // console.log(toJS(this._messageToForward));
+    return this._messageToForward;
+  }
+
+  get parentMessage() {
+    return this._parentMessage;
+  }
+
+  get contactToForward() {
+    // console.log(toJS(this._contactToForward));
+    return this._contactToForward;
+  }
+  get selectedUsers() {
+    // console.log(toJS(this._forwardTo));
+    return this._selectedUsers;
+  }
+
+  get roomId() {
+    // console.log("this._roomId", toJS(this._roomId));
+    return this._roomId;
+  }
+  get roomAll() {
+    // console.log("roomAll", toJS(this._roomAll));
+    return this._roomAll;
+  }
+  get unreadCount() {
+    // console.log(toJS(this._unreadCount));
+    return this._unreadCount;
+  }
+  get totalUnread() {
+    // console.log("this._totalUnread", toJS(this._totalUnread));
+    return this._totalUnread;
+  }
+  get currentRoom() {
+    // console.log("this._currentRoom", toJS(this._currentRoom));
+    return this._currentRoom;
   }
 }

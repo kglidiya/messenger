@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "./Signup.module.css";
 
 import { Context } from "../..";
+import { SocketContext } from "../../hoc/SocketProvider";
 import useMediaQuery from "../../hooks/useMediaQuery";
 import Button from "../../ui/button/Button";
 import Logo from "../../ui/icons/Logo/Logo";
@@ -13,13 +14,14 @@ import Input from "../../ui/input/Input";
 import { emailRegex } from "../../utils/helpers";
 
 const Signup = observer(() => {
+  const socket = useContext(SocketContext);
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors },
   } = useForm({ values: { email: "", password: "" } });
-  const { user } = useContext(Context);
+  const userStore = useContext(Context).user;
   const matches = useMediaQuery("(min-width: 576px)");
   const navigate = useNavigate();
   //   const [status, setStatus] = useState<IStatus<undefined | IUser>>({
@@ -29,16 +31,35 @@ const Signup = observer(() => {
   //   });
 
   const onSubmit = (values: any) => {
-    // handleRequest(status, setStatus, SIGN_UP_URL, "POST", values);
-    // user.setIsAuth(true);
+    // console.log(values);
+    userStore.registerUser({ ...values, isOnline: true });
+
+    // setTimeout(() => {
+    //   userStore.setAuth(true);
+    //   // const data = {
+    //   //   userId: userStore.user.id,
+    //   //   isOnline: true,
+    //   // };
+    //   // socket && socket.emit("update-userData", data);
+    //   navigate("/");
+    // }, 0);
   };
 
-  //   useEffect(() => {
-  //     if (status.data) {
-  //       user.setUser(status.data);
-  //       navigate("/");
-  //     }
-  //   }, [navigate, status.data, user]);
+  useEffect(() => {
+    if (userStore.user && userStore.user.id) {
+      // console.log(toJS(userStore.user));
+      userStore.setAuth(true);
+      // userStore.setContacts();
+      // const data = {
+      //   userId: userStore.user.id,
+      //   isOnline: true,
+      // };
+      // socket && socket.emit("update-userData", data);
+      setTimeout(() => {
+        navigate("/");
+      }, 0);
+    }
+  }, [userStore.user]);
 
   return (
     <main className={styles.container}>

@@ -1,3 +1,4 @@
+import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -6,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "./Signin.module.css";
 
 import { Context } from "../..";
+import { SocketContext } from "../../hoc/SocketProvider";
 import useMediaQuery from "../../hooks/useMediaQuery";
 import Button from "../../ui/button/Button";
 
@@ -14,6 +16,7 @@ import Input from "../../ui/input/Input";
 import { emailRegex } from "../../utils/helpers";
 
 const Signin = observer(() => {
+  const socket = useContext(SocketContext);
   const {
     register,
     handleSubmit,
@@ -31,12 +34,36 @@ const Signin = observer(() => {
   //   });
 
   const onSubmit = (values: any) => {
-    userStore.setAuth(true);
-    navigate("/");
-    // handleRequest(status, setStatus, SIGN_IN_URL, "POST", values);
-    //cartStore.setCart(status, setStatus);
-  };
+    // console.log(values);
+    userStore.login({ ...values, isOnline: true });
 
+    // setTimeout(() => {
+    //   console.log(toJS(userStore.user));
+    //   userStore.setAuth(true);
+    //   // userStore.setContacts();
+    //   // const data = {
+    //   //   userId: userStore.user.id,
+    //   //   isOnline: true,
+    //   // };
+    //   // socket && socket.emit("update-userData", data);
+    //   navigate("/");
+    // }, 0);
+  };
+  useEffect(() => {
+    if (userStore.user && userStore.user.id) {
+      // console.log(toJS(userStore.user));
+      userStore.setAuth(true);
+      userStore.setContacts();
+      // const data = {
+      //   userId: userStore.user.id,
+      //   isOnline: true,
+      // };
+      // socket && socket.emit("update-userData", data);
+      setTimeout(() => {
+        navigate("/");
+      }, 0);
+    }
+  }, [userStore.user]);
   //   useEffect(() => {
   //     if (status.data) {
   //       user.setUser(status.data);
