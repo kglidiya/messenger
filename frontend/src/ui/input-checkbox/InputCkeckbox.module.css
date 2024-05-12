@@ -20,17 +20,14 @@
 	height: 1.2em;
 	flex-shrink: 0;
 	flex-grow: 0;
-	/* border: 2px solid var(--beige-dark); */
 	border: 2px solid #c1ae76a1;	
 
-	/* box-shadow: 4px 3px 20px -1px rgba(182, 166, 128, 0.2); */
 	border-radius: 0.25em;
 	margin-right: 0.5em;
 	background-repeat: no-repeat;
 	background-position: center center;
 	background-size: 70% 70%;
 	background-color: var(--white);
-	/* background-color: var(--beige-light);  */
 }
 
 .input:checked + label::before { 

@@ -12,8 +12,12 @@
 
 .content {
   max-height: 70vh;
+  min-height: 70vh;
   overflow-y: auto;
   overflow-x: hidden;
+  /* display: flex;
+  flex-direction: column;
+  align-items: center; */
 }
 .content::-webkit-scrollbar {
   width: 7px;
@@ -36,6 +40,8 @@
   justify-content: space-between;
 
   width: 100%;
+  height: 60px;
+  padding: 10px 10px;
 }
 
 .avatar {
@@ -43,7 +49,7 @@
 
   width: 60px;
   height: 60px;
-  padding: 10px;
+  /* padding: 10px; */
 
   object-fit: cover;
   border-radius: 50%;
@@ -52,7 +58,7 @@
 }
 .searchContainer {
   width: calc(100% - 127px);
-  margin: 82px 10px 10px 110px;
+  margin: 78px 10px 7px 110px;
   position: relative;
 }
 
@@ -66,18 +72,54 @@
   padding-left: 10px;
   padding-right: 50px;
   font-size: var(--text-large);
-  /* margin-right: 30px; */
-  /* margin: 82px 10px 10px 110px; */
+  box-shadow: none;
+  /* -webkit-box-shadow: 0 0 0 30px var(--white) inset !important;
+	-moz-box-shadow: 0 0 0 30px var(--white) inset !important;
+	box-shadow: 0 0 0 30px var(--white) inset !important; */
 }
 .searchInput::placeholder {
   color: gray;
   font-size: var(--text-large);
 }
+/* input:-webkit-autofill {
+  --webkit-box-shadow: 0 0 0 30px var(--white) inset !important;
+} */
 .searchIcon {
   /* display: block;
   width: 40px;
   height: 40px; */
   position: absolute;
-  bottom: 18px;
+  bottom: 27px;
   right: 15px;
 }
+
+.searchResult {
+  margin-top: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.notification {
+  font-size: var(--text-large);
+  /* font-weight: bold; */
+}
+
+.addContactBtn {
+  background-color: var(--beige-dark);
+  border: 1px solid white;
+  border-radius: var(--border-radius);
+  color: var(--white);
+  padding: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+/* .searchResult {
+  display: flex;
+  flex-direction: row;
+} */

@@ -8,6 +8,7 @@ import useMediaQuery from "../../hooks/useMediaQuery";
 import Button from "../../ui/button/Button";
 import Logo from "../../ui/icons/Logo/Logo";
 import Input from "../../ui/input/Input";
+import { getRecoveryCode } from "../../utils/api";
 // import { setCookie } from "../../utils/cookies";
 
 const ForgotPassword = () => {
@@ -27,6 +28,8 @@ const ForgotPassword = () => {
   //   });
 
   const onSubmit = (values: any) => {
+    //navigate("/reset-password");
+    getRecoveryCode(values);
     navigate("/reset-password");
     // handleRequest(status, setStatus, `${FORGOT_PASSWORD_URL}`, "POST", values);
   };

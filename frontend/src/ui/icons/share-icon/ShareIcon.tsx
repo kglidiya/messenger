@@ -3,7 +3,7 @@ import styles from "./ShareIcone.module.css";
 interface IShareIconProps {
   width: number;
   height: number;
-  onClick: VoidFunction;
+  onClick?: VoidFunction;
   bottom?: number;
   top?: number;
   left?: number;

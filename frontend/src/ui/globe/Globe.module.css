@@ -74,7 +74,7 @@
   width: 500%;
   height: 100%;
   margin: 0;
-  background-position: -30% 50%;
+  background-position: 5% 50%;
   /* overflow: visible; */
   background-image: url("./map_front.svg");
   background-repeat: repeat-x;
@@ -89,12 +89,13 @@
   width: 500%;
   height: 100%;
   margin: 0;
-
+  /* margin-left: 5%; */
   opacity: 0.3;
 
   /* overflow: visible; */
   background-image: url("./map_back.svg");
   background-repeat: repeat-x;
+  /* background-position: -50% 50%; */
   background-position: -50% 50%;
   background-size: contain;
 

@@ -1,0 +1,95 @@
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 30px;
+  height: 70px;
+  width: 100%;
+  /* width: calc(100% - 90px); */
+  background-color: var(--beige-light);
+  border-radius: var(--border-radius);
+  /* margin-bottom: -60px; */
+  box-shadow: 0px 18px 14px -2px var(--beige-light), 0 -6px 14px -4px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  /* bottom: 90px; */
+  top: -77px;
+  left: 0;
+  /* right: 100px; */
+  /* left: 20px; */
+  z-index: 100;
+  /* position: relative; */
+}
+
+.message {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 10px;
+  text-align: justify;
+  font-size: var(--font-size-default);
+  color: gray;
+  width: 90%;
+}
+
+.image {
+  height: 90%;
+  object-fit: contain;
+  border-radius: var(--border-radius);
+  margin: 5px auto 0 auto;
+  display: block;
+}
+
+.pdf {
+  margin: 5px auto;
+  border-radius: var(--border-radius);
+}
+/* react-pdf__Page__textContent textLayer */
+.file {
+  position: relative;
+  width: 7vh;
+  height: 7vh;
+  border-radius: var(--border-radius);
+  /* background-color: var(--white);
+  border-radius: var(--border-radius); */
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  background: url("../../images/file.svg"), var(--beige-dark);
+  background-repeat: no-repeat;
+  background-size: 70%;
+  background-position: 50% 30%;
+  margin: 5px auto 0 auto;
+  padding: 0 3px 3px 3px;
+}
+.fileName {
+  font-size: var(--font-size-small);
+  width: 90%;
+  font-weight: bold;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.contact {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.button {
+  flex: none;
+  width: 25px;
+  height: 25px;
+  border: none;
+  border-color: transparent;
+  background-image: url("../../images/cross.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  border-radius: var(--border-radius);
+  background-color: transparent;
+}

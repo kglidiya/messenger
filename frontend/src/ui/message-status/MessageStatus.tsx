@@ -2,15 +2,16 @@ import React from "react";
 
 import styles from "./MessageStatus.module.css";
 
+import { IMessageStatus } from "../../utils/types";
+
 interface IMessageStatusProps {
-  isRead?: boolean;
-  isSent?: boolean;
-  isDelivered?: boolean;
+  status: IMessageStatus;
   user: string;
   creator: string;
 }
 
-export default function MessageStatus({ isRead, isSent, isDelivered, user, creator }: IMessageStatusProps) {
+export default function MessageStatus({ status, user, creator }: IMessageStatusProps) {
+  // console.log(status);
   return (
     <div
       className={styles.wrapper}
@@ -24,7 +25,7 @@ export default function MessageStatus({ isRead, isSent, isDelivered, user, creat
         fill='none'
         style={{
           marginRight: "-13px",
-          display: !isDelivered ? "none" : "inline",
+          display: status === IMessageStatus.DELIVERED || status === IMessageStatus.READ ? "inline" : "none",
         }}
       >
         <g id='SVGRepo_bgCarrier' strokeWidth='0' />
@@ -38,7 +39,7 @@ export default function MessageStatus({ isRead, isSent, isDelivered, user, creat
               <polyline
                 points='3.7 14.3 9.6 19 20.3 5'
                 fill='none'
-                stroke={!isRead ? "#9d9898" : "#3f3fb1"}
+                stroke={status !== IMessageStatus.READ ? "#9d9898" : "#3f3fb1"}
                 strokeLinecap='round'
                 strokeLinejoin='round'
                 strokeWidth='2'
@@ -59,7 +60,7 @@ export default function MessageStatus({ isRead, isSent, isDelivered, user, creat
               <polyline
                 points='3.7 14.3 9.6 19 20.3 5'
                 fill='none'
-                stroke={!isRead ? "#9d9898" : "#3f3fb1"}
+                stroke={status !== IMessageStatus.READ ? "#9d9898" : "#3f3fb1"}
                 strokeLinecap='round'
                 strokeLinejoin='round'
                 strokeWidth='2'

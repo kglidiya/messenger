@@ -1,19 +1,20 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 
 import styles from "./Home.module.css";
 
+import { Context } from "../..";
 import Chart from "../../components/chart/Chart";
 import SideBar from "../../components/side-bar/SideBar";
+import withWebSocket, { SocketProvider } from "../../hoc/SocketProvider";
 
-export function Home() {
+const Home = () => {
   return (
-    // <div className={styles.wrapper}>
-    <div className={styles.content}>
-      <SideBar />
-      {/* <Layout> */}
-      <Chart />
-      {/* </Layout> */}
-    </div>
-    // </div>
+    <SocketProvider>
+      <div className={styles.content}>
+        <SideBar />
+        <Chart />
+      </div>
+    </SocketProvider>
   );
-}
+};
+export default Home;
