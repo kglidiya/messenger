@@ -49,7 +49,7 @@ const checkToken = async () => {
   }
 };
 export const registerUser = async (data: ILoginDto) => {
-  const res = await axios(`${BASE_URL}/signup`, {
+  const res = await axios(`${BASE_URL}signup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -63,7 +63,7 @@ export const registerUser = async (data: ILoginDto) => {
 };
 
 export const login = async (data: ILoginDto) => {
-  const res = await axios(`${BASE_URL}/signin`, {
+  const res = await axios(`${BASE_URL}signin`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -78,7 +78,7 @@ export const login = async (data: ILoginDto) => {
 
 export const findUser = async (data: string) => {
   checkToken();
-  const res = await axios(`${BASE_URL}/users/searchedUser`, {
+  const res = await axios(`${BASE_URL}users/searchedUser`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -92,7 +92,7 @@ export const findUser = async (data: string) => {
 export const findUserById = async (data: any) => {
   // console.log(data);
   checkToken();
-  const res = await axios(`${BASE_URL}/users/getOneUserData`, {
+  const res = await axios(`${BASE_URL}users/getOneUserData`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -106,7 +106,7 @@ export const findUserById = async (data: any) => {
 export const createChat = async (data: ICreateChatDto) => {
   // console.log(data);
   checkToken();
-  const res = await axios(`${BASE_URL}/rooms/createGroupChat`, {
+  const res = await axios(`${BASE_URL}rooms/createGroupChat`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -131,7 +131,7 @@ export const createChat = async (data: ICreateChatDto) => {
 // };
 export const getMyChats = async (data: { userId: string }) => {
   checkToken();
-  const res = await axios(`${BASE_URL}/rooms/getAllGroups`, {
+  const res = await axios(`${BASE_URL}rooms/getAllGroups`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -145,7 +145,7 @@ export const getMyChats = async (data: { userId: string }) => {
 export const getOneRoom = async (data: { roomId: string }) => {
   // console.log(data);
   checkToken();
-  const res = await axios(`${BASE_URL}/rooms/getOneGroup`, {
+  const res = await axios(`${BASE_URL}rooms/getOneGroup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -158,7 +158,7 @@ export const getOneRoom = async (data: { roomId: string }) => {
 
 export const connectToChat = async (data: { currentUserId: string; recipientUserId: string }) => {
   checkToken();
-  const res = await axios(`${BASE_URL}/rooms/connectToRoom`, {
+  const res = await axios(`${BASE_URL}rooms/connectToRoom`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -172,7 +172,7 @@ export const connectToChat = async (data: { currentUserId: string; recipientUser
 export const getPrevMessage = async (param: any) => {
   console.log(param);
   checkToken();
-  const res = await axios(`${BASE_URL}/messages/getPrevMessage/${param.limit}/${param.offset}/${param.roomId}`, {
+  const res = await axios(`${BASE_URL}messages/getPrevMessage/${param.limit}/${param.offset}/${param.roomId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -186,7 +186,7 @@ export const getPrevMessage = async (param: any) => {
 export const findMessages = async (param: any) => {
   // console.log(param);
   checkToken();
-  const res = await axios(`${BASE_URL}/messages/getAllMessages/${param.query}/${param.roomId}`, {
+  const res = await axios(`${BASE_URL}messages/getAllMessages/${param.query}/${param.roomId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -200,7 +200,7 @@ export const findMessages = async (param: any) => {
 export const getMessageIndex = async (param: any) => {
   // console.log(param);
   checkToken();
-  const res = await axios(`${BASE_URL}/messages/getMessageIndex/${param.id}/${param.roomId}`, {
+  const res = await axios(`${BASE_URL}messages/getMessageIndex/${param.id}/${param.roomId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -213,7 +213,7 @@ export const getMessageIndex = async (param: any) => {
 
 export const getOneUser = async (data: any) => {
   checkToken();
-  const res = await axios(`${BASE_URL}/users/getOneUserData`, {
+  const res = await axios(`${BASE_URL}users/getOneUserData`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -254,7 +254,7 @@ export const getOneUser = async (data: any) => {
 export const sendFile = async (data: any) => {
   checkToken();
   // console.log(data);
-  const res = await axios(`${BASE_URL}/messages/uploadFile`, {
+  const res = await axios(`${BASE_URL}messages/uploadFile`, {
     method: "POST",
     headers: {
       // "Content-Type": "application/json",
@@ -284,7 +284,7 @@ export const sendFile = async (data: any) => {
 export const getRecoveryCode = async (data: any) => {
   console.log(data);
   checkToken();
-  const res = await axios(`${BASE_URL}/forgot-password`, {
+  const res = await axios(`${BASE_URL}forgot-password`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -298,7 +298,7 @@ export const getRecoveryCode = async (data: any) => {
 export const resetPassword = async (data: any) => {
   console.log(data);
   checkToken();
-  const res = await axios(`${BASE_URL}/reset-password`, {
+  const res = await axios(`${BASE_URL}reset-password`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

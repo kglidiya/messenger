@@ -1,52 +1,52 @@
 version: '3'
 
 services:
-  backend:
-    container_name: backend
+  backend_pm:
+    container_name: backend_pm
     build: 
       context: backend
       dockerfile: Dockerfile
-    image: backend
+    image: backend_pm
     env_file: .env
     ports:
       - '3000:3001'
     depends_on:
-      - postgres
+      - db
     restart: always
     networks:
-      - backend
-  frontend:
-    container_name: frontend
+      - backend_pm
+  frontend_pm:
+    container_name: frontend_pm
     build: 
       context: frontend
       dockerfile: Dockerfile
-    image: frontend
+    image: frontend_pm
     env_file: .env
     ports:
       - '8285:80'
     restart: always
     networks:
-      - frontend
-  postgres:
-    container_name: postgres
+      - frontend_pm
+  db:
+    container_name: db
     image: postgres:14-alpine
     env_file: .env
     restart: always
     volumes:
-      - postgres_data:/data/postgres_pigeon
+      - db_data:/data/db
     networks:
-      - backend
+      - backend_pm
   adminer:
     image: adminer
     restart: always
     ports:
       - '8080:8080'
     depends_on:
-      - postgres
+      - db
     networks:
-      - backend
+      - backend_pm
 volumes:
-  postgres_data:
+  db_data:
 networks:
-  backend:
-  frontend:
+  backend_pm:
+  frontend_pm:
