@@ -218,8 +218,7 @@ export class MessagesService {
       status:
         user && !user.isOnline ? IMessageStatus.SENT : IMessageStatus.DELIVERED,
       file: {
-        path: `https://pegion-mailer.ru/api/files/${uploadedFile.id}`,
-        // path: `${process.env.REACT_APP_BASE_URL}/files/${uploadedFile.id}`,
+        path: `${process.env.REACT_APP_BASE_URL}files/${uploadedFile.id}`,
         type: uploadedFile.mimetype,
         name: uploadedFile.originalname,
       },

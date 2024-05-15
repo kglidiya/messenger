@@ -68,6 +68,7 @@ const UserProfile = observer(
         isOnline: false,
       };
       socket && socket.emit("update-userData", data);
+      socket.disconnect();
       userStore.setUser(null);
       userStore.setAuth(false);
       userStore.setChatingWith(null);

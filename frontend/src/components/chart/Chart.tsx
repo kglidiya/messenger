@@ -385,16 +385,14 @@ const Chart = observer(() => {
       // console.log("message.roomId", message.roomId);
       // console.log(`userStore.roomId  ${userStore.roomId}`);
       if (message.roomId === userStore.roomId) {
-        userStore.updateCurrentRoomLastMsgId(message.id);
-        userStore.addMessage(message);
-        // setRoomData({ ...roomData, lastMessageId: message.id });
-        // setOffsetPrev(6);
-        setOffsetPrev((prev: any) => prev + 1);
-        setTimeout(() => {
-          scrollToBottom();
-        }, 0);
+        // userStore.updateCurrentRoomLastMsgId(message.id);
+        // userStore.addMessage(message);
+        // setOffsetPrev((prev: any) => prev + 1);
+        // setTimeout(() => {
+        //   scrollToBottom();
+        // }, 0);
         // userStore.updateUnreadCount(message);
-        // scrollToBottom();
+        scrollToBottom();
       }
       // scrollToBottom();
       userStore.incrementUnreadCount(message);

@@ -48,7 +48,7 @@ const GroupContact = observer(({ user }: IContactProps) => {
     const data = {
       roomId: userStore.currentRoom.id,
       usersId: participantsId,
-      participants,
+      participants: participants,
       // groupAvatar: values.groupAvatar,
     };
     socket && socket.emit("edit-group", data);
