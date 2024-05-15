@@ -200,6 +200,7 @@ export class MessagesService {
 
   async uploadFile(file: any, data: any): Promise<any> {
     // console.log('data:', data);
+    console.log(console.log(process.env.REACT_APP_BASE_URL));
     // console.log('file:', file);
     const uploadedFile = await this.localFilesService.saveLocalFileData(file);
     // console.log(uploadedFile);
@@ -217,7 +218,7 @@ export class MessagesService {
       status:
         user && !user.isOnline ? IMessageStatus.SENT : IMessageStatus.DELIVERED,
       file: {
-        path: `http://localhost:3000/files/${uploadedFile.id}`,
+        path: `${process.env.REACT_APP_BASE_URL}files/${uploadedFile.id}`,
         type: uploadedFile.mimetype,
         name: uploadedFile.originalname,
       },

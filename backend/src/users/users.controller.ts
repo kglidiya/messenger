@@ -64,22 +64,22 @@ export class UsersController {
     }
   }
 
-  @Post('updateAvatar')
-  @UseInterceptors(
-    LocalFilesInterceptor({
-      fieldName: 'file',
-      path: '/avatars',
-    }),
-  )
-  updateUser(
-    @Headers() token: object,
-    @UploadedFile() file: Express.Multer.File,
-  ): Promise<AuthorizationEntity> {
-    const { id } = verify(token);
-    if (id) {
-      return this.UsersService.updateAvatar(id, file);
-    } else {
-      throw new UnauthorizedException({ key: 'Invalid token!' });
-    }
-  }
+  // @Post('updateAvatar')
+  // @UseInterceptors(
+  //   LocalFilesInterceptor({
+  //     fieldName: 'file',
+  //     path: '/avatars',
+  //   }),
+  // )
+  // updateUser(
+  //   @Headers() token: object,
+  //   @UploadedFile() file: Express.Multer.File,
+  // ): Promise<AuthorizationEntity> {
+  //   const { id } = verify(token);
+  //   if (id) {
+  //     return this.UsersService.updateAvatar(id, file);
+  //   } else {
+  //     throw new UnauthorizedException({ key: 'Invalid token!' });
+  //   }
+  // }
 }

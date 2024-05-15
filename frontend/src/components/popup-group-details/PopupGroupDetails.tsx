@@ -95,19 +95,23 @@ export default function PopupGroupDetails({
       return { userId: user.id, addedOn: Date.now(), isDeleted: false };
     });
     // const oldParticipants = [...userStore.currentRoom.participants];
-    const participantsUpdated = userStore.currentRoom.participants.filter((user: any) => {
-      for (let i = 0; i < newParticipants.length; i++) {
-        if (user.userId !== newParticipants[i].userId) {
-          return user;
+    const oldParticipants = userStore.currentRoom.participants
+      .filter((user: any) => {
+        for (let i = 0; i < newParticipants.length; i++) {
+          if (user.userId !== newParticipants[i].userId) {
+            return user;
+          }
         }
-      }
-    });
+      })
+      .map((user: any) => {
+        return { userId: user.userId, addedOn: user.addedOn, isDeleted: user.isDeleted };
+      });
     // console.log("participantsUpdated", toJS(participantsUpdated));
     // console.log("newParticipants", newParticipants);
     const data = {
       roomId: userStore.currentRoom.id,
       usersId: userStore.currentRoom.usersId + "," + participants,
-      participants: [...participantsUpdated, ...newParticipants],
+      participants: [...oldParticipants, ...newParticipants],
     };
     // console.log(data);
     socket && socket.emit("edit-group", data);
@@ -138,7 +142,7 @@ export default function PopupGroupDetails({
     // console.log(toJS(userStore.forwardTo));
     const usersIdUpdated = userStore.currentRoom.usersId
       .split(",")
-      .filter((el: string) => el !== userStore.user.id)
+      .filter((id: string) => id !== userStore.user.id)
       .join();
     const participants = userStore.currentRoom.participants.map((user: any) => {
       if (user.userId === userStore.user.id) {
