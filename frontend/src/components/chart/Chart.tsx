@@ -333,14 +333,20 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
       // console.log("message.roomId", message.roomId);
       // console.log(`userStore.roomId  ${userStore.roomId}`);
       if (message.roomId === userStore.roomId) {
-        const lastMessage = userStore.prevMessages[userStore.prevMessages.length - 1].id;
-        if (userStore.currentRoom.lastMessageId !== lastMessage) {
-          userStore.clearMessages();
-          resetFetchParams();
+        if (userStore.prevMessages.length) {
+          const lastMessage = userStore.prevMessages[userStore.prevMessages.length - 1].id;
+          if (userStore.currentRoom.lastMessageId !== lastMessage) {
+            userStore.clearMessages();
+            resetFetchParams();
+          } else {
+            userStore.addMessage(message);
+            setOffsetPrev((prev: any) => prev + 1);
+          }
         } else {
           userStore.addMessage(message);
           setOffsetPrev((prev: any) => prev + 1);
         }
+
         userStore.updateCurrentRoomLastMsgId(message.id);
         setTimeout(() => {
           scrollToBottom();
@@ -363,10 +369,15 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
       // console.log(`userStore.roomId  ${userStore.roomId}`);
       if (message.roomId === userStore.roomId) {
         if (message.currentUserId !== userStore.user.id) {
-          const lastMessage = userStore.prevMessages[userStore.prevMessages.length - 1].id;
-          if (userStore.currentRoom.lastMessageId !== lastMessage) {
-            userStore.clearMessages();
-            resetFetchParams();
+          if (userStore.prevMessages.length) {
+            const lastMessage = userStore.prevMessages[userStore.prevMessages.length - 1].id;
+            if (userStore.currentRoom.lastMessageId !== lastMessage) {
+              userStore.clearMessages();
+              resetFetchParams();
+            } else {
+              userStore.addMessage(message);
+              setOffsetPrev((prev: any) => prev + 1);
+            }
           } else {
             userStore.addMessage(message);
             setOffsetPrev((prev: any) => prev + 1);
@@ -387,15 +398,23 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
     });
 
     socket.on("receive-file", (message: IMessage) => {
-      // console.log(`userStore.roomId  ${userStore.roomId}`);
-      // console.log(`message ${message.roomId}`);
+      console.log(`userStore.roomId  ${userStore.roomId}`);
+      console.log(`message ${message}`);
       // console.log(typeof userStore.roomId);
       // console.log("filesCounter", userStore.filesCounter);
       if (message.roomId === userStore.roomId) {
-        const lastMessage = userStore.prevMessages[userStore.prevMessages.length - 1].id;
-        if (userStore.currentRoom.lastMessageId !== lastMessage && userStore.filesCounter === 1) {
-          userStore.clearMessages();
-          resetFetchParams();
+        if (userStore.prevMessages.length) {
+          const lastMessage = userStore.prevMessages[userStore.prevMessages.length - 1].id;
+          if (userStore.currentRoom.lastMessageId !== lastMessage && userStore.filesCounter === 1) {
+            userStore.clearMessages();
+            resetFetchParams();
+          } else {
+            userStore.addMessage(message);
+            setOffsetPrev((prev: any) => prev + 1);
+            setTimeout(() => {
+              scrollToBottom();
+            }, 20);
+          }
         } else {
           userStore.addMessage(message);
           setOffsetPrev((prev: any) => prev + 1);
@@ -403,6 +422,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
             scrollToBottom();
           }, 20);
         }
+
         userStore.updateCurrentRoomLastMsgId(message.id);
       }
       userStore.incrementUnreadCount(message);

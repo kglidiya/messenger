@@ -10,7 +10,7 @@ export const SocketProvider: FC<PropsWithChildren> = ({ children }) => {
   const userStore = useContext(Context).user;
   // const [socket, setSocket] = useState<any>(null);
   const [socket] = useState<any>(
-    io(process.env.REACT_APP_BASE_URL as string, {
+    io(process.env.REACT_APP_WS_URL as string, {
       transports: ["websocket", "polling", "flashsocket"],
       query: { userId: userStore.user.id },
     }),

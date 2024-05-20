@@ -2,11 +2,16 @@
   max-width: 90%;
   min-width: 10vw;
   object-fit: contain;
+  max-height: 30vh;
   border-radius: var(--border-radius);
   margin: 15px auto;
   display: block;
   cursor: pointer;
 
+}
+
+.imageHidden {
+  display: none;
 }
 
 .imageLoader {

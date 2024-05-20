@@ -200,7 +200,7 @@ export class MessagesService {
 
   async uploadFile(file: any, data: any): Promise<any> {
     // console.log('data:', data);
-    console.log(console.log(process.env.REACT_APP_BASE_URL));
+    // console.log(process.env.REACT_APP_WS_URL);
     // console.log('file:', file);
     const uploadedFile = await this.localFilesService.saveLocalFileData(file);
     // console.log(uploadedFile);
