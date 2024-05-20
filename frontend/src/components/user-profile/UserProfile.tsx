@@ -300,7 +300,7 @@ const UserProfile = observer(
                   transition={{ duration: 0.3 }}
                 >
                   {userStore.contacts.map((user: any) => {
-                    if (user.id !== userStore.user.id && !user.groupId) {
+                    if (user.id !== userStore.user.id && user.email) {
                       return (
                         <li key={user.id} className={styles.contacts__item}>
                           <InputCheckbox
@@ -315,7 +315,7 @@ const UserProfile = observer(
                             <NoAvatar width={50} height={50} />
                           )}
                           <div className={styles.details}>
-                            <p> {user.username}</p>
+                            <p> {user.userName}</p>
                             <p> {user.email}</p>
                           </div>
                         </li>

@@ -51,7 +51,7 @@ export interface IUser {
 }
 
 export interface IContact extends IUser {
-  groupId?: string;
+  chatId?: string;
   participants?: IUser[];
 }
 

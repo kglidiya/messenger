@@ -96,8 +96,8 @@ export class MessagesService {
     roomId: RoomId,
     userId: string,
   ): Promise<MessagesEntity[]> {
-    console.log('limit', limit);
-    console.log('offset', offset);
+    // console.log('limit', limit);
+    // console.log('offset', offset);
     // console.log('limit', limit);
     try {
       const msgToGroupChart = await this.messageRepository

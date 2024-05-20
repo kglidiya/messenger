@@ -21,6 +21,7 @@ import EmojiIcon from "../../ui/icons/emoji/EmojiIcon";
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
 import SearchIcon from "../../ui/icons/search-icon/SearchIcon";
 import InputFile from "../../ui/input-file/InputFile";
+import Loader from "../../ui/loader/Loader";
 import Textarea from "../../ui/textarea/Textarea";
 import { getMessageIndex, getOneUser, getPrevMessage, sendFile } from "../../utils/api";
 import { countLines, findItemById, getDate } from "../../utils/helpers";
@@ -39,7 +40,7 @@ import TypingIndicator from "../typing-indicator/TypingIndicator";
 
 const { v4: uuidv4 } = require("uuid");
 
-const Chart = observer(() => {
+const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoading: boolean }) => {
   // const socket = io("http://localhost:3001", { transports: ["websocket", "polling", "flashsocket"] });
   const userStore = useContext(Context).user;
   const socket = useContext(SocketContext);
@@ -50,7 +51,7 @@ const Chart = observer(() => {
   const [isEmojiOpen, setIsEmojiOpen] = useState(false);
   // const [addedToGroupOn, setAddedToGroupOn] = useState(0);
   const [value, setValue] = useState("");
-  // const [valueFileTextArea, setValueFileTextArea] = useState("");
+  // const [isLoading, setIsLoading] = useState(true);
   const [caretPos, setCaretPos] = useState(0);
   const [rows, setRows] = useState(2);
   const [imageSrc, setImageSrc] = useState("");
@@ -66,8 +67,8 @@ const Chart = observer(() => {
   const [isPopupSearchMessageOpen, setIsPopupSearchMessageOpen] = useState(false);
   const [isReplyToMessageOpen, setIsReplyToMessageOpen] = useState(true);
   const [typingUserData, setTypingUserData] = useState<any | null>(null);
-
-  const [limit, setLimit] = useState<any>(5);
+  // const [filesCounter, setFilesCounter] = useState(0);
+  const [limit, setLimit] = useState<any>(15);
   const [offsetNext, setOffsetNext] = useState<number>(0);
   const [offsetPrev, setOffsetPrev] = useState<number>(0);
   const [fetching, setFetching] = useState(false);
@@ -93,49 +94,25 @@ const Chart = observer(() => {
   }, [userStore.prevMessages.length]);
 
   const scrollToBottom = () => {
-    // console.log("scrollToBottom");
-    // console.log("itemsRef.current[userStore.prevMessages.length - 1]", itemsRef.current, userStore.prevMessages.length);
-    if (itemsRef.current && userStore.prevMessages.length) {
-      // console.log(
-      //   "itemsRef.current[userStore.prevMessages.length - 1]",
-      //   itemsRef.current[userStore.prevMessages.length - 1],
-      // );
-      itemsRef.current[userStore.prevMessages.length - 1].scrollIntoView({
-        behavior: "smooth",
-        // block: "end",
-        // inline: "nearest",
-      });
-    }
-    // console.log("scrollToBottom");
+    // if (itemsRef.current && userStore.prevMessages.length) {
+    //   itemsRef.current[userStore.prevMessages.length - 1].scrollIntoView({
+    //     behavior: "smooth",
+    //   });
+    // }
+    console.log("scrollToBottom");
     // console.log("offsetNext", offsetNext);
     // console.log("offsetPrev", offsetPrev);
-    // const lastMessage = userStore.prevMessages[userStore.prevMessages.length - 1].id;
-    // // console.log("userStore.currentRoom.lastMessageId", userStore.currentRoom.lastMessageId);
-    // // console.log("lastMessage", lastMessage);
-    // if (userStore.currentRoom.lastMessageId === lastMessage) {
-    //   if (itemsRef.current && userStore.prevMessages.length) {
-    //     itemsRef.current[userStore.prevMessages.length - 1].scrollIntoView({
-    //       behavior: "smooth",
-    //     });
-    //   }
-    //   // resetFetchParams();
-    // }
-    // else {
-    //   // userStore.clearMessages();
-    //   // resetFetchParams();
-    //   userStore.clearMessages();
-    //   setOffsetPrev(0);
-    //   setOffsetNext(0);
-    //   setFetchPrev(true);
-    //   setFetching(true);
-
-    //   // if (itemsRef.current && userStore.prevMessages.length) {
-    //   //   itemsRef.current[userStore.prevMessages.length - 1].scrollIntoView({
-    //   //     behavior: "smooth",
-    //   //     // block: "end",
-    //   //   });
-    //   // }
-    // }
+    if (itemsRef.current && userStore.prevMessages.length) {
+      const lastMessage = userStore.prevMessages[userStore.prevMessages.length - 1].id;
+      if (userStore.currentRoom.lastMessageId === lastMessage) {
+        itemsRef.current[userStore.prevMessages.length - 1].scrollIntoView({
+          behavior: "auto",
+        });
+      } else {
+        userStore.clearMessages();
+        resetFetchParams();
+      }
+    }
 
     setScroll(document.documentElement.clientHeight);
   };
@@ -155,30 +132,23 @@ const Chart = observer(() => {
       console.log("index", index);
       if (index >= 0) {
         userStore.clearMessages();
-        if (Number(index) >= 10) {
-          // console.log("index", index);
-          setOffsetPrev(index - 4);
-          // setOffsetNext(index - 4 - 5 < 0 ? 0 : index - 4 - 5);
-          setOffsetNext(index - 4 - 5);
+        // if (Number(index) >= 10) {
+        //   setOffsetPrev(index - 4);
+        //   setOffsetNext(index - 4 - 5);
+        // } else {
+        //   setOffsetPrev(index);
+        //   setOffsetNext(0);
+        // }
+        if (Number(index) >= 30) {
+          setOffsetPrev(index - (limit - 1));
+          setOffsetNext(index - (limit - 1) - limit);
         } else {
-          // console.log("index) >= 5", index);
           setOffsetPrev(index);
           setOffsetNext(0);
         }
 
-        // setLimit(roomData && roomData.messagesTotal);
-        // setLimit(10);
-        // setMessagesIndexToSearch(index);
         setFetching(true);
         setFetchPrev(true);
-        // const res = await getPrevMessage({
-        //   limit: roomData && roomData.messagesTotal,
-        //   offset: index - 4,
-        //   roomId: userStore.roomId,
-        // });
-        // console.log(res);
-        // const messages = res.reverse();
-        // userStore.setMessages(messages);
       } else setMessagesIndexToSearch(null);
     }
     // console.log(targetMessage);
@@ -192,8 +162,9 @@ const Chart = observer(() => {
   // }, [userStore.chatingWith, userStore.contacts.length]);
   useEffect(() => {
     if (userStore.isAuth) {
+      setIsLoading(false);
       // console.log(`userStore.isAuth`);
-
+      userStore.setContacts();
       const data = {
         userId: userStore.user.id,
         isOnline: true,
@@ -205,11 +176,12 @@ const Chart = observer(() => {
 
   useEffect(() => {
     if (userStore.contacts.length) {
-      userStore.setChatingWith(userStore.contacts[0]);
-      // console.log("set cherting with");
-      // if (!userStore.chatingWith) {
-      //   userStore.setChatingWith(userStore.contacts[0]);
-      // } else userStore.setChatingWith(userStore.contacts[userStore.contacts.length - 1]);
+      // userStore.setChatingWith(userStore.contacts[0]);
+      // console.log("isFirstRender", isFirstRender);
+      // console.log("userStore.contacts.length", userStore.contacts.length);
+      if (userStore.chatingWith) {
+        userStore.setChatingWith(userStore.contacts[userStore.contacts.length - 1]);
+      } else userStore.setChatingWith(userStore.contacts[0]);
     }
   }, [userStore.contacts.length]);
 
@@ -219,12 +191,13 @@ const Chart = observer(() => {
     if (userStore.chatingWith) {
       // console.log("userStore.setCurrentRoom");
       setValue("");
-      if (userStore.chatingWith.groupId) {
-        userStore.setCurrentRoom(userStore.chatingWith.id);
-      } else {
-        const userIds = [userStore.user.id, userStore.chatingWith.id].sort();
-        userStore.setCurrentRoom(userIds.join());
-      }
+      userStore.setCurrentRoom(userStore.chatingWith.chatId);
+      // if (!userStore.chatingWith.email) {
+      //   userStore.setCurrentRoom(userStore.chatingWith.chatId);
+      // } else {
+      //   // const userIds = [userStore.user.id, userStore.chatingWith.id].sort();
+      //   userStore.setCurrentRoom(userStore.chatingWith.chatId);
+      // }
     }
     // else if (userStore.chatingWith && !isFirstRender) {
     //   userStore.getOneRoom({ roomId: userStore.currentRoom?.id });
@@ -241,6 +214,7 @@ const Chart = observer(() => {
   // console.log(addedToGroupOn);
   useEffect(() => {
     if (userStore.roomId) {
+      // setIsLoading(false);
       // console.log("fetch", userStore.roomId);
       // userStore.getOneRoom({ roomId: userStore.currentRoom?.id });
       // userStore.setContacts();
@@ -271,7 +245,7 @@ const Chart = observer(() => {
       //   scrollToBottom();
       // }, 0);
     }
-    // scrollToBottom();
+    // setIsLoading(false);
   }, [userStore.roomId]);
 
   // useEffect(() => {
@@ -335,7 +309,7 @@ const Chart = observer(() => {
     // if (isFirstRender) {
     //   scrollToBottom();
     // }
-    if (offsetNext === 0 && offsetPrev === 5 && userStore.prevMessages.length > 0) {
+    if (offsetNext === 0 && offsetPrev === limit && userStore.prevMessages.length > 0) {
       setTimeout(() => {
         scrollToBottom();
       }, 20);
@@ -359,15 +333,18 @@ const Chart = observer(() => {
       // console.log("message.roomId", message.roomId);
       // console.log(`userStore.roomId  ${userStore.roomId}`);
       if (message.roomId === userStore.roomId) {
-        userStore.addMessage(message);
+        const lastMessage = userStore.prevMessages[userStore.prevMessages.length - 1].id;
+        if (userStore.currentRoom.lastMessageId !== lastMessage) {
+          userStore.clearMessages();
+          resetFetchParams();
+        } else {
+          userStore.addMessage(message);
+          setOffsetPrev((prev: any) => prev + 1);
+        }
         userStore.updateCurrentRoomLastMsgId(message.id);
-        // setRoomData({ ...roomData, lastMessageId: message.id });
-        // setOffsetPrev(6);
-        setOffsetPrev((prev: any) => prev + 1);
-        // userStore.updateUnreadCount(message);
         setTimeout(() => {
           scrollToBottom();
-        }, 0);
+        }, 20);
       }
       userStore.incrementUnreadCount(message);
       // scrollToBottom();
@@ -385,14 +362,22 @@ const Chart = observer(() => {
       // console.log("message.roomId", message.roomId);
       // console.log(`userStore.roomId  ${userStore.roomId}`);
       if (message.roomId === userStore.roomId) {
-        // userStore.updateCurrentRoomLastMsgId(message.id);
-        // userStore.addMessage(message);
-        // setOffsetPrev((prev: any) => prev + 1);
-        // setTimeout(() => {
-        //   scrollToBottom();
-        // }, 0);
+        if (message.currentUserId !== userStore.user.id) {
+          const lastMessage = userStore.prevMessages[userStore.prevMessages.length - 1].id;
+          if (userStore.currentRoom.lastMessageId !== lastMessage) {
+            userStore.clearMessages();
+            resetFetchParams();
+          } else {
+            userStore.addMessage(message);
+            setOffsetPrev((prev: any) => prev + 1);
+          }
+        }
+        userStore.updateCurrentRoomLastMsgId(message.id);
+        setTimeout(() => {
+          scrollToBottom();
+        }, 20);
         // userStore.updateUnreadCount(message);
-        scrollToBottom();
+        // scrollToBottom();
       }
       // scrollToBottom();
       userStore.incrementUnreadCount(message);
@@ -405,15 +390,20 @@ const Chart = observer(() => {
       // console.log(`userStore.roomId  ${userStore.roomId}`);
       // console.log(`message ${message.roomId}`);
       // console.log(typeof userStore.roomId);
-      // console.log(typeof message.roomId);
+      // console.log("filesCounter", userStore.filesCounter);
       if (message.roomId === userStore.roomId) {
-        userStore.addMessage(message);
+        const lastMessage = userStore.prevMessages[userStore.prevMessages.length - 1].id;
+        if (userStore.currentRoom.lastMessageId !== lastMessage && userStore.filesCounter === 1) {
+          userStore.clearMessages();
+          resetFetchParams();
+        } else {
+          userStore.addMessage(message);
+          setOffsetPrev((prev: any) => prev + 1);
+          setTimeout(() => {
+            scrollToBottom();
+          }, 20);
+        }
         userStore.updateCurrentRoomLastMsgId(message.id);
-        // setRoomData({ ...roomData, lastMessageId: message.id });
-        setOffsetPrev((prev: any) => prev + 1);
-        setTimeout(() => {
-          scrollToBottom();
-        }, 0);
       }
       userStore.incrementUnreadCount(message);
       // if (message.roomId === userStore.roomId) {
@@ -475,11 +465,12 @@ const Chart = observer(() => {
         userStore.setContacts();
         // userStore.setUnreadCount();
         userStore.clearMessages();
-        console.log("userStore.contacts.length;", toJS(userStore.contacts.length));
+        // console.log("userStore.contacts.length;", toJS(userStore.contacts.length));
       }
 
       // setTimeout(() => {
-      //   chatWithLastContact();
+      //   // chatWithLastContact();
+      //   console.log("userStore.contacts.length;", toJS(userStore.contacts.length));
       // }, 0);
     });
 
@@ -487,41 +478,22 @@ const Chart = observer(() => {
       // console.log("receive-groupData", groupData);
       const participant = groupData.participants.filter((el: IGroupParticipant) => el.userId === userStore.user.id)[0];
       // console.log("participant", participant);
-      const isGroupInContacts = userStore.contacts.findIndex((el: any) => el.groupId === groupData.id) !== -1;
+      const isGroupInContacts = userStore.contacts.findIndex((el: any) => el.chatId === groupData.id) !== -1;
       if (participant && !participant.isDeleted && isGroupInContacts) {
-        console.log("1");
+        // console.log("1");
         userStore.updateGroup(groupData);
       }
       if (participant && !participant.isDeleted && !isGroupInContacts) {
-        console.log("2");
+        // console.log("2");
         userStore.setContacts();
       }
       if (participant && participant.isDeleted && isGroupInContacts) {
-        console.log("3");
+        // console.log("3");
         userStore.setContacts();
         userStore.setChatingWith(null);
         userStore.setCurrentRoom(null);
         userStore.clearMessages();
       }
-      // const isGroupInContacts = userStore.contacts.findIndex((el: any) => el.groupId === groupData.id) === -1;
-      // console.log(toJS(userStore.contacts));
-      // const participant = groupData.usersId.split(",").findIndex((el: any) => el === userStore.user.id) !== -1;
-      // const notInContacts = userStore.contacts.findIndex((el: any) => el.groupId === groupData.id) === -1;
-      // if (!participant && notInContacts) {
-      //   console.log("!notParticipant && notInContacts");
-      //   userStore.setContacts();
-
-      // }
-      // if (participant && !notInContacts) {
-      //   console.log("notParticipant");
-      //   userStore.setContacts();
-      //   userStore.setChatingWith(null);
-      //   userStore.setCurrentRoom(null);
-      //   userStore.clearMessages();
-      // } else if (!participant && !notInContacts) {
-      //   console.log("else !notParticipant && !notInContacts");
-      //   userStore.updateGroup(groupData);
-      // }
     });
   }, []);
 
@@ -716,22 +688,30 @@ const Chart = observer(() => {
         for (let key in data) {
           // console.log(data[key as keyof typeof data]);
           form.append(key, data[key as keyof typeof data]);
+          // setFilesCounter((prev) => prev++);
         }
         // form.append(data);
         const message = await sendFile(form);
-
+        // console.log("index", index);
+        // userStore.setFilesCounter(index);
+        // setFilesCounter(files.length);
         // userStore.updateRooms(userStore.roomId, message.id);
         setTimeout(() => {
           socket.emit("send-file", message);
-          // userStore.updateRooms(userStore.roomId, message.id);
+          userStore.incrementFilesCounter();
+          // setFilesCounter((prev) => prev + 1);
           setValue("");
           setRows(2);
+          // setFilesCounter(0);
         }, 0);
       }
     }
     setIsPopupAttachFileOpen(false);
     setFilesToRemove([]);
+    userStore.setFilesCounter(0);
+    //setFilesCounter(0);
   };
+  // console.log("filesCounter", filesCounter);
   const creactFileToSend = (fileData: any, type: string) => {
     var file = new File([fileData], "image.png", { type: type });
     // console.log(file);
@@ -806,44 +786,12 @@ const Chart = observer(() => {
 
   // console.log("roomDataddddd", roomData && roomData.lastMessageId);
   const scrollHander = (e: WheelEvent) => {
-    // setRoomData(userStore.roomAll.filter((room: any) => room.id === userStore.roomId)[0]);
-    // console.log(roomData && roomData.messagesTotal);
-    // console.log(e.deltaY);
-    // console.log("roomDataddddd", roomData);
-    // console.log("messageIndexToSearch", messageIndexToSearch);
     refMessages.current && setScroll(refMessages.current?.scrollHeight - refMessages.current?.scrollTop);
-    // const { scrollHeight } = refChart.current;
-    // const currentHeight = document.documentElement.scrollTop + window.innerHeight;
-    // console.log("document.documentElement.scrollTop", document.documentElement.scrollTop);
-    // console.log("window.innerHeight", window.innerHeight);
-    // if (e.deltaY < 0 && scrollHeight - currentHeight > 100) {
-    // const { scrollHeight } = refMessages.current;
-    // const currentHeight = refMessages.current?.scrollTop + window.innerHeight;
-    // if (scrollHeight - currentHeight < 100) {
-    //   setFetching(true);
-    // }
-    // console.log(roomData);
+
     const chartHeight = refMessages.current?.scrollHeight;
     const chartBottomPos =
       refMessages.current && refChart.current && refMessages.current?.scrollTop + refChart.current?.scrollHeight - 150;
-    // console.log("chartHeight", chartHeight);
-    // console.log("chartBottomPos ", chartBottomPos);
-    // console.log(
-    //   "refMessages.current?.scrollTop",
-    //   refMessages.current && refChart.current && refMessages.current?.scrollTop + refChart.current?.scrollHeight - 150,
-    // );
-    // console.log(chartBottomPos && chartHeight && chartBottomPos - chartHeight);
-    // console.log(
-    //   "userStore.prevMessages[userStore.prevMessages.length - 1].id !== roomData.lastMessageId",
-    //   userStore.prevMessages[userStore.prevMessages.length - 1].id !== roomData.lastMessageId,
-    // );
-    // console.log("userStore.currentRoom.firstMessageId ", userStore.currentRoom.firstMessageId);
-    // console.log("userStore.prevMessages[0].firstMessageId", userStore.prevMessages[0].id);
-    // console.log("userStore.currentRoom.lastMessageId", userStore.currentRoom.lastMessageId);
-    // console.log(
-    //   "userStore.prevMessages[0].lastMessageId",
-    //   userStore.prevMessages[userStore.prevMessages.length - 1].id,
-    // );
+
     if (
       userStore.prevMessages.length &&
       refMessages.current &&
@@ -852,7 +800,7 @@ const Chart = observer(() => {
       // userStore.prevMessages[0].id !== roomData.firstMessageId
       userStore.prevMessages[0].id !== userStore.currentRoom.firstMessageId
     ) {
-      console.log("set prev");
+      // console.log("set prev");
       setFetchPrev(true);
       setFetchNext(false);
       setFetching(true);
@@ -870,7 +818,7 @@ const Chart = observer(() => {
       chartHeight &&
       chartBottomPos - chartHeight > 0
     ) {
-      console.log("fetch next");
+      // console.log("fetch next");
       // setFetching(true);
       setFetchNext(true);
       setFetchPrev(false);
@@ -892,25 +840,7 @@ const Chart = observer(() => {
     };
     // }, [roomData, userStore.prevMessages.length]);
   }, [userStore.currentRoom]);
-  // console.log(toJS(fetching));
-  // useEffect(() => {
-  //   console.log("fetchNext", fetchNext);
-  //   console.log("fetchPrev", fetchPrev);
-  //   if (fetchPrev) {
-  //     setOffsetPrev((prev: any) => prev + 5);
-  //     // if (isFirstRender) {
-  //     //   setOffsetPrev(5);
-  //     // } else setOffsetPrev((prev: any) => prev + 5);
-  //   }
-  //   if (fetchNext) {
-  //     setOffsetNext((prev: any) => {
-  //       console.log(prev);
-  //       return prev - 5;
-  //     });
-  //   }
-  // }, [fetchPrev, fetchNext]);
-  // console.log("roomData", toJS(roomData));
-  // console.log("userStore.roomId", toJS(userStore.roomId));
+
   const fetchMessages = async () => {
     // console.log("fetchNext", fetchNext);
     // console.log("fetchPrev", fetchPrev);
@@ -961,50 +891,50 @@ const Chart = observer(() => {
     // console.log("condition", fetching && roomData && userStore.prevMessages.length < roomData.messagesTotal);
     if (fetching) {
       // console.log("fetching", fetching);
+      // if (fetchPrev) {
+      //   if (isFirstRender) {
+      //     setOffsetPrev(5);
+      //   } else setOffsetPrev((prev: any) => prev + 5);
+      // }
+      // if (fetchNext) {
+      //   setOffsetNext((prev: any) => {
+      //     if (prev < 5 && prev > 0) {
+      //       setLimit(prev);
+      //       return 0;
+      //     }
+      //     if (prev === 0) {
+      //       setLimit(5);
+      //       return 0;
+      //     } else {
+      //       setLimit(5);
+      //       return prev - 5;
+      //     }
+      //   });
+      // }
       if (fetchPrev) {
         if (isFirstRender) {
-          setOffsetPrev(5);
-          // scrollToBottom();
-        } else setOffsetPrev((prev: any) => prev + 5);
+          setOffsetPrev(limit);
+        } else setOffsetPrev((prev: any) => prev + limit);
       }
       if (fetchNext) {
         setOffsetNext((prev: any) => {
-          // console.log("prev", prev);
-          // if (prev - 5 > 0) return prev - 5;
-          if (prev < 5 && prev > 0) {
+          if (prev < 15 && prev > 0) {
             setLimit(prev);
             return 0;
           }
           if (prev === 0) {
-            setLimit(5);
+            setLimit(15);
             return 0;
           } else {
-            setLimit(5);
-            return prev - 5;
+            setLimit(15);
+            return prev - 15;
           }
         });
       }
-      // if (offsetNext >= 0) {
-      //   fetchMessages();
-      // }
+
       fetchMessages();
-      // scrollToBottom();
     }
   }, [fetching]);
-  // console.log(toJS(userStore.currentRoom));
-  // console.log("roomData.lastMessageId", roomData && roomData.lastMessageId);
-  // console.log(
-  //   "userStore.parentMessage.lastMessageId",
-  //   userStore.prevMessages.length && userStore.prevMessages[userStore.prevMessages.length - 1].id,
-  // );
-  // console.log(userStore.chatingWith && !userStore.chatingWith.groupId);
-  // useEffect(() => {
-  //   const handleScroll = () => {
-  //     setScroll(window.scrollY);
-  //   };
-  //   window.addEventListener("scroll", handleScroll);
-  //   return () => window.removeEventListener("scroll", handleScroll);
-  // }, []);
 
   // console.log("scroll", scroll);
   // useEffect(() => {
@@ -1018,6 +948,9 @@ const Chart = observer(() => {
   // console.log("roomData.messagesTotal", roomData);
   // console.log("userStore.prevMessages.length", userStore.prevMessages.length);
   // console.log("typingUserData", typingUserData);
+  // if (isLoading) {
+  //   return <Loader />;
+  // }
   return (
     <div className={styles.wrapper} onClick={closeAllPopups} ref={refChart}>
       {userStore.chatingWith && (
@@ -1032,10 +965,8 @@ const Chart = observer(() => {
               {userStore.chatingWith.userName ? userStore.chatingWith.userName : userStore.chatingWith.email}
             </p>
 
-            {!userStore.chatingWith.groupId && userStore.chatingWith.isOnline && (
-              <p className={styles.isOnline}>В сети</p>
-            )}
-            {!userStore.chatingWith.groupId && !userStore.chatingWith.isOnline && (
+            {userStore.chatingWith.email && userStore.chatingWith.isOnline && <p className={styles.isOnline}>В сети</p>}
+            {userStore.chatingWith.email && !userStore.chatingWith.isOnline && (
               <p className={styles.isOnline}>Не в сети</p>
             )}
           </div>
@@ -1046,7 +977,7 @@ const Chart = observer(() => {
 
           <DetailsButton onClick={openDetailsPopup} />
 
-          {userStore.chatingWith && !userStore.chatingWith.groupId && (
+          {userStore.chatingWith && userStore.chatingWith.email && (
             <ContactDetails
               {...userStore.chatingWith}
               onClick={() => {
@@ -1058,7 +989,7 @@ const Chart = observer(() => {
               isPopupDetailsOpen={isPopupDetailsOpen}
             />
           )}
-          {userStore.currentRoom && userStore.chatingWith.groupId && (
+          {userStore.currentRoom && !userStore.chatingWith.email && (
             <PopupGroupDetails
               {...userStore.chatingWith}
               isPopupDetailsOpen={isPopupDetailsOpen}
@@ -1076,6 +1007,11 @@ const Chart = observer(() => {
         }}
         ref={refMessages}
       >
+        {isLoading && (
+          <div style={{ marginTop: "25vh" }}>
+            <Loader color='white' />
+          </div>
+        )}
         {userStore.prevMessages.length > 0 &&
           userStore.prevMessages.map((message: any, i: number, arr: any) => {
             return (
@@ -1123,7 +1059,7 @@ const Chart = observer(() => {
       <div style={{ position: "relative" }}>
         <div className={styles.container}>
           <EmojiIcon onClick={emojiToggle} />
-          {userStore.chatingWith && !userStore.chatingWith.groupId && typingUserData && typingUserData.isPrinting && (
+          {userStore.chatingWith && userStore.chatingWith.email && typingUserData && typingUserData.isPrinting && (
             <TypingIndicator
               avatar={userStore.chatingWith.avatar}
               email={userStore.chatingWith.email}
@@ -1138,7 +1074,7 @@ const Chart = observer(() => {
             />
           )} */}
           {userStore.chatingWith &&
-            userStore.chatingWith.groupId &&
+            !userStore.chatingWith.email &&
             typingUserData &&
             typingUserData.isPrinting &&
             userStore.currentRoom.participants.map((user: any) => {

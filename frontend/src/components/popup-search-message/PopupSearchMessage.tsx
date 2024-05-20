@@ -41,7 +41,7 @@ export default function PopupSearchMessage({
 
   const searchMessages = async (query: string) => {
     //navigate("/reset-password");
-    console.log(query);
+    // console.log(query);
     try {
       if (query.length > 1) {
         const res = await findMessages({
@@ -61,7 +61,7 @@ export default function PopupSearchMessage({
   const handleInputChange: ChangeEventHandler<HTMLInputElement> = () => {
     debouncedSearch(watch("query"));
   };
-  console.log(searchResult);
+  // console.log(searchResult);
   return (
     <motion.section
       className={styles.wrapper}

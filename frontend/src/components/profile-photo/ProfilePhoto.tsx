@@ -108,7 +108,7 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
           roomId: userStore.currentRoom.id,
           avatar: img,
         };
-        console.log("edit-group avatarr");
+        // console.log("edit-group avatarr");
         socket && socket.emit("edit-group", data);
       }
     }

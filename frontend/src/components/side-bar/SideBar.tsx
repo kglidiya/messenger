@@ -12,6 +12,7 @@ import Logo from "../../ui/icons/Logo/Logo";
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
 import SearchIcon from "../../ui/icons/search-icon/SearchIcon";
 import ShrugIcon from "../../ui/icons/shrug-icon/ShrugIcon";
+import Loader from "../../ui/loader/Loader";
 import MenuButton from "../../ui/menu-button/MenuButton";
 import { createChat, findUser } from "../../utils/api";
 import { users } from "../../utils/mockData";
@@ -20,7 +21,7 @@ import UserProfile from "../user-profile/UserProfile";
 
 const streamToBlob = require("stream-to-blob");
 
-const SideBar = observer(() => {
+const SideBar = observer(({ isLoading }: { isLoading: boolean }) => {
   const userStore = useContext(Context).user;
   const socket = useContext(SocketContext);
   const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
@@ -123,10 +124,15 @@ const SideBar = observer(() => {
         <MenuButton onClick={toggle} open={isMenuOpen} />
       </div>
       <div className={styles.content}>
+        {isLoading && !userStore.contacts.length && (
+          <div style={{ marginTop: "30vh" }}>
+            <Loader color='white' />
+          </div>
+        )}
         {searchResult.length === 0 &&
           userStore.unreadCount.length === userStore.contacts.length &&
           userStore.contacts.map((user: any, i: number) => (
-            <Contact key={user.id} user={user} unread={userStore.unreadCount[i].unread} />
+            <Contact key={user.chatId} user={user} unread={userStore.unreadCount[i].unread} />
           ))}
         {searchResult.length > 0 && (
           <>

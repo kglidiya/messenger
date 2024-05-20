@@ -29,7 +29,7 @@ const Contact = observer(({ user, unread }: IContactProps) => {
   const handleContactClick = () => {
     // userStore.setChatingWith(user);
     // userStore.clearMessages();
-    if (userStore.chatingWith.id !== user.id) {
+    if (userStore.chatingWith.chatId !== user.chatId) {
       userStore.clearMessages();
       userStore.setChatingWith(user);
       // userStore.getOneRoom({ roomId: userStore.currentRoom?.id });
@@ -54,8 +54,8 @@ const Contact = observer(({ user, unread }: IContactProps) => {
           <div className={styles.details}>
             <div className={styles.userInfo}>
               <p className={styles.name}>{user.userName ? user.userName : user.email}</p>
-              {!user.groupId && user.isOnline && <p className={styles.isOnline}>В сети</p>}
-              {!user.groupId && !user.isOnline && <p className={styles.isOnline}>Не в сети</p>}
+              {user.email && user.isOnline && <p className={styles.isOnline}>В сети</p>}
+              {user.email && !user.isOnline && <p className={styles.isOnline}>Не в сети</p>}
             </div>
 
             {/* <p className={styles.timeStamp}>{timeStamp}</p>

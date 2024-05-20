@@ -122,7 +122,7 @@ export default function PopupGroupDetails({
 
   const addAdmin = (userId: string) => {
     // e.stopPropagation();
-    console.log(userId);
+    // console.log(userId);
     // const participants = userStore.forwardTo.join();
     // console.log(e.target.nodeName);
     const andmins = [...userStore.currentRoom.admin, userId];
@@ -273,7 +273,7 @@ export default function PopupGroupDetails({
             {/* <DeleteIcon onClick={() => {}} /> */}
 
             {userStore.contacts.map((user: any) => {
-              if (user.id !== userStore.user.id && !user.groupId && !userStore.currentRoom.usersId.includes(user.id)) {
+              if (user.id !== userStore.user.id && user.email && !userStore.currentRoom.usersId.includes(user.id)) {
                 return (
                   <article key={user.id} className={styles.contacts__item}>
                     <InputCheckbox
@@ -288,7 +288,7 @@ export default function PopupGroupDetails({
                       <NoAvatar width={50} height={50} />
                     )}
                     <div className={styles.details}>
-                      <p> {user.username}</p>
+                      <p> {user.userName}</p>
                       <p> {user.email}</p>
                     </div>
                   </article>

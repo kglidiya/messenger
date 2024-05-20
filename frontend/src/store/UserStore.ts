@@ -36,6 +36,7 @@ export default class UserStore {
   _roomId: string | null;
   _unreadCount: IUnreadCount[];
   _totalUnread: number;
+  _filesCounter: number;
 
   constructor() {
     this._user = null;
@@ -52,6 +53,7 @@ export default class UserStore {
     this._roomId = null;
     this._unreadCount = [];
     this._totalUnread = 0;
+    this._filesCounter = 0;
 
     makeAutoObservable(this);
   }
@@ -97,16 +99,14 @@ export default class UserStore {
   //   });
   // }
 
-  async setCurrentRoom(usersId: string) {
+  async setCurrentRoom(id: string) {
     // console.log("setCurrentRoom usersId", usersId);
-    if (!usersId) {
+    if (!id) {
       this._currentRoom = null;
     } else {
-      // console.log("this._roomAll.length", this._roomAll.length);
-      // const room = this._roomAll.filter((room: any) => room.usersId === usersId && room.name !== "private")[0];
-      const room = this._roomAll.filter((room) => room.usersId === usersId)[0];
-      // console.log("setCurrentRoom room u", room);
-      const newRoom = await getOneRoom({ roomId: room.id });
+      // const room = this._roomAll.filter((room) => room.usersId === usersId)[0];
+
+      const newRoom = await getOneRoom({ roomId: id });
       runInAction(() => {
         this._currentRoom = newRoom;
         // console.log(newRoom);
@@ -152,9 +152,10 @@ export default class UserStore {
     this._prevMessages = messages;
   }
 
-  async setUnreadCount() {
+  setUnreadCount() {
     const unreadCount = [];
     // console.log(toJS(this._roomAll));
+    // console.log("this._totalUnread", this._totalUnread);
     for (let room of this._roomAll) {
       unreadCount.push({ roomId: room.id, unread: room.unread || 0 });
       this._totalUnread += room.unread || 0;
@@ -185,8 +186,8 @@ export default class UserStore {
           message.currentUserId !== this._user.id &&
           message.readBy.findIndex((i) => i === this._user.id) === -1
         ) {
-          console.log("incrementUnreadCount");
-          console.log(message.readBy.findIndex((i) => i === this._user.id));
+          // console.log("incrementUnreadCount");
+          // console.log(message.readBy.findIndex((i) => i === this._user.id));
           this._totalUnread++;
           return m.unread++;
         } else return m;
@@ -215,7 +216,6 @@ export default class UserStore {
           message.currentUserId !== this._user.id &&
           message.readBy.findIndex((i) => i === this._user.id) !== -1
         ) {
-          console.log("message.readBy.findIndex((i: string) => i === this._user.id");
           this._totalUnread--;
           return m.unread--;
         } else return m;
@@ -231,21 +231,43 @@ export default class UserStore {
   updateMessage(newMessage: IMessage) {
     // console.log(newMessage);
     const oldMessage = this._prevMessages.findIndex((el) => el.id === newMessage.id);
-    this._prevMessages.splice(oldMessage, 1, newMessage);
+    if (oldMessage !== -1) {
+      this._prevMessages.splice(oldMessage, 1, newMessage);
+    }
+    // this._prevMessages.splice(oldMessage, 1, newMessage);
   }
 
   updateUserData(newUser: IContact) {
     // console.log(this._chatingWith.id === newUser.id);
     // console.log(this._user.id);
     // if (this._user && newUser) {
+    // console.log("newUser", newUser);
+    //     avatar
+    // :
+    // null
+    // createdAt
+    // :
+    // "2024-05-19T06:51:30.050Z"
+    // email
+    // :
+    // "2@test.ru"
+    // id
+    // :
+    // "6d983f6c-2f8a-48b2-9f8a-344160caf950"
+    // isOnline
+    // :
+    // true
+    // userName
+    // :
+    // ""
     if (newUser.id !== this._user.id) {
       const oldUser = this._contacts.findIndex((el) => el.id === newUser.id);
-      // console.log(oldUser);
-      this._contacts.splice(oldUser, 1, newUser);
+      // console.log("oldUser", this._contacts[oldUser]);
+      this._contacts.splice(oldUser, 1, { ...newUser, chatId: this._contacts[oldUser].chatId });
       // this._contacts = t;
       //this._chatingWith = newUser;
       if (this._chatingWith?.id === newUser.id) {
-        this._chatingWith = newUser;
+        this._chatingWith = { ...newUser, chatId: this._contacts[oldUser].chatId };
       }
     } else this._user = newUser;
     // }
@@ -291,7 +313,12 @@ export default class UserStore {
   }
   clearUnreadCount() {
     this._unreadCount = [];
+    this._totalUnread = 0;
   }
+
+  // clearTotalUnread() {
+  //   this._totalUnread = 0;
+  // }
   setChatingWith(user: IContact) {
     this._chatingWith = user;
   }
@@ -365,8 +392,8 @@ export default class UserStore {
       //   newRoom.usersId.split(","),
       // );
       const contactIndex = this._contacts.findIndex((el) => {
-        if (el.groupId) {
-          return el.groupId === newRoomData.id;
+        if (el.chatId) {
+          return el.chatId === newRoomData.id;
         }
       });
       const contact = this._contacts[contactIndex];
@@ -380,7 +407,7 @@ export default class UserStore {
 
       this._contacts.splice(contactIndex, 1, contactUpdated);
 
-      if (this._chatingWith?.groupId === newRoomData.id) {
+      if (this._chatingWith?.chatId === newRoomData.id) {
         // this._chatingWith = newRoomData;
         const usersId = newRoomData.usersId.split(",");
         this._chatingWith = {
@@ -394,13 +421,19 @@ export default class UserStore {
     }
   }
 
+  incrementFilesCounter() {
+    this._filesCounter++;
+  }
+  setFilesCounter(filesNumber: number) {
+    this._filesCounter = filesNumber;
+  }
   get user() {
     // console.log("this._user", toJS(this._user));
     return this._user;
   }
 
   get contacts() {
-    // console.log(toJS(this._contacts));
+    // console.log("this._contacts", toJS(this._contacts));
     return this._contacts;
   }
 
@@ -414,7 +447,7 @@ export default class UserStore {
   }
 
   get prevMessages() {
-    // console.log("this._prevMessages", toJS(this._prevMessages));
+    console.log("this._prevMessages", toJS(this._prevMessages.length));
     return this._prevMessages;
   }
 
@@ -432,7 +465,7 @@ export default class UserStore {
     return this._contactToForward;
   }
   get selectedUsers() {
-    // console.log(toJS(this._forwardTo));
+    // console.log("toJS(this._selectedUsers)", toJS(this._selectedUsers));
     return this._selectedUsers;
   }
 
@@ -455,5 +488,9 @@ export default class UserStore {
   get currentRoom() {
     // console.log("this._currentRoom", toJS(this._currentRoom));
     return this._currentRoom;
+  }
+  get filesCounter() {
+    // console.log("this._filesCounter", toJS(this._filesCounter));
+    return this._filesCounter;
   }
 }
