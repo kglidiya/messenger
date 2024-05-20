@@ -10,7 +10,8 @@
   background-color: var(--beige-light);
   border-radius: var(--border-radius);
   /* margin-bottom: -60px; */
-  box-shadow: 0px 18px 14px -2px var(--beige-light), 0 -6px 14px -4px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0px 18px 14px -2px var(--beige-light), 0 -6px 14px -4px rgba(0, 0, 0, 0.1); */
+  box-shadow: 0px 18px 14px -2px rgb(253 248 236 / 80%), 0 -6px 14px -4px rgba(0, 0, 0, 0.1);
   position: absolute;
   /* bottom: 90px; */
   top: -77px;

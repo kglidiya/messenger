@@ -5,11 +5,11 @@
 
   width: 100vw;
   height: 100vh;
-  background-color: rgb(38 68 92 / 97%);
-  background-image: url("../../images/background.png");
-  background-size: 20vw;
+  /* background-color: rgb(38 68 92 / 97%); */
+  /* background: url("../../images/background.png");
+  background-size: cover; */
 
-  background-blend-mode: color;
+  /* background-blend-mode: color; */
 }
 
 .content {

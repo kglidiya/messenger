@@ -45,113 +45,54 @@ export class RoomsService {
     console.log(groupData);
     const id = uuidv4();
     const ids = groupData.usersId.sort();
-    const findDuplicateGroup = await this.roomsRepository.findOne({
-      where: { usersId: `${ids}`, name: groupData.name },
-    });
-    if (findDuplicateGroup) {
-      return findDuplicateGroup;
+    if (!groupData.name) {
+      const newPrivateGroup = {
+        usersId: `${ids}`,
+        name: 'private',
+        admin: [],
+      };
+      const group = this.roomsRepository.create(newPrivateGroup);
+      await this.roomsRepository.save({ ...group, id });
+      return group;
     } else {
-      if (!groupData.name) {
-        const newPrivateGroup = {
-          usersId: `${ids}`,
-          name: 'private',
-          admin: [],
-        };
-        const group = this.roomsRepository.create(newPrivateGroup);
-        await this.roomsRepository.save({ ...group, id });
-        return group;
-      } else {
-        // console.log('parti+');
-        // const participants = [];
-        // for (let i = 0; i < groupData.participants.length; i++) {
-        //   // console.log(
-        //   //   'groupData.participants[i]',
-        //   //   groupData.participants[i].user,
-        //   // );
-        //   const userData = await this.usersRepository.findOne({
-        //     where: { id: groupData.participants[i].user },
-        //   });
-        //   // console.log('userData', userData);
-        //   participants.push(userData);
-        // }
-        // console.log('participants', participants);
-        const newGroup = {
-          usersId: `${ids}`,
-          name: groupData.name,
-          admin: groupData.admin,
-          participants: groupData.participants,
-        };
-        const group = this.roomsRepository.create(newGroup);
-        await this.roomsRepository.save({ ...group, id });
-        return group;
-      }
+      const newGroup = {
+        usersId: `${ids}`,
+        name: groupData.name,
+        admin: groupData.admin,
+        participants: groupData.participants,
+      };
+      const group = this.roomsRepository.create(newGroup);
+      await this.roomsRepository.save({ ...group, id });
+      return group;
     }
+    // const findDuplicateGroup = await this.roomsRepository.findOne({
+    //   where: { usersId: `${ids}`, name: groupData.name },
+    // });
+    // if (findDuplicateGroup) {
+    //   return findDuplicateGroup;
+    // } else {
+    //   if (!groupData.name) {
+    //     const newPrivateGroup = {
+    //       usersId: `${ids}`,
+    //       name: 'private',
+    //       admin: [],
+    //     };
+    //     const group = this.roomsRepository.create(newPrivateGroup);
+    //     await this.roomsRepository.save({ ...group, id });
+    //     return group;
+    //   } else {
+    //     const newGroup = {
+    //       usersId: `${ids}`,
+    //       name: groupData.name,
+    //       admin: groupData.admin,
+    //       participants: groupData.participants,
+    //     };
+    //     const group = this.roomsRepository.create(newGroup);
+    //     await this.roomsRepository.save({ ...group, id });
+    //     return group;
+    //   }
+    // }
   }
-  // async createGroupChat(groupData: GroupData): Promise<RoomsEntity> {
-  //   console.log(groupData);
-  //   const id = uuidv4();
-  //   const ids = groupData.usersId.sort();
-  //   const findDuplicateGroup = await this.roomsRepository.findOne({
-  //     where: { usersId: `${ids}` },
-  //   });
-  //   if (findDuplicateGroup) {
-  //     return findDuplicateGroup;
-  //   } else {
-  //     if (!groupData.name) {
-  //       const newPrivateGroup = {
-  //         usersId: `${ids}`,
-  //         name: 'private',
-  //         admin: [],
-  //       };
-  //       const group = this.roomsRepository.create(newPrivateGroup);
-  //       await this.roomsRepository.save({ ...group, id });
-  //       return group;
-  //     } else {
-  //       const newGroup = {
-  //         usersId: `${ids}`,
-  //         name: groupData.name,
-  //         admin: groupData.admin,
-  //         participants: groupData.participants,
-  //       };
-  //       const group = this.roomsRepository.create(newGroup);
-  //       await this.roomsRepository.save({ ...group, id });
-  //       return group;
-  //     }
-  //   }
-  // }
-
-  // async editGroupChat(groupData: GroupData): Promise<RoomsEntity> {
-  //   // console.log(groupData);
-  //   const editingGroup = await this.roomsRepository.findOne({
-  //     where: { id: groupData.groupId },
-  //   });
-  //   const ids =
-  //     groupData?.newMember.length > 0
-  //       ? `${editingGroup.usersId},${groupData.newMember}`
-  //       : editingGroup.usersId;
-  //   if (editingGroup) {
-  //     const newDataGroup = {
-  //       id: editingGroup.id,
-  //       name: groupData.newName,
-  //       usersId: ids,
-  //     };
-  //     await this.roomsRepository.save(newDataGroup);
-  //     const group = await this.roomsRepository.findOne({
-  //       where: { id: newDataGroup.id },
-  //     });
-
-  //     return {
-  //       id: group.id,
-  //       name: group.name,
-  //       usersId: group.usersId,
-  //       avatar: group.avatar,
-  //       admin: group.admin,
-  //       // unreadCount: group.unreadCount,
-  //     };
-  //   } else {
-  //     console.log(1111);
-  //   }
-  // }
 
   async getAllGroups(userId: string): Promise<any[]> {
     const groups = [];
@@ -219,28 +160,6 @@ export class RoomsService {
       group.firstMessageId = firstMessageId;
       group.firstUnreadMessage =
         unreadMessages[unreadMessages.length - 1] || null;
-
-      // const usersId = group.usersId.split(',');
-      // const groupData = {
-      //   id: group.usersId,
-      //   userName: group.name,
-      //   groupId: group.id,
-      // };
-      // for (let i = 0; i < usersId.length; i++) {
-      //   if (usersId[i] != userId && group.name === 'private') {
-      //     const userData = await this.usersRepository.findOne({
-      //       where: { id: usersId[i] },
-      //     });
-
-      //     const { recoveryCode, password, createdAt, ...rest } = userData;
-      //     contacts.push(rest);
-      //   } else if (usersId[i] === userId && group.name !== 'private') {
-      //     contacts.push({
-      //       ...groupData,
-      //       avatar: group.avatar ? group.avatar : null,
-      //     });
-      //   }
-      // }
     }
     const groupsSorted = groups.sort(
       (a, b) => b.messagesTotal - a.messagesTotal,
@@ -250,7 +169,7 @@ export class RoomsService {
       const groupData = {
         id: group.usersId,
         userName: group.name,
-        groupId: group.id,
+        chatId: group.id,
       };
       for (let i = 0; i < usersId.length; i++) {
         if (usersId[i] != userId && group.name === 'private') {
@@ -259,7 +178,7 @@ export class RoomsService {
           });
 
           const { recoveryCode, password, createdAt, ...rest } = userData;
-          contacts.push(rest);
+          contacts.push({ ...rest, chatId: group.id });
         } else if (usersId[i] === userId && group.name !== 'private') {
           contacts.push({
             ...groupData,

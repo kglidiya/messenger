@@ -64,15 +64,10 @@ export default function PopupFoward({
   // console.log(toJS(userStore.contactToForward));
   const reset = () => {
     const contactIndex = findIndex(userStore.contacts, {
-      id: userStore.selectedUsers[userStore.selectedUsers.length - 1],
+      chatId: userStore.selectedUsers[userStore.selectedUsers.length - 1],
     });
     userStore.setChatingWith(userStore.contacts[contactIndex]);
-    if (userStore.contacts[contactIndex].groupId) {
-      userStore.setCurrentRoom(userStore.contacts[contactIndex].id);
-    } else {
-      const userIds = [userStore.user.id, userStore.contacts[contactIndex].id].sort();
-      userStore.setCurrentRoom(userIds.join());
-    }
+    userStore.setCurrentRoom(userStore.contacts[contactIndex].chatId);
     userStore.setMessageToForward(null);
     userStore.setContactToForward(null);
     userStore.clearMessages();
@@ -86,64 +81,89 @@ export default function PopupFoward({
     // console.log(messageToForward);
     // console.log(toJS(userStore.contactToForward));
 
-    userStore.selectedUsers.forEach((userId: string) => {
+    userStore.selectedUsers.forEach((chatId: string) => {
       // console.log(userId);
-      const connectToRoom = async () => {
-        try {
-          const roomId = await connectToChat({
-            currentUserId: userStore.user.id,
-            recipientUserId: userId,
-          });
-          if (messageToForward !== null) {
-            // console.log(messageToForward);
-            // console.log(toJS(userStore.contactToForward));
-            const message = {
-              id: uuidv4(),
-              currentUserId: userStore.user.id,
-              recipientUserId: userId,
-              message: messageToForward.message,
-              contact: messageToForward.contact,
-              file: messageToForward.file,
-              roomId: roomId,
-              readBy: userStore.user.id,
-              isForwarded: true,
-            };
-            // console.log(message);
-            socket && socket.emit("send-message", message);
-          }
-          if (contactToForward !== null) {
-            // console.log(toJS(userStore.contactToForward));
-            const message = {
-              id: uuidv4(),
-              currentUserId: userStore.user.id,
-              recipientUserId: userId,
-              message: "",
-              contact: contactToForward,
-              readBy: userStore.user.id,
-              roomId: roomId,
-            };
-            socket && socket.emit("send-message", message);
-          }
+      const recipientUser = userStore.contacts.filter((contact: any) => contact.chatId === chatId)[0];
+      // console.log("recipientUser", toJS(recipientUser));
+      if (messageToForward !== null) {
+        const message = {
+          id: uuidv4(),
+          currentUserId: userStore.user.id,
+          recipientUserId: recipientUser.email ? recipientUser.id : chatId,
+          message: messageToForward.message,
+          contact: messageToForward.contact,
+          file: messageToForward.file,
+          roomId: chatId,
+          readBy: userStore.user.id,
+          isForwarded: true,
+        };
+        // console.log("message", message);
+        socket && socket.emit("send-message", message);
+      }
+      if (contactToForward !== null) {
+        const message = {
+          id: uuidv4(),
+          currentUserId: userStore.user.id,
+          recipientUserId: recipientUser.email ? recipientUser.id : chatId,
+          message: "",
+          contact: contactToForward,
+          readBy: userStore.user.id,
+          roomId: chatId,
+        };
+        socket && socket.emit("send-message", message);
+      }
 
-          // const contactIndex = findIndex(userStore.contacts, { id: userStore.forwardTo[0] });
-          // userStore.setChatingWith(userStore.contacts[contactIndex]);
-          // setTimeout(() => {
-          //   // userStore.setChatingWith(userStore.contacts[contactIndex]);
-          //   reset();
-          // }, 0);
-        } catch (e) {
-          console.log(e);
-        }
-      };
+      //   try {
+      //     const roomId = await connectToChat({
+      //       currentUserId: userStore.user.id,
+      //       recipientUserId: userId,
+      //     });
+      //     if (messageToForward !== null) {
+      //       const message = {
+      //         id: uuidv4(),
+      //         currentUserId: userStore.user.id,
+      //         recipientUserId: userStore.chatingWith.groupId ? roomId : userId,
+      //         message: messageToForward.message,
+      //         contact: messageToForward.contact,
+      //         file: messageToForward.file,
+      //         roomId: roomId,
+      //         readBy: userStore.user.id,
+      //         isForwarded: true,
+      //       };
 
-      connectToRoom();
+      //       socket && socket.emit("send-message", message);
+      //     }
+      //     if (contactToForward !== null) {
+      //       const message = {
+      //         id: uuidv4(),
+      //         currentUserId: userStore.user.id,
+      //         recipientUserId: userStore.chatingWith.groupId ? roomId : userId,
+      //         message: "",
+      //         contact: contactToForward,
+      //         readBy: userStore.user.id,
+      //         roomId: roomId,
+      //       };
+      //       socket && socket.emit("send-message", message);
+      //     }
+
+      //     // const contactIndex = findIndex(userStore.contacts, { id: userStore.forwardTo[0] });
+      //     // userStore.setChatingWith(userStore.contacts[contactIndex]);
+      //     // setTimeout(() => {
+      //     //   // userStore.setChatingWith(userStore.contacts[contactIndex]);
+      //     //   reset();
+      //     // }, 0);
+      //   } catch (e) {
+      //     console.log(e);
+      //   }
+      // };
+
+      // connectToRoom();
     });
     setTimeout(() => {
       reset();
     }, 0);
   };
-  // const sendMessage = () => {
-  //   // console.log(messageToForward);
+
   //   // console.log(toJS(userStore.contactToForward));
 
   //   userStore.forwardTo.forEach((userId: string) => {
@@ -218,25 +238,44 @@ export default function PopupFoward({
       <p className={styles.title}>Переслать</p>
       <ShareIcon onClick={sendMessage} width={32} height={32} top={15} right={20} />
       <ul className={styles.list}>
-        {userStore.contacts.map((user: any, i: number) => {
-          // console.log(toJS(user));
-          if (user.id !== currentContactId) {
+        {userStore.contacts.map((contact: any) => {
+          // console.log(toJS(contact));
+          // return (
+          //   <li key={contact.chatId} className={styles.list__item}>
+          //     <InputCheckbox
+          //       name={contact.chatId}
+          //       onChange={handleChange}
+          //       ref={refInput}
+          //       isPopupForwardContact={isPopupForwardContact}
+          //     />
+          //     {contact.avatar ? (
+          //       <Avatar avatar={contact.avatar} width={50} height={50} />
+          //     ) : (
+          //       <NoAvatar width={50} height={50} />
+          //     )}
+          //     <div className={styles.details}>
+          //       <p> {contact.userName}</p>
+          //       <p> {contact.email}</p>
+          //     </div>
+          //   </li>
+          // );
+          if (contact.id !== currentContactId) {
             return (
-              <li key={i} className={styles.list__item}>
+              <li key={contact.chatId} className={styles.list__item}>
                 <InputCheckbox
-                  name={user.id}
+                  name={contact.chatId}
                   onChange={handleChange}
                   ref={refInput}
                   isPopupForwardContact={isPopupForwardContact}
                 />
-                {user.avatar ? (
-                  <Avatar avatar={user.avatar} width={50} height={50} />
+                {contact.avatar ? (
+                  <Avatar avatar={contact.avatar} width={50} height={50} />
                 ) : (
                   <NoAvatar width={50} height={50} />
                 )}
                 <div className={styles.details}>
-                  <p> {user.userName}</p>
-                  <p> {user.email}</p>
+                  <p> {contact.userName}</p>
+                  <p> {contact.email}</p>
                 </div>
               </li>
             );

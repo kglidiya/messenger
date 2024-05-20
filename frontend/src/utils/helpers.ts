@@ -43,23 +43,53 @@ export const getFormattedTime = (createdAt: string) => {
   const date = new Date(createdAt);
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 };
-export const isToday = (date: Date): boolean => getDiffDays(date) === 0;
-export const isYesterday = (date: Date): boolean => getDiffDays(date) === 1;
-export const getDay = (date: Date) => {
-  if (getDiffDays(date) === 0) {
-    return "Сегодня";
+// export const isToday = (date: Date): boolean => getDiffDays(date) === 0;
+// export const isYesterday = (date: Date): boolean => getDiffDays(date) === 1;
+// export const getDay = (date: Date) => {
+//   if (getDiffDays(date) === 0) {
+//     return "Сегодня";
+//   }
+//   if (getDiffDays(date) === 1) {
+//     return "Вчера";
+//   }
+// };
+
+const isToday = (createdAt: any) => {
+  const today = new Date();
+  const dateToCheck = new Date(createdAt);
+  // 👇️ Today's date
+  // console.log(today.toDateString());
+
+  if (today.toDateString() === dateToCheck.toDateString()) {
+    return true;
   }
-  if (getDiffDays(date) === 1) {
-    return "Вчера";
-  }
+
+  return false;
 };
 
+const isYesterday = (createdAt: any) => {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const dateToCheck = new Date(createdAt);
+  // 👇️ Yesterday's date
+
+  if (yesterday.toDateString() === dateToCheck.toDateString()) {
+    return true;
+  }
+
+  return false;
+};
 export const getDate = (createdAt: any) => {
   const date = new Date(createdAt);
-  if (getDiffDays(date) === 0) {
+  // if (getDiffDays(date) === 0) {
+  //   return "Сегодня";
+  // }
+  // const t = new Date("2024-05-17T06:14:42.727Z");
+  // console.log(isYesterday(t));
+  if (isToday(createdAt)) {
     return "Сегодня";
   }
-  if (getDiffDays(date) === 1) {
+  if (isYesterday(createdAt)) {
     return "Вчера";
   } else
     return (

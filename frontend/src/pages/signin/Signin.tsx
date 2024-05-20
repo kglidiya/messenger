@@ -26,7 +26,6 @@ const Signin = observer(() => {
   const matches = useMediaQuery("(min-width: 576px)");
   const userStore = useContext(Context)?.user;
   const navigate = useNavigate();
-
   //   const [status, setStatus] = useState<IStatus<undefined | IUser>>({
   //     isloading: false,
   //     data: undefined,
@@ -36,7 +35,7 @@ const Signin = observer(() => {
   const onSubmit = (values: any) => {
     // console.log(values);
     userStore.login({ ...values, isOnline: true });
-
+    // setIsLoading(true)
     // setTimeout(() => {
     //   console.log(toJS(userStore.user));
     //   userStore.setAuth(true);
@@ -53,7 +52,7 @@ const Signin = observer(() => {
     if (userStore.user && userStore.user.id) {
       // console.log(toJS(userStore.user));
       userStore.setAuth(true);
-      userStore.setContacts();
+      // userStore.setContacts();
       // const data = {
       //   userId: userStore.user.id,
       //   isOnline: true,

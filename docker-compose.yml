@@ -36,17 +36,18 @@ services:
       - db_data:/data/db
     networks:
       - backend_pm
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - '8080:8080'
-    depends_on:
-      - db
-    networks:
-      - backend_pm
+  # adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #     - '8080:8080'
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     - backend_pm
 volumes:
   db_data:
 networks:
   backend_pm:
   frontend_pm:
+

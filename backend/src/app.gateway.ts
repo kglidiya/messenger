@@ -284,14 +284,14 @@ export class AppGateway
     const res = await this.usersRepository.findOne({
       where: { id: payload.userId },
     });
-    const { password, recoveryCode, ...rest } = res;
+    const { password, recoveryCode, createdAt, ...rest } = res;
     // console.log(res);
     this.server.emit('receive-userData', rest);
   }
 
   @SubscribeMessage('update-typingState')
   async handleTyping(client: Socket, payload: any): Promise<void> {
-    console.log(payload);
+    // console.log(payload);
     this.server.to(payload.roomId).emit('receive-typingState', payload);
   }
 

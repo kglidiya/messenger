@@ -129,30 +129,45 @@ const MessageWithForwardRef = React.forwardRef(
       const [author, setAuthor] = useState<any>(null);
       const refMessage = useRef(null);
       const isInView = useInView(refMessage);
+      const innerRef = useRef<HTMLDivElement>(null);
+      useImperativeHandle(ref, () => innerRef.current!, []);
       // const [file, setFile] = useState<any>({});
       // console.log(reactions.length);
-      // console.log(isMessageToGroupChart);
+      // console.log("isMessageToGroupChart", isMessageToGroupChart);
       // console.log(toJS(author));
       // console.log(roomId);
       useEffect(() => {
         if (isMessageToGroupChart) {
           setAuthor(
             userStore.currentRoom.participants.filter(
-              (user: any) => user.id === currentUserId && user.id !== userStore.user.id,
+              (user: any) => user.userId === currentUserId && user.userId !== userStore.user.id,
             )[0] || null,
           );
         }
       }, [isMessageToGroupChart]);
+
       useEffect(() => {
         setReactionCount(countArrayItems(reactions));
       }, [reactions]);
+
+      // useEffect(() => {
+      //   if (refText.current && refWrapper.current) {
+      //     if (refText.current?.scrollHeight > refWrapper.current?.clientHeight) {
+      //       setIsCollapsed(true);
+      //     } else setIsCollapsed(false);
+      //   }
+      // }, [refText.current?.scrollHeight, refWrapper.current?.clientHeight, id]);
       useEffect(() => {
-        if (refText.current && refWrapper.current) {
-          if (refText.current?.scrollHeight > refWrapper.current?.clientHeight) {
+        if (refText.current && innerRef.current) {
+          // console.log("innerRef.current?.clientHeight", innerRef.current?.clientHeight);
+          // console.log("refText.current?.scrollHeight", refText.current?.scrollHeight);
+          // console.log("refText.current?.clientHeight", refText.current?.clientHeight);
+          if (refText.current?.scrollHeight > refText.current?.clientHeight) {
             setIsCollapsed(true);
           } else setIsCollapsed(false);
         }
-      }, [refText.current?.scrollHeight, refWrapper.current?.clientHeight, id]);
+      }, [refText.current?.scrollHeight, innerRef.current?.clientHeight, id]);
+
       // useEffect(() => {
       //   if (fileId !== "") {
       //     const file = files.filter((file: any) => file.messageId == id);
@@ -204,8 +219,7 @@ const MessageWithForwardRef = React.forwardRef(
         closeMessageActionsPopup();
         // setReactionCount(countArrayItems(reactions));
       };
-      const innerRef = useRef<HTMLInputElement>(null);
-      useImperativeHandle(ref, () => innerRef.current!, []);
+
       // console.log(userStore.parentMessage);
       const [hover, setHover] = useState(false);
       const handleHover: MouseEventHandler<any> = (e) => {
@@ -264,8 +278,8 @@ const MessageWithForwardRef = React.forwardRef(
           className={styles.wrapper}
           style={
             userStore.user.id === currentUserId
-              ? { ...messageFromMe, maxWidth: file ? "40%" : "60%" }
-              : { ...messageToMe, maxWidth: file ? "40%" : "60%" }
+              ? { ...messageFromMe, maxWidth: file ? "50%" : "60%" }
+              : { ...messageToMe, maxWidth: file ? "50%" : "60%" }
           }
           onClick={() => {
             setMessageClicked(id);
@@ -388,7 +402,10 @@ const MessageWithForwardRef = React.forwardRef(
                               alt='Аватар'
                             />
                           ) : (
-                            <NoAvatar width={44} height={44} />
+                            <span style={{ marginLeft: "auto" }}>
+                              {" "}
+                              <NoAvatar width={44} height={44} />
+                            </span>
                           )}
                           {el.from === userStore.user.id && (
                             <span className={styles.delete_reaction} onClick={deleteReaction}>

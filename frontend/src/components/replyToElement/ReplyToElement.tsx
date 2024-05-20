@@ -16,7 +16,7 @@ interface IReplyToElementProps {
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 export default function ReplyToElement({ message, file, contact }: IReplyToElementProps) {
-  console.log(contact);
+  // console.log(contact);
   const userStore = useContext(Context).user;
   return (
     <div className={styles.wrapper}>

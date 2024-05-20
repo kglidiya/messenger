@@ -9,9 +9,11 @@
 
 }
 
-/* .image:hover {
-  scale: 1.5;
-} */
+.imageLoader {
+  background: transparent;
+  height: 20vw;
+  width: 15vw;
+}
 
 .video {
   max-width: 100%;

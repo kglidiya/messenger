@@ -4,29 +4,30 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Helmet } from "react-helmet-async";
 
+import { usePageVisibility } from "react-page-visibility";
+
 import { Context } from "../..";
 
 const HelmetSeo = observer(() => {
   const userStore = useContext(Context).user;
+  const isPageVisible = usePageVisibility();
+  const [title, setTitle] = useState(
+    userStore.totalUnread > 0 ? `(${userStore.totalUnread}) PigeonMailer` : "PigeonMailer",
+  );
 
-  // console.log("userStore.totalUnread", userStore.totalUnread);
+  useEffect(() => {
+    setTitle(userStore.totalUnread > 0 ? `(${userStore.totalUnread}) PigeonMailer` : "PigeonMailer");
+  }, [userStore.totalUnread]);
+
+  useEffect(() => {
+    if (!isPageVisible) {
+      document.title = userStore.totalUnread > 0 ? `(${userStore.totalUnread}) PigeonMailer` : "PigeonMailer";
+    }
+  }, [isPageVisible, userStore.totalUnread]);
+
   return (
     <Helmet>
-      {/* <a href='example.com' title='My site'>
-        {" "}
-        Link{" "}
-      </a> */}
-
-      {/* <div>My Stuff</div> */}
-
-      {userStore.totalUnread > 0 ? (
-        // eslint-disable-next-line no-useless-concat
-        <title>{`(${userStore.totalUnread}) PigeonMailer`}</title>
-      ) : (
-        <title>PigeonMailer</title>
-      )}
-      {/* <title>{`${(<span>{userStore.totalUnread > 0 && userStore.totalUnread}</span>)} PigeonMailerd`}</title> */}
-      {/* <title>{`${(<Counter messages={toJS(userStore.totalUnread)} />)} PigeonMailerd`}</title> */}
+      <title>{title}</title>
     </Helmet>
   );
 });

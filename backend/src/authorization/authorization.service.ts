@@ -100,11 +100,14 @@ export class AuthorizationService {
     }
   }
 
-  async refresh(token: string): Promise<string[]> {
+  async refresh(token: string): Promise<any> {
     const validToken = verifyToken(token);
     if (validToken) {
       const tPair = genTokenPair(validToken.id);
-      return [tPair.accessToken, tPair.refreshToken];
+      return {
+        accessToken: tPair.accessToken,
+        refreshToken: tPair.refreshToken,
+      };
     } else {
       return ['403'];
     }
