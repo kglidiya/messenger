@@ -35,7 +35,7 @@ export default function MessageFileElement({
         <>
           {loaded ? null : <div className={styles.imageLoader} />}
           <img
-            className={loaded ? styles.image : ""}
+            className={loaded ? styles.image : styles.imageHidden}
             src={path}
             onLoad={() => setLoaded(true)}
             alt='Картинка'

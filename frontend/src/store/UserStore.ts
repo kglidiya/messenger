@@ -470,7 +470,7 @@ export default class UserStore {
   }
 
   get roomId() {
-    // console.log("this._roomId", toJS(this._roomId));
+    console.log("this._roomId", toJS(this._roomId));
     return this._roomId;
   }
   get roomAll() {
