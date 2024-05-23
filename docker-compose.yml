@@ -13,6 +13,9 @@ services:
     depends_on:
       - db
     restart: always
+    volumes:
+      - uploadedFiles:/app/uploadedFiles
+      - /data/uploadedFiles:/uploadedFiles
     networks:
       - backend_pm
   frontend_pm:
@@ -36,17 +39,9 @@ services:
       - db_data:/data/db
     networks:
       - backend_pm
-  # adminer:
-  #   image: adminer
-  #   restart: always
-  #   ports:
-  #     - '8080:8080'
-  #   depends_on:
-  #     - db
-  #   networks:
-  #     - backend_pm
 volumes:
   db_data:
+  uploadedFiles:
 networks:
   backend_pm:
   frontend_pm:
