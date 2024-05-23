@@ -120,6 +120,7 @@ export class AppGateway
       reaction: payload.reaction,
       from: payload.from,
     };
+    console.log(payload);
     const findDuplicateReaction = message.reactions.filter((reaction: any) => {
       return reaction.from === payload.from;
     });
@@ -152,6 +153,29 @@ export class AppGateway
     });
     // console.log(res);
     this.server.to(payload.roomId).emit('receive-reaction', res);
+  }
+
+  @SubscribeMessage('edit-message')
+  async handleMessageEdit(client: Socket, payload: any): Promise<void> {
+    const messageToEdit = await this.msgRepository.findOne({
+      where: { id: payload.id },
+    });
+    // console.log(payload);
+    await this.msgRepository
+      .createQueryBuilder('messages')
+      .update<MessagesEntity>(MessagesEntity, {
+        ...messageToEdit,
+        message: payload.message,
+      })
+      .where({ id: payload.id })
+      .execute();
+
+    const res = await this.msgRepository.findOne({
+      where: { id: payload.id },
+      relations: ['contact', 'parentMessage', 'parentMessage.contact'],
+    });
+    // console.log(res);
+    this.server.to(payload.roomId).emit('receive-updatedMessage', res);
   }
 
   @SubscribeMessage('delete-reaction')

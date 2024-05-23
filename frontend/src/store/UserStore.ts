@@ -28,6 +28,7 @@ export default class UserStore {
   _chatingWith: IContact | null;
   _prevMessages: IMessage[];
   _messageToForward: IMessage | null;
+  _messageToEdit: IMessage | null;
   _contactToForward: IContact | null;
   _parentMessage: IMessage | null;
   _selectedUsers: string[];
@@ -46,6 +47,7 @@ export default class UserStore {
     this._prevMessages = [];
     this._contactToForward = null;
     this._messageToForward = null;
+    this._messageToEdit = null;
     this._parentMessage = null;
     this._selectedUsers = [];
     this._roomAll = [];
@@ -340,6 +342,15 @@ export default class UserStore {
     } else this._messageToForward = null;
   }
 
+  setMessageToEdit(id: string) {
+    const message = this._prevMessages.filter((el) => el.id === id);
+    if (message.length) {
+      this._messageToEdit = message[0];
+    } else this._messageToEdit = null;
+  }
+  clearMessageToEdit() {
+    this._messageToEdit = null;
+  }
   setParentMessage(message: IMessage) {
     this._parentMessage = message;
   }
@@ -447,7 +458,7 @@ export default class UserStore {
   }
 
   get prevMessages() {
-    console.log("this._prevMessages", toJS(this._prevMessages.length));
+    // console.log("this._prevMessages", toJS(this._prevMessages.length));
     return this._prevMessages;
   }
 
@@ -456,7 +467,12 @@ export default class UserStore {
     return this._messageToForward;
   }
 
+  get messageToEdit() {
+    // console.log("this._messageToEdit", toJS(this._messageToEdit));
+    return this._messageToEdit;
+  }
   get parentMessage() {
+    // console.log("this._parentMessage", toJS(this._parentMessage));
     return this._parentMessage;
   }
 
@@ -470,7 +486,7 @@ export default class UserStore {
   }
 
   get roomId() {
-    console.log("this._roomId", toJS(this._roomId));
+    // console.log("this._roomId", toJS(this._roomId));
     return this._roomId;
   }
   get roomAll() {

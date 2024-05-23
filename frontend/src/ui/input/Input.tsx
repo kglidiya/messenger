@@ -58,6 +58,7 @@ const Input = ({
           min,
         })}
         className={styles.input}
+        autoFocus
       />
       {error?.[`${name}`] && <span className={styles.error}>{errorMessage}</span>}
     </div>
