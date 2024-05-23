@@ -543,6 +543,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
       setTimeout(() => {
         setValue("");
         setRows(2);
+        refTextArea.current?.focus();
         // scrollToBottom();
         if (userStore.parentMessage) {
           userStore.setParentMessage(null);
@@ -722,6 +723,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
           // setFilesCounter((prev) => prev + 1);
           setValue("");
           setRows(2);
+          // refTextArea.current?.focus();
           // setFilesCounter(0);
         }, 0);
       }
@@ -773,8 +775,8 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
       console.error("Failed to read clipboard:", err);
     }
   };
-  const sendFileFromClipboard = async (e: any) => {
-    e.preventDefault();
+  const sendFileFromClipboard = async () => {
+    // e.preventDefault();
     const file = creactFileToSend(fileFromClipboard, "image/png");
     const form = new FormData();
     form.append("file", file);
@@ -801,6 +803,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
       setRows(2);
       setIsPopupFileOpen(false);
       setFileFromClipboard(null);
+      // refTextArea.current?.focus();
     }, 0);
   };
 
@@ -956,6 +959,37 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
     }
   }, [fetching]);
 
+  useEffect(() => {
+    const sendMsgWithHotKeys = (e: KeyboardEvent) => {
+      if (!isPopupAttachFileOpen && !isPopupFileOpen && value && e.key === "Enter" && e.ctrlKey) {
+        sendMessage();
+      }
+      if (isPopupFileOpen && e.key === "Enter" && e.ctrlKey) {
+        sendFileFromClipboard();
+        // refTextArea.current?.focus();
+      }
+      if (isPopupAttachFileOpen && e.key === "Enter" && e.ctrlKey) {
+        sendMessageFile(filesToSend);
+      }
+      // setTimeout(() => {
+      //   refTextArea.current?.focus();
+      // }, 10);
+    };
+    // setTimeout(() => {
+    //   refTextArea.current?.focus();
+    // }, 10);
+    document.addEventListener("keydown", sendMsgWithHotKeys);
+    return () => {
+      document.removeEventListener("keydown", sendMsgWithHotKeys);
+    };
+  }, [value, isPopupAttachFileOpen, isPopupFileOpen]);
+
+  useEffect(() => {
+    if (userStore.parentMessage) {
+      console.log("focus");
+      refTextArea.current?.focus();
+    }
+  }, [userStore.parentMessage]);
   // console.log("scroll", scroll);
   // useEffect(() => {
   // 	if (fetching && ordersAll.length !== total) {
@@ -1121,21 +1155,21 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
             setIsPopupFileOpen={setIsPopupAttachFileOpen}
             isPopupFileOpen={isPopupAttachFileOpen}
           >
-            <div className={styles.container} style={{ width: "100%", marginLeft: "0" }}>
-              <EmojiIcon onClick={emojiToggle} />
-              <Textarea
-                ref={refTextArea}
-                rows={rows}
-                value={value}
-                handleChange={handleChange}
-                // handleImagePaste={handleImagePaste}
-                onClick={(e: any) => setCaretPos(e.target.selectionStart)}
-                setFocused={setFocused}
-              />
-              <ButtonSend right={15} bottom={3} onClick={() => sendMessageFile(filesToSend)} />
-            </div>
+            {isPopupAttachFileOpen && (
+              <div className={styles.container} style={{ width: "100%", marginLeft: "0" }}>
+                <EmojiIcon onClick={emojiToggle} />
+                <Textarea
+                  ref={refTextArea}
+                  rows={rows}
+                  value={value}
+                  handleChange={handleChange}
+                  onClick={(e: any) => setCaretPos(e.target.selectionStart)}
+                  setFocused={setFocused}
+                />
+                <ButtonSend right={15} bottom={3} onClick={() => sendMessageFile(filesToSend)} />
+              </div>
+            )}
           </InputFile>
-          {/* <ButtonSend /> */}
         </div>
         <ButtonSend onClick={sendMessage} right={15} bottom={3} />
       </div>
@@ -1156,8 +1190,8 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
         <OverLay closePopup={closePopupFile}>
           <div className={styles.popupWrapper}>
             <PopupImage image={imageSrc} />
-            <form
-              onSubmit={(e) => sendFileFromClipboard(e)}
+            <div
+              // onSubmit={(e) => sendFileFromClipboard(e)}
               className={styles.container}
               style={{ width: "100%", marginLeft: "0" }}
             >
@@ -1171,8 +1205,8 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
                 onClick={(e: any) => setCaretPos(e.target.selectionStart)}
                 setFocused={setFocused}
               />
-              <ButtonSend right={15} bottom={3} />
-            </form>
+              <ButtonSend right={15} bottom={3} onClick={sendFileFromClipboard} />
+            </div>
           </div>
         </OverLay>
       )}
