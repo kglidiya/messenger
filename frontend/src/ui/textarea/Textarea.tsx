@@ -35,6 +35,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, ITextarea>(
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         autoComplete='off'
+        autoFocus
         // onInput={handleInput}
       ></textarea>
     );

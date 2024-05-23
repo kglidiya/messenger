@@ -43,15 +43,12 @@ const SideBar = observer(({ isLoading }: { isLoading: boolean }) => {
   };
 
   const searchUser = async (email: string) => {
-    // setIsSearching(true);
-
     const result = await findUser(email);
 
     // const result = await findUser(email);
     //console.log(result);
     if (result.length) {
       setSearchResult(result);
-      //setIsSearching(false);
     } else {
       setSearchResult(["Пользователь не найден"]);
       setTimeout(() => {
@@ -106,6 +103,9 @@ const SideBar = observer(({ isLoading }: { isLoading: boolean }) => {
     userStore.clearMessages();
     setSearchResult([]);
     setValue("");
+  };
+  const onSubmit = (e: any) => {
+    e.preventDefault();
   };
   return (
     <div className={styles.wrapper}>
@@ -174,7 +174,7 @@ const SideBar = observer(({ isLoading }: { isLoading: boolean }) => {
           </>
         )}
       </div>
-      <form className={styles.searchContainer}>
+      <form className={styles.searchContainer} onSubmit={onSubmit}>
         <input
           autoComplete='off'
           type='text'
