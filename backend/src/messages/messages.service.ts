@@ -188,15 +188,15 @@ export class MessagesService {
     }
   }
 
-  // async delete(id: string): Promise<any> {
-  //   // console.log(roomId);
-  //   try {
-  //     await this.messageRepository.delete(id);
-  //   } catch (e) {
-  //     console.log(e);
-  //     return null;
-  //   }
-  // }
+  async delete(id: string): Promise<any> {
+    // console.log(roomId);
+    try {
+      await this.messageRepository.delete(id);
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
 
   async uploadFile(file: any, data: any): Promise<any> {
     // console.log('data:', data);
