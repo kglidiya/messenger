@@ -1,4 +1,4 @@
-import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import EmojiPicker, { EmojiClickData, EmojiStyle } from "emoji-picker-react";
 import { findIndex } from "lodash";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
@@ -65,7 +65,8 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
   const [isPopupDetailsOpen, setIsPopupDetailsOpen] = useState(false);
   const [isPopupForwardContact, setIsPopupForwardContact] = useState(false);
   const [isPopupSearchMessageOpen, setIsPopupSearchMessageOpen] = useState(false);
-  const [isReplyToMessageOpen, setIsReplyToMessageOpen] = useState(true);
+  const [isReplyToMessageOpen, setIsReplyToMessageOpen] = useState(false);
+  const [isPopupEditMessage, setIsPopupEditMessage] = useState(false);
   const [typingUserData, setTypingUserData] = useState<any | null>(null);
   // const [filesCounter, setFilesCounter] = useState(0);
   const [limit, setLimit] = useState<any>(15);
@@ -446,12 +447,18 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
       userStore.decrementUnreadCount(message);
     });
 
-    socket.on("receive-message-deleted", (message: IMessage) => {
+    socket.on("receive-updatedMessage", (message: IMessage) => {
+      console.log("receive-updatedMessage", message);
       if (message.roomId === userStore.roomId) {
         userStore.updateMessage(message);
       }
     });
 
+    socket.on("receive-message-deleted", (message: IMessage) => {
+      if (message.roomId === userStore.roomId) {
+        userStore.updateMessage(message);
+      }
+    });
     socket.on("receive-typingState", (typingState: any) => {
       if (userStore.roomId === typingState.roomId && typingState.userId !== userStore.user.id) {
         setTypingUserData(typingState);
@@ -551,6 +558,35 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
       }, 0);
     }
   };
+  const editMessage = () => {
+    // e.preventDefault();
+    // moment.locale();
+    // console.log("messageToEdit", toJS(userStore.messageToEdit));
+    console.log(value);
+    if (value) {
+      const message = {
+        ...userStore.messageToEdit,
+        message: value,
+      };
+      // console.log("edit-message", message);
+      socket && socket.emit("edit-message", message);
+      // userStore.updateRooms(userStore.roomId, message.id);
+
+      setTimeout(() => {
+        setValue("");
+        setRows(2);
+        // refTextArea.current?.focus();
+        userStore.clearMessageToEdit();
+        closePopupEditMessage();
+      }, 0);
+    }
+  };
+  console.log("messageToEdit", toJS(userStore.messageToEdit));
+  useEffect(() => {
+    if (userStore.messageToEdit) {
+      setValue(userStore.messageToEdit.message);
+    }
+  }, [userStore.messageToEdit]);
   // console.log(roomData);
   // console.log("offset", offset);
   // console.log(toJS(userStore.currentRoom && userStore.currentRoom));
@@ -615,6 +651,13 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
   };
   const openSearchMessagePopup = () => {
     setIsPopupSearchMessageOpen(true);
+  };
+
+  const openPopupEditMessage = () => {
+    setIsPopupEditMessage(true);
+  };
+  const closePopupEditMessage = () => {
+    setIsPopupEditMessage(false);
   };
   const [isPrinting, setIsPrinting] = useState(false);
   const handleChange = (e: any) => {
@@ -961,7 +1004,14 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
 
   useEffect(() => {
     const sendMsgWithHotKeys = (e: KeyboardEvent) => {
-      if (!isPopupAttachFileOpen && !isPopupFileOpen && value && e.key === "Enter" && e.ctrlKey) {
+      if (
+        !isPopupAttachFileOpen &&
+        !isPopupFileOpen &&
+        !isPopupEditMessage &&
+        value &&
+        e.key === "Enter" &&
+        e.ctrlKey
+      ) {
         sendMessage();
       }
       if (isPopupFileOpen && e.key === "Enter" && e.ctrlKey) {
@@ -970,6 +1020,9 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
       }
       if (isPopupAttachFileOpen && e.key === "Enter" && e.ctrlKey) {
         sendMessageFile(filesToSend);
+      }
+      if (isPopupEditMessage && e.key === "Enter" && e.ctrlKey) {
+        editMessage();
       }
       // setTimeout(() => {
       //   refTextArea.current?.focus();
@@ -1087,7 +1140,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
                   openForwardContactPopup={openForwardContactPopup}
                   closeForwardContactPopup={closeForwardContactPopup}
                   closeMessageActionsPopup={closeMessageActionsPopup}
-                  // setParentMessage={setParentMessage}
+                  openPopupEditMessage={openPopupEditMessage}
                   scrollToBottom={scrollToBottom}
                   // socket={socket}
                   roomId={userStore.roomId}
@@ -1185,6 +1238,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
         className={styles.emoji}
         style={{ position: "absolute", transition: " all 0s linear" }}
         lazyLoadEmojis={true}
+        emojiStyle={EmojiStyle.NATIVE}
       />
       {isPopupFileOpen && (
         <OverLay closePopup={closePopupFile}>
@@ -1206,6 +1260,29 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
                 setFocused={setFocused}
               />
               <ButtonSend right={15} bottom={3} onClick={sendFileFromClipboard} />
+            </div>
+          </div>
+        </OverLay>
+      )}
+      {isPopupEditMessage && (
+        <OverLay closePopup={closePopupEditMessage}>
+          <div className={styles.popupWrapper} style={{ width: "45vw" }}>
+            <div
+              // onSubmit={(e) => sendFileFromClipboard(e)}
+              className={styles.container}
+              style={{ width: "100%", marginLeft: "0" }}
+            >
+              <EmojiIcon onClick={emojiToggle} />
+              <Textarea
+                ref={refTextArea}
+                rows={10}
+                value={value}
+                handleChange={handleChange}
+                // handleImagePaste={handleImagePaste}
+                onClick={(e: any) => setCaretPos(e.target.selectionStart)}
+                setFocused={setFocused}
+              />
+              <ButtonSend right={15} bottom={3} onClick={editMessage} />
             </div>
           </div>
         </OverLay>

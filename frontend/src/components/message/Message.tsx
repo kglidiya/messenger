@@ -1,4 +1,4 @@
-import Picker from "emoji-picker-react";
+import Picker, { EmojiStyle } from "emoji-picker-react";
 import { motion, useInView } from "framer-motion";
 import { findIndex } from "lodash";
 import { toJS } from "mobx";
@@ -67,6 +67,7 @@ interface IMessage {
   openForwardContactPopup: VoidFunction;
   // closeForwardContactPopup: VoidFunction;
   closeMessageActionsPopup: VoidFunction;
+  openPopupEditMessage: VoidFunction;
   // setParentMessage: Dispatch<SetStateAction<string>>;
   scrollToBottom: VoidFunction;
   socket: any;
@@ -97,6 +98,7 @@ const MessageWithForwardRef = React.forwardRef(
       openReactionPopup,
       isPopupMessageActionsOpen,
       openMessageActionsPopup,
+      openPopupEditMessage,
       // closeForwardContactPopup,
       isPopupEmojiReactionsOpen,
       openEmojiReactionsPopup,
@@ -481,16 +483,18 @@ const MessageWithForwardRef = React.forwardRef(
                   Открыть
                 </li>
               )}
-              {/* {userStore.user.id === currentUserId && (
+              {userStore.user.id === currentUserId && (
                 <li
                   className={styles.action}
                   onClick={() => {
                     closeMessageActionsPopup();
+                    userStore.setMessageToEdit(id);
+                    openPopupEditMessage();
                   }}
                 >
-                  Изменить
+                  Редактировать
                 </li>
-              )} */}
+              )}
               {userStore.user.id === currentUserId && (
                 <li className={styles.action} onClick={deleteMessage}>
                   Удалить
@@ -511,6 +515,7 @@ const MessageWithForwardRef = React.forwardRef(
                 left: userStore.user.id !== currentUserId ? 0 : "",
               }}
               lazyLoadEmojis={true}
+              emojiStyle={EmojiStyle.NATIVE}
               onEmojiClick={(emojiData) => {
                 // console.log(emojiData);
                 onEmojiClick(emojiData.emoji);
