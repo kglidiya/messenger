@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 import { deleteCookie, getCookie, setCookie } from "./cookies";
 import { ICreateChatDto, ILoginDto } from "./types";
@@ -55,31 +55,65 @@ const checkToken = async () => {
   }
 };
 export const registerUser = async (data: ILoginDto) => {
-  const res = await axios(SIGN_UP_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data,
-  });
-  localStorage.setItem("token", res.data.refreshToken);
-  localStorage.setItem("expires_on", String(Date.now() + 600000 * 1000));
-  setCookie("token", res.data.accessToken, { path: "/", expires: 6000 * 7200 });
-  return checkResponse<any>(res);
+  try {
+    const res = await axios(SIGN_UP_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data,
+    });
+    localStorage.setItem("token", res.data.refreshToken);
+    localStorage.setItem("expires_on", String(Date.now() + 600000 * 1000));
+    setCookie("token", res.data.accessToken, { path: "/", expires: 6000 * 7200 });
+    return checkResponse<any>(res);
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return { error: error.response?.data.message };
+    }
+  }
+  // const res = await axios(SIGN_UP_URL, {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  //   data,
+  // });
+  // localStorage.setItem("token", res.data.refreshToken);
+  // localStorage.setItem("expires_on", String(Date.now() + 600000 * 1000));
+  // setCookie("token", res.data.accessToken, { path: "/", expires: 6000 * 7200 });
+  // return checkResponse<any>(res);
 };
 
 export const login = async (data: ILoginDto) => {
-  const res = await axios(`${BASE_URL}signin`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data,
-  });
-  localStorage.setItem("token", res.data.refreshToken);
-  localStorage.setItem("expires_on", String(Date.now() + 600000 * 1000));
-  setCookie("token", res.data.accessToken, { path: "/", expires: 6000 * 7200 });
-  return checkResponse<any>(res);
+  try {
+    const res = await axios(`${BASE_URL}signin`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data,
+    });
+    localStorage.setItem("token", res.data.refreshToken);
+    localStorage.setItem("expires_on", String(Date.now() + 600000 * 1000));
+    setCookie("token", res.data.accessToken, { path: "/", expires: 6000 * 7200 });
+    return checkResponse<any>(res);
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return { error: error.response?.data.message };
+    }
+  }
+  // const res = await axios(`${BASE_URL}signin`, {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  //   data,
+  // });
+  // localStorage.setItem("token", res.data.refreshToken);
+  // localStorage.setItem("expires_on", String(Date.now() + 600000 * 1000));
+  // setCookie("token", res.data.accessToken, { path: "/", expires: 6000 * 7200 });
+  // return checkResponse<any>(res);
 };
 
 export const findUser = async (data: string) => {

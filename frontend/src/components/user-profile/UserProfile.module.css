@@ -49,6 +49,8 @@
 .form {
   width: 100%;
   margin-top: 10px;
+  position: relative;
+  /* padding-bottom: 15px; */
 }
 
 .contacts {
@@ -144,4 +146,13 @@
 .buttonSend:disabled {
   opacity: 0.5;
   cursor: auto;
+}
+.warning {
+  /* position: absolute;
+  top: -10px;
+  left: 0; */
+  text-align: center;
+  width: 100%;
+  font-size: var(--font-size-large);
+  color: gray;
 }

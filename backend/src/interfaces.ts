@@ -17,6 +17,7 @@ export interface Message {
   date: Date;
   roomId: string;
   token?: string;
+  modified: boolean;
 }
 
 export interface RoomId {

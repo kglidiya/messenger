@@ -71,7 +71,11 @@ export class MessagesEntity {
 
   @Column({ default: false })
   isDeleted: boolean;
+
+  @Column({ default: false })
+  modified: boolean;
 }
+
 // createdAt: "01:53",
 // id: "10",
 // creatorId: "1",

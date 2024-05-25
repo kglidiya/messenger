@@ -4,7 +4,7 @@
   /* z-index: 2; */
 
   /* max-width: 60%; */
-  min-width: 100px;
+  min-width: 115px;
   padding: 10px 10px 25px 10px;
 
   background-color: var(--white);
@@ -229,6 +229,7 @@
 
   object-fit: cover;
   border-radius: 50%;
+  flex: none;
 }
 
 .author_name {

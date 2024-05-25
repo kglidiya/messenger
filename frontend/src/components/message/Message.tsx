@@ -27,7 +27,7 @@ import TrashIcon from "../../ui/icons/trash-icon/TrashIcon";
 import MessageStatus from "../../ui/message-status/MessageStatus";
 import { createChat } from "../../utils/api";
 import { countArrayItems, findItemById, getFormattedTime } from "../../utils/helpers";
-import { IMessageStatus } from "../../utils/types";
+import { IMessage, IMessageStatus } from "../../utils/types";
 import MessageFileElement from "../message-file-element/MessageFileElement";
 import MessageContactElement from "../messageContactElement/MessageContactElement";
 import ParentElement from "../parentElement/ParentElement";
@@ -40,7 +40,7 @@ const messageFromMe = {
 
 const messageToMe = { borderTopLeftRadius: 0 };
 
-interface IMessage {
+interface IMessageElement {
   id: string;
   message: string;
   file: any;
@@ -54,7 +54,7 @@ interface IMessage {
   isDeleted: boolean;
   status: IMessageStatus;
   readBy: string[];
-  // unreadCount: number;
+  modified: boolean;
   fileId: string;
   setMessageClicked: any;
   isPopupReactionOpen: any;
@@ -90,6 +90,7 @@ const MessageWithForwardRef = React.forwardRef(
       createdAt,
       isForwarded,
       isDeleted,
+      modified,
       status,
       readBy,
       fileId,
@@ -112,7 +113,7 @@ const MessageWithForwardRef = React.forwardRef(
       scrollIntoView,
       setImageToShow,
       setVideoToShow,
-    }: IMessage,
+    }: IMessageElement,
     ref,
   ) =>
     // ref,
@@ -336,6 +337,17 @@ const MessageWithForwardRef = React.forwardRef(
             <MessageContactElement contact={contact} openMessageActionsPopup={openMessageActionsPopup} />
           )}
           {!isDeleted && <MessageStatus status={status} user={userStore.user.id} creator={currentUserId} />}
+          {modified && (
+            <span
+              className={styles.timeStamp}
+              style={{
+                right: userStore.user.id === currentUserId ? "70px" : "",
+                left: userStore.user.id !== currentUserId ? "70px" : "",
+              }}
+            >
+              Изменено
+            </span>
+          )}
           <span
             className={styles.timeStamp}
             style={{
@@ -483,7 +495,7 @@ const MessageWithForwardRef = React.forwardRef(
                   Открыть
                 </li>
               )}
-              {userStore.user.id === currentUserId && (
+              {!contact && userStore.user.id === currentUserId && (
                 <li
                   className={styles.action}
                   onClick={() => {

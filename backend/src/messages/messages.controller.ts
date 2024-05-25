@@ -116,9 +116,13 @@ export class MessagesController {
       throw new UnauthorizedException({ key: 'Invalid token!' });
     }
   }
-
-  @Delete()
+  @Delete('/delete')
   remove(@Body('id') id: string): Promise<any> {
     return this.messageService.delete(id);
+  }
+
+  @Get('/t')
+  get(): Promise<any> {
+    return this.messageService.t();
   }
 }

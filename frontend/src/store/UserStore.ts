@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { extendObservable, makeAutoObservable, observe, runInAction, toJS } from "mobx";
 import { makePersistable } from "mobx-persist-store";
 import { Socket, io } from "socket.io-client";
@@ -38,6 +39,7 @@ export default class UserStore {
   _unreadCount: IUnreadCount[];
   _totalUnread: number;
   _filesCounter: number;
+  _error: string | null;
 
   constructor() {
     this._user = null;
@@ -56,23 +58,36 @@ export default class UserStore {
     this._unreadCount = [];
     this._totalUnread = 0;
     this._filesCounter = 0;
+    this._error = null;
 
     makeAutoObservable(this);
   }
 
   async registerUser(data: ILoginDto) {
     const res = await registerUser(data);
-    // console.log(toJS(res));
     runInAction(() => {
-      this._user = res;
+      if (res.error) {
+        this._error = res.error;
+      } else this._user = res;
     });
   }
 
   async login(data: ILoginDto) {
     const res = await login(data);
+
     runInAction(() => {
-      const { accessToken, refreshToken, ...rest } = res;
-      this._user = rest;
+      // console.log("res", res);
+      if (res.error) {
+        this._error = res.error;
+      } else {
+        const { accessToken, refreshToken, ...rest } = res;
+        this._user = rest;
+      }
+      // if (res instanceof AxiosError) {
+      //   console.log({ error: res.response?.data.message });
+      // }
+      // const { accessToken, refreshToken, ...rest } = res;
+      // this._user = rest;
     });
   }
 
@@ -373,6 +388,10 @@ export default class UserStore {
     this._selectedUsers = [];
   }
 
+  clearError() {
+    this._error = null;
+  }
+
   // setCurrentRoom(usersId: any) {
   //   // console.log(usersId);
   //   if (!usersId) {
@@ -508,5 +527,10 @@ export default class UserStore {
   get filesCounter() {
     // console.log("this._filesCounter", toJS(this._filesCounter));
     return this._filesCounter;
+  }
+
+  get error() {
+    console.log("this._error", toJS(this._error));
+    return this._error;
   }
 }

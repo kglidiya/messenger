@@ -40,6 +40,10 @@ export interface IMessage {
   contact: any;
   roomId: string;
   readBy: string[];
+  modified: boolean;
+  isDeleted: boolean;
+  isDelivered: boolean;
+  isForwarded: boolean;
 }
 
 export interface IUser {

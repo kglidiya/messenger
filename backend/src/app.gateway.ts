@@ -20,6 +20,8 @@ import { IMessageStatus, Message, RoomId } from './interfaces';
 import { read } from 'fs';
 import { AuthorizationEntity } from './authorization/authorization.entity';
 import { RoomsEntity } from './rooms/rooms.entity';
+import LocalFilesService from './localFile/localFiles.service';
+import LocalFile from './localFile/localFile.entity';
 // let prevMessage: string;
 // let chunk = '';
 @WebSocketGateway()
@@ -165,6 +167,7 @@ export class AppGateway
       .createQueryBuilder('messages')
       .update<MessagesEntity>(MessagesEntity, {
         ...messageToEdit,
+        modified: true,
         message: payload.message,
       })
       .where({ id: payload.id })

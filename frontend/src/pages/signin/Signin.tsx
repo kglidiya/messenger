@@ -16,7 +16,6 @@ import Input from "../../ui/input/Input";
 import { emailRegex } from "../../utils/helpers";
 
 const Signin = observer(() => {
-  const socket = useContext(SocketContext);
   const {
     register,
     handleSubmit,
@@ -34,7 +33,12 @@ const Signin = observer(() => {
 
   const onSubmit = (values: any) => {
     // console.log(values);
-    userStore.login({ ...values, isOnline: true });
+    userStore.login({
+      email: values.email.toLowerCase(),
+      password: values.password,
+      isOnline: true,
+    });
+
     // setIsLoading(true)
     // setTimeout(() => {
     //   console.log(toJS(userStore.user));
@@ -52,6 +56,7 @@ const Signin = observer(() => {
     if (userStore.user && userStore.user.id) {
       // console.log(toJS(userStore.user));
       userStore.setAuth(true);
+      userStore.clearError();
       // userStore.setContacts();
       // const data = {
       //   userId: userStore.user.id,
@@ -81,7 +86,7 @@ const Signin = observer(() => {
           placeholder='Email'
           name='email'
           // pattern={emailRegex}
-          required={false}
+          required={true}
           register={register}
           error={errors}
           errorMessage={errors?.email?.type === "required" ? "Заполните это поле" : "Введите корректный email"}
@@ -104,7 +109,8 @@ const Signin = observer(() => {
         />
 
         <Button type='submit' text='Войти' width={matches ? "300px" : "95%"} fontSize={matches ? "24px" : "18px"} />
-        {/* {status.error && <p className={styles.error}>{status.error}</p>} */}
+        {userStore.error && <p className={styles.error}>{userStore.error}</p>}
+        {/* <p className={styles.error}>Вы - новый пользователь</p> */}
       </form>
       <div className={styles.singupGroup}>
         <p className={styles.text}>Вы - новый пользователь?</p>

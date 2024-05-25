@@ -41,9 +41,9 @@ export class AuthorizationService {
     });
 
     if (findDuplicateEmail.length !== 0) {
-      throw new BadRequestException({
-        key: 'User with this email already exist',
-      });
+      throw new BadRequestException(
+        'Такой пользователь уже зарегистрирован. Выполните вход',
+      );
     }
     const hash = await bcrypt.hash(registerData.password, 5);
     const newUser = {
@@ -93,7 +93,7 @@ export class AuthorizationService {
           // recoveryCode: findRegisteredUser[0].recoveryCode,
         };
       } else {
-        throw new BadRequestException({ key: 'Неверный пароль!' });
+        throw new ForbiddenException('Неверный пароль!');
       }
     } else {
       throw new ForbiddenException('Пользователь не зарегистирован');

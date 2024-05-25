@@ -89,7 +89,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
     setOffsetPrev(0);
     setOffsetNext(0);
   };
-
+  console.log("isloading", isLoading);
   useEffect(() => {
     itemsRef.current = itemsRef.current.slice(0, userStore.prevMessages.length);
   }, [userStore.prevMessages.length]);
@@ -163,7 +163,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
   // }, [userStore.chatingWith, userStore.contacts.length]);
   useEffect(() => {
     if (userStore.isAuth) {
-      setIsLoading(false);
+      // setIsLoading(false);
       // console.log(`userStore.isAuth`);
       userStore.setContacts();
       const data = {
@@ -581,7 +581,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
       }, 0);
     }
   };
-  console.log("messageToEdit", toJS(userStore.messageToEdit));
+  // console.log("messageToEdit", toJS(userStore.messageToEdit));
   useEffect(() => {
     if (userStore.messageToEdit) {
       setValue(userStore.messageToEdit.message);
@@ -931,6 +931,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
       // } else setOffset((prev: any) => prev + 5);
       if (fetchPrev) {
         userStore.setMessages([...messages, ...userStore.prevMessages]);
+        setIsLoading(false);
       }
       if (fetchNext) {
         userStore.setMessages([...userStore.prevMessages, ...messages]);
@@ -1110,7 +1111,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
         className={styles.content}
         style={{
           height: `calc(100% - 200px - ${rows * 18}px)`,
-          marginTop: userStore.contacts.length === 0 ? "70px" : "0",
+          marginTop: userStore.contacts.length === 0 ? "80px" : "0",
         }}
         ref={refMessages}
       >

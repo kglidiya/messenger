@@ -39,11 +39,14 @@ const UserProfile = observer(
     const [isGroupEditOpen, setIsGroupEditOpen] = useState(false);
     const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
     const [isDisabled, setIsDisabled] = useState(true);
+    const [usersCount, setUsersCount] = useState(0);
+    const [errorMsg, setErrorMsg] = useState("");
     const [values, setValues] = useState({ avatar: userStore.user.avatar, userName: userStore.user.userName });
     const [groupData, setGroupData] = useState({ usersId: "", name: "", admin: [] });
     const toggleProfileEdit = () => {
       if (isGroupEditOpen) {
         setIsGroupEditOpen(false);
+        setErrorMsg("");
       }
       setIsProfileEditOpen(!isProfileEditOpen);
     };
@@ -54,14 +57,16 @@ const UserProfile = observer(
       if (!isProfileEditOpen) {
         // userStore.setContactToForward(null);
         userStore.clearSelectedUsers();
+        setErrorMsg("");
       }
       setIsGroupEditOpen(!isGroupEditOpen);
     };
-    useEffect(() => {
-      if (groupData.name && userStore.selectedUsers.length > 1) {
-        setIsDisabled(false);
-      } else setIsDisabled(true);
-    }, [groupData.name, userStore.selectedUsers.length]);
+    // useEffect(() => {
+    //   if (groupData.name && userStore.selectedUsers.length > 1) {
+    //     setIsDisabled(false);
+    //   } else setIsDisabled(true);
+    // }, [groupData.name, userStore.selectedUsers.length]);
+    useEffect(() => {}, [userStore.selectedUsers.length]);
     const logOut = () => {
       const data = {
         userId: userStore.user.id,
@@ -91,18 +96,15 @@ const UserProfile = observer(
     };
     const handleSubmit = (e: any) => {
       e.preventDefault();
+
       const data = {
         userId: userStore.user.id,
         userName: values.userName,
       };
       socket && socket.emit("update-userData", data);
       setTimeout(() => {
-        // setValues("");
         setMenuIsOpen(false);
       }, 0);
-      // userStore.clearContacts();
-      // userStore.setContacts();
-      // console.log(values);
     };
 
     useEffect(() => {
@@ -133,6 +135,7 @@ const UserProfile = observer(
         setIsProfileEditOpen(false);
         setIsGroupEditOpen(false);
         setGroupData({ ...groupData, name: "" });
+        setErrorMsg("");
       }
     }, [isMenuOpen]);
     const refInput = useRef<HTMLInputElement | null>(null);
@@ -146,7 +149,10 @@ const UserProfile = observer(
     };
     const handleSubmitGroupData = async (e: any) => {
       e.preventDefault();
-      if (groupData.name) {
+      if (!groupData.name) {
+        setErrorMsg("Укажите название!");
+      }
+      if (groupData.name && userStore.selectedUsers.length > 1) {
         // const usersId = [...userStore.selectedUsers, userStore.user.id];
         const users = userStore.contacts.filter((user: any) => userStore.selectedUsers.includes(user.id));
         const participants = users.map((user: any) => {
@@ -180,7 +186,7 @@ const UserProfile = observer(
         }
       }
     };
-    // const handleSubmitGroupData = async (e: any) => {
+    console.log("error", errorMsg);
     //   e.preventDefault();
     //   if (groupData.name) {
     //     const usersId = [...userStore.selectedUsers, userStore.user.id];
@@ -290,6 +296,8 @@ const UserProfile = observer(
               className={styles.list__item}
             >
               <form onSubmit={handleSubmitGroupData} className={styles.form}>
+                {/* {userStore.selectedUsers.length < 2 && <p className={styles.warning}>Выберите не менее 2 участников</p>} */}
+                <p className={styles.warning}>Выберите не менее 2 участников</p>
                 <motion.ul
                   className={styles.contacts}
                   initial={{ height: 0, opacity: 0 }}
@@ -327,13 +335,13 @@ const UserProfile = observer(
                   <input
                     className={styles.input}
                     type='text'
-                    placeholder='Название группы'
+                    placeholder={!errorMsg ? "Название группы" : errorMsg}
                     value={groupData.name || ""}
                     onChange={handleGropNameChange}
                     name='name'
                   />
 
-                  <button className={styles.buttonSend} disabled={isDisabled}>
+                  <button className={styles.buttonSend}>
                     <PlaneIcon />
                   </button>
                 </div>

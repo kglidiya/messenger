@@ -32,7 +32,11 @@ const Signup = observer(() => {
 
   const onSubmit = (values: any) => {
     // console.log(values);
-    userStore.registerUser({ ...values, isOnline: true });
+    userStore.registerUser({
+      email: values.email.toLowerCase(),
+      password: values.password,
+      isOnline: true,
+    });
 
     // setTimeout(() => {
     //   userStore.setAuth(true);
@@ -49,6 +53,7 @@ const Signup = observer(() => {
     if (userStore.user && userStore.user.id) {
       // console.log(toJS(userStore.user));
       userStore.setAuth(true);
+      userStore.clearError();
       // userStore.setContacts();
       // const data = {
       //   userId: userStore.user.id,
@@ -98,11 +103,18 @@ const Signup = observer(() => {
           width={matches ? "300px" : "95%"}
           fontSize={matches ? "24px" : "18px"}
         />
+        {userStore.error && <p className={styles.error}>{userStore.error}</p>}
       </form>
       {/* {status.error && <p className={styles.error}>{status.error}</p>} */}
       <div className={styles.singupGroup}>
         <p className={styles.text}>Вы уже зарегистированы?</p>
-        <Link to='/signin' className={styles.link}>
+        <Link
+          to='/signin'
+          className={styles.link}
+          onClick={() => {
+            userStore.clearError();
+          }}
+        >
           Войти
         </Link>
       </div>
