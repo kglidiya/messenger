@@ -10,7 +10,8 @@ import useMediaQuery from "../../hooks/useMediaQuery";
 import ShrugIcon from "../../ui/icons/shrug-icon/ShrugIcon";
 
 const Home = () => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingContacts, setIsLoading] = useState(true);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(true);
   const matches = useMediaQuery("(max-width: 805px)");
   if (matches) {
     return (
@@ -23,8 +24,8 @@ const Home = () => {
   return (
     <SocketProvider>
       <div className={styles.content}>
-        <SideBar isLoading={isLoading} />
-        <Chart isLoading={isLoading} setIsLoading={setIsLoading} />
+        <SideBar isLoadingContacts={isLoadingContacts} isLoadingMessages={isLoadingMessages} />
+        <Chart isLoadingMessages={isLoadingMessages} setIsLoading={setIsLoadingMessages} />
       </div>
     </SocketProvider>
   );

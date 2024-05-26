@@ -40,7 +40,7 @@ import TypingIndicator from "../typing-indicator/TypingIndicator";
 
 const { v4: uuidv4 } = require("uuid");
 
-const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoading: boolean }) => {
+const Chart = observer(({ setIsLoading, isLoadingMessages }: { setIsLoading: any; isLoadingMessages: boolean }) => {
   // const socket = io("http://localhost:3001", { transports: ["websocket", "polling", "flashsocket"] });
   const userStore = useContext(Context).user;
   const socket = useContext(SocketContext);
@@ -89,7 +89,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
     setOffsetPrev(0);
     setOffsetNext(0);
   };
-  console.log("isloading", isLoading);
+  console.log("isloading", isLoadingMessages);
   useEffect(() => {
     itemsRef.current = itemsRef.current.slice(0, userStore.prevMessages.length);
   }, [userStore.prevMessages.length]);
@@ -100,7 +100,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
     //     behavior: "smooth",
     //   });
     // }
-    console.log("scrollToBottom");
+    // console.log("scrollToBottom");
     // console.log("offsetNext", offsetNext);
     // console.log("offsetPrev", offsetPrev);
     if (itemsRef.current && userStore.prevMessages.length) {
@@ -165,7 +165,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
     if (userStore.isAuth) {
       // setIsLoading(false);
       // console.log(`userStore.isAuth`);
-      userStore.setContacts();
+      userStore.setContacts(setIsLoading);
       const data = {
         userId: userStore.user.id,
         isOnline: true,
@@ -193,6 +193,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
       // console.log("userStore.setCurrentRoom");
       setValue("");
       userStore.setCurrentRoom(userStore.chatingWith.chatId);
+      setIsLoading(true);
       // if (!userStore.chatingWith.email) {
       //   userStore.setCurrentRoom(userStore.chatingWith.chatId);
       // } else {
@@ -337,13 +338,16 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
         if (userStore.prevMessages.length) {
           const lastMessage = userStore.prevMessages[userStore.prevMessages.length - 1].id;
           if (userStore.currentRoom.lastMessageId !== lastMessage) {
+            console.log("userStore.currentRoom.lastMessageId !== lastMessage");
             userStore.clearMessages();
             resetFetchParams();
           } else {
+            console.log("userStore.currentRoom.lastMessageId === lastMessage");
             userStore.addMessage(message);
             setOffsetPrev((prev: any) => prev + 1);
           }
         } else {
+          console.log("!userStore.prevMessages.length");
           userStore.addMessage(message);
           setOffsetPrev((prev: any) => prev + 1);
         }
@@ -916,8 +920,8 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
     // console.log("userStore.prevMessages", toJS(userStore.prevMessages));
 
     try {
-      // console.log("setNext", offsetNext);
-      // console.log("offsetPrev", offsetPrev);
+      console.log("setNext", offsetNext);
+      console.log("offsetPrev", offsetPrev);
       const res = await getPrevMessage({
         limit,
         offset: fetchNext ? offsetNext : offsetPrev,
@@ -1115,7 +1119,7 @@ const Chart = observer(({ setIsLoading, isLoading }: { setIsLoading: any; isLoad
         }}
         ref={refMessages}
       >
-        {isLoading && (
+        {isLoadingMessages && (
           <div style={{ marginTop: "25vh" }}>
             <Loader color='white' />
           </div>

@@ -140,7 +140,7 @@ export default class UserStore {
       this._currentRoom.lastMessageId = id;
     }
   }
-  async setContacts() {
+  async setContacts(setIsLoading: any) {
     const result = await getMyChats({ userId: this._user.id });
     // console.log(toJS(result));
     runInAction(() => {
@@ -148,6 +148,10 @@ export default class UserStore {
         this._contacts = result[0];
         this._roomAll = result[1];
         // this.setCurrentRoom(this.chatingWith.id);
+        if (result[0].length === 0) {
+          // console.log(" setIsLoading(false);");
+          setIsLoading(false);
+        }
       }
     });
   }
