@@ -1,0 +1,12 @@
+.wrapper {
+    width: 100%;
+    height: 250px;
+    border-radius: var(--border-radius);
+    margin: auto;
+    /* background-color: antiquewhite; */
+    background-image: url('../../images/image_icon.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+
+}

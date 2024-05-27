@@ -39,7 +39,6 @@ const Input = ({
   setValue,
   onChange,
 }: IInput) => {
-  console.log(error)
   return (
     <div className={styles.container}>
       {/* {clearButton && <CloseIcon onClick={() => setValue(name, "")} />} */}

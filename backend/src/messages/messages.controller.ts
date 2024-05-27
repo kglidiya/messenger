@@ -121,8 +121,8 @@ export class MessagesController {
     return this.messageService.delete(id);
   }
 
-  @Get('/t')
-  get(): Promise<any> {
-    return this.messageService.t();
-  }
+  // @Get('/t')
+  // get(): Promise<any> {
+  //   return this.messageService.t();
+  // }
 }

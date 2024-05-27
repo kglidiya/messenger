@@ -259,28 +259,6 @@ export default class UserStore {
   }
 
   updateUserData(newUser: IContact) {
-    // console.log(this._chatingWith.id === newUser.id);
-    // console.log(this._user.id);
-    // if (this._user && newUser) {
-    // console.log("newUser", newUser);
-    //     avatar
-    // :
-    // null
-    // createdAt
-    // :
-    // "2024-05-19T06:51:30.050Z"
-    // email
-    // :
-    // "2@test.ru"
-    // id
-    // :
-    // "6d983f6c-2f8a-48b2-9f8a-344160caf950"
-    // isOnline
-    // :
-    // true
-    // userName
-    // :
-    // ""
     if (newUser.id !== this._user.id) {
       const oldUser = this._contacts.findIndex((el) => el.id === newUser.id);
       // console.log("oldUser", this._contacts[oldUser]);
@@ -307,26 +285,6 @@ export default class UserStore {
       } else return room;
     });
   }
-
-  // decrementRoomUndeadIndex(roomId: string) {
-  //   // const oldRoom = this._roomAll.findIndex((el) => el.id === roomId);
-  //   // this._contacts.splice(oldUser, 1, newUser);
-  //   this._roomAll.map((room) => {
-  //     if (room.id === roomId) {
-  //       return room.firstUnreadMessageIndex--;
-  //     } else return room;
-  //   });
-  // }
-
-  // incrementRoomUndeadIndex(roomId: string) {
-  //   // const oldRoom = this._roomAll.findIndex((el) => el.id === roomId);
-  //   // this._contacts.splice(oldUser, 1, newUser);
-  //   this._roomAll.map((room: any) => {
-  //     if (room.id === roomId) {
-  //       return room.firstUnreadMessageIndex++;
-  //     } else return room;
-  //   });
-  // }
 
   clearContacts() {
     this._contacts = [];

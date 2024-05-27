@@ -14,6 +14,7 @@ import { IMessage } from "../../utils/types";
 import ButtonSend from "../button-send/ButtonSend";
 import DeleteIcon from "../icons/delete-icon/DeleteIcon";
 import Paperclip from "../icons/paperclip/Paperclip";
+import ImageSnippet from "../image-snippet/ImageSnippet";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -51,29 +52,6 @@ export default function InputFile({
     setFilesToSend([]);
   };
 
-  // useEffect(() => {
-  //   // console.log(socket);
-  //   socket &&
-  //     socket.on("receive-file", (message: IMessage) => {
-  //       console.log("message");
-  //       // userStore.addMessage(message);
-  //     });
-  // }, []);
-
-  // const connectToRoom = async () => {
-  //   try {
-  //     const response = await connectToChart({
-  //       currentUserId: userStore.user.id,
-  //       recipientUserId: userStore.chatingWith.id,
-  //     });
-  //     // setRoomId(response);
-  //     userStore.getPrevMessages(response);
-  //     socket && socket.emit("meeting", { roomId: response });
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-
   const readFiles = (file: any) => {
     return new Promise((res, rej) => {
       const reader = new FileReader();
@@ -85,13 +63,26 @@ export default function InputFile({
   const handleInputFileChange = async (e: any) => {
     const files = (e.target as HTMLInputElement).files;
     setFilesToSend(files);
-    // console.log(files);
+    console.log(files);
     const validFiles = [];
     if (files && files.length) {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        // console.log(file);
-        validFiles.push({ fileContent: await readFiles(file), fileName: file.name });
+        if (file.size < 104857600) {
+          validFiles.push({
+            fileContent: await readFiles(file),
+            fileName: file.name,
+            size: file.size,
+            type: file.type,
+          });
+        } else {
+          validFiles.push({
+            fileContent: "",
+            fileName: file.name,
+            size: file.size,
+            type: file.type,
+          });
+        }
       }
       if (validFiles.length) {
         setFiles(validFiles);
@@ -147,11 +138,20 @@ export default function InputFile({
             <div className={styles.container}>
               {files.length > 0 &&
                 files.map((file: any, i: number) => {
-                  if (file.fileContent.startsWith("data:image")) {
+                  console.log(file);
+                  if (file.type.startsWith("image")) {
                     return (
                       <div style={{ position: "relative", width: "fit-content", justifySelf: "center" }} key={i}>
                         <DeleteIcon onClick={() => removeFile(i)} />
                         <img src={file.fileContent} alt='' className={styles.image} onClick={() => removeFile(i)} />
+                        {file.size > 104857600 && (
+                          <>
+                            <ImageSnippet />
+                            <p className={styles.warning}>
+                              Файл не может быть отправлен т.к. его зармер превышает 100 МБ
+                            </p>
+                          </>
+                        )}
                       </div>
                     );
                   }
@@ -165,7 +165,7 @@ export default function InputFile({
                       </div>
                     );
                   }
-                  if (file.fileContent.startsWith("data:video/mp4")) {
+                  if (file.type.startsWith("video/mp4")) {
                     return (
                       <div style={{ position: "relative", width: "fit-content" }} key={i}>
                         <DeleteIcon onClick={() => removeFile(i)} />
@@ -176,6 +176,11 @@ export default function InputFile({
                           muted
                           onClick={() => removeFile(i)}
                         ></video>
+                        {file.size > 104857600 && (
+                          <p className={styles.warning}>
+                            Файл не может быть отправлен т.к. его зармер превышает 100 МБ
+                          </p>
+                        )}
                       </div>
                     );
                   } else

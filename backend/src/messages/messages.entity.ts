@@ -66,8 +66,8 @@ export class MessagesEntity {
   // @Column({ default: false })
   // isSent: boolean;
 
-  @Column({ default: false })
-  isDelivered: boolean;
+  // @Column({ default: false })
+  // isDelivered: boolean;
 
   @Column({ default: false })
   isDeleted: boolean;

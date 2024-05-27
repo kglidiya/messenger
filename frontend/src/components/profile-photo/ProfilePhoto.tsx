@@ -4,12 +4,13 @@ import { observer } from "mobx-react-lite";
 import React, { Dispatch, MouseEventHandler, SetStateAction, useContext, useEffect } from "react";
 import { FC, useState, useCallback, useMemo } from "react";
 
-import styles from "./ProfilePhoto.module.scss";
+import styles from "./ProfilePhoto.module.css";
 
 import { Context } from "../..";
 import { SocketContext } from "../../hoc/SocketProvider";
 import EditIcon from "../../ui/icons/edit-icon/EditIcon";
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
+import Loader from "../../ui/loader/Loader";
 
 // import { Camera } from "../../icons/Camera/Camera";
 // import { TForm } from "../../utils/types";
@@ -29,8 +30,7 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
   const [hover, setHover] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [img, setImg] = useState<any>("");
-  const [sizeLimit, setSizelimit] = useState(false);
-
+  const [loaded, setLoaded] = useState(true);
   const handleInputHover: MouseEventHandler<HTMLLabelElement> = (e) => {
     if (e.type === "mouseenter") {
       setHover(true);
@@ -48,6 +48,7 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
   // console.log(isGroupEditOpen);
   const handleImageChange = async (e: any) => {
     // console.log("handleImageChange");
+    setLoaded(false);
     let imageFile = e.target.files[0];
     const options = {
       maxSizeMB: 0.2,
@@ -56,41 +57,10 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
     };
     try {
       const compressedFile = await imageCompression(imageFile, options);
-      // console.log(await readFiles(compressedFile));
-      // setValue({ ...values, avatar: await readFiles(compressedFile) });
       setImg(await readFiles(compressedFile));
-      // const data = {
-      //   roomId: userStore.currentRoom.id,
-      //   avatar: await readFiles(compressedFile),
-      // };
-      // console.log("edit-group avatarr");
-      // socket && socket.emit("edit-group", data);
     } catch (error) {
       console.log(error);
     }
-
-    // const form = new FormData();
-    // form.append("file", file);
-    // userStore.updateAvatar(form);
-
-    // // setImg(file);
-    // console.log(form.get(file));
-    // if (e.target.files[0]) {
-
-    // const data = {
-    //   userId: userStore.user.id,
-    //   // userName: values.userName,
-    //   // avatar: "",
-    // };
-    // // socket && socket.emit("update-userData", data);
-    setTimeout(() => {
-      // console.log(values);
-      // const data = {
-      //   userId: userStore.user.id,
-      //   avatar: values.avatar,
-      // };
-      // socket && socket.emit("update-userData", data);
-    }, 0);
   };
   // console.log(values);
   useEffect(() => {
@@ -108,13 +78,9 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
           roomId: userStore.currentRoom.id,
           avatar: img,
         };
-        // console.log("edit-group avatarr");
         socket && socket.emit("edit-group", data);
       }
     }
-    // setValue({ ...values, avatar: img });
-
-    // console.log(img);
   }, [img]);
 
   const handleButtonVisibility = useCallback(() => {
@@ -129,7 +95,7 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
   useMemo(() => {
     handleButtonVisibility();
   }, [handleButtonVisibility]);
-  // console.log(avatar);
+  // console.log("loaded", loaded);
   return (
     <motion.div
       className={styles.avatar}
@@ -140,7 +106,6 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
       }}
       transition={{ duration: 0.3 }}
     >
-      {/* {sizeLimit && <p className={styles.avatar__requirements_size}>(Размер файла должен быть менее 2 мб)</p>} */}
       <input
         type='file'
         name='avatar'
@@ -156,14 +121,19 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
           onMouseEnter={handleInputHover}
           onMouseLeave={handleInputHover}
         >
+          {!loaded && (
+            <div className={styles.loader}>
+              <Loader color='white' />
+            </div>
+          )}
           {avatar ? (
-            <img src={avatar} alt={"Аватар"} className={styles.label__image}></img>
+            <img src={avatar} alt={"Аватар"} className={styles.image} onLoad={() => setLoaded(true)}></img>
           ) : (
             <NoAvatar width={180} height={180} />
           )}
           <span
-            className={`${styles.label__button} 
-            ${isVisible ? styles.label__button_status_default : styles.label__button_status_active}`}
+            className={`${styles.button} 
+            ${isVisible ? styles.button_default : styles.button_active}`}
           >
             <EditIcon color='white' />
           </span>

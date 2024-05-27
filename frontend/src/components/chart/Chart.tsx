@@ -89,7 +89,7 @@ const Chart = observer(({ setIsLoading, isLoadingMessages }: { setIsLoading: any
     setOffsetPrev(0);
     setOffsetNext(0);
   };
-  console.log("isloading", isLoadingMessages);
+  // console.log("isloading", isLoadingMessages);
   useEffect(() => {
     itemsRef.current = itemsRef.current.slice(0, userStore.prevMessages.length);
   }, [userStore.prevMessages.length]);
@@ -193,7 +193,7 @@ const Chart = observer(({ setIsLoading, isLoadingMessages }: { setIsLoading: any
       // console.log("userStore.setCurrentRoom");
       setValue("");
       userStore.setCurrentRoom(userStore.chatingWith.chatId);
-      setIsLoading(true);
+      // setIsLoading(true);
       // if (!userStore.chatingWith.email) {
       //   userStore.setCurrentRoom(userStore.chatingWith.chatId);
       // } else {
@@ -209,6 +209,7 @@ const Chart = observer(({ setIsLoading, isLoadingMessages }: { setIsLoading: any
   useEffect(() => {
     if (userStore.currentRoom) {
       userStore.setRoomId(userStore.currentRoom?.id);
+      // setIsLoading(true);
     }
   }, [userStore.currentRoom]);
   // console.log("userStore.currentRoom", toJS(userStore.currentRoom));
@@ -216,6 +217,7 @@ const Chart = observer(({ setIsLoading, isLoadingMessages }: { setIsLoading: any
   // console.log(addedToGroupOn);
   useEffect(() => {
     if (userStore.roomId) {
+      setIsLoading(true);
       // setIsLoading(false);
       // console.log("fetch", userStore.roomId);
       // userStore.getOneRoom({ roomId: userStore.currentRoom?.id });
@@ -513,6 +515,7 @@ const Chart = observer(({ setIsLoading, isLoadingMessages }: { setIsLoading: any
       if (participant && !participant.isDeleted && isGroupInContacts) {
         // console.log("1");
         userStore.updateGroup(groupData);
+        // setIsLoading(false);
       }
       if (participant && !participant.isDeleted && !isGroupInContacts) {
         // console.log("2");
@@ -524,6 +527,7 @@ const Chart = observer(({ setIsLoading, isLoadingMessages }: { setIsLoading: any
         userStore.setChatingWith(null);
         userStore.setCurrentRoom(null);
         userStore.clearMessages();
+        // setIsLoading(false);
       }
     });
   }, []);
@@ -1102,11 +1106,7 @@ const Chart = observer(({ setIsLoading, isLoadingMessages }: { setIsLoading: any
             />
           )}
           {userStore.currentRoom && !userStore.chatingWith.email && (
-            <PopupGroupDetails
-              {...userStore.chatingWith}
-              isPopupDetailsOpen={isPopupDetailsOpen}
-              closeDetailsPopup={closeDetailsPopup}
-            />
+            <PopupGroupDetails isPopupDetailsOpen={isPopupDetailsOpen} closeDetailsPopup={closeDetailsPopup} />
           )}
         </div>
       )}

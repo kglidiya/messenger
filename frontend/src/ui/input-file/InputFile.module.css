@@ -108,3 +108,9 @@
   white-space: nowrap;
   overflow: hidden;
 }
+
+.warning {
+  color: var(--white);
+  font-size: var(--text-large);
+  text-align: center;
+}
