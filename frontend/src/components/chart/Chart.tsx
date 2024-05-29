@@ -4,6 +4,8 @@ import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
+import { useSwipeable } from "react-swipeable";
+
 import styles from "./Chart.module.css";
 
 import { Context } from "../..";
@@ -87,8 +89,8 @@ const Chart = observer(
     const [fetchNext, setFetchNext] = useState(false);
     const [fetchPrev, setFetchPrev] = useState(true);
     const refAnchor = useRef<HTMLDivElement>(null);
-    const refChart = useRef<HTMLDivElement>(null);
-    const refMessages = useRef<HTMLDivElement>(null);
+    const refChart = useRef<HTMLDivElement | null>(null);
+    const refMessages = useRef<HTMLDivElement | null>(null);
     const refTextArea = React.useRef<HTMLTextAreaElement>(null);
     const itemsRef = useRef<any[]>([]);
     const [scroll, setScroll] = useState<number | undefined>();
@@ -781,6 +783,15 @@ const Chart = observer(
       // }, [roomData, store.prevMessages.length]);
     }, [store.currentRoom]);
 
+    const handlers = useSwipeable({
+      onSwipedDown: (e: any) => {
+        scrollHander(e);
+      },
+      onSwipedUp: (e: any) => {
+        scrollHander(e);
+      },
+    });
+
     const fetchMessages = async () => {
       // console.log("fetchNext", fetchNext);
       // console.log("fetchPrev", fetchPrev);
@@ -891,10 +902,15 @@ const Chart = observer(
       }
     }, [store.parentMessage]);
 
+    const refPassthrough = (el: any) => {
+      handlers.ref(el);
+      refMessages.current = el;
+    };
     return (
       <div
         className={styles.wrapper}
         onClick={closeAllPopups}
+        // {...handlers}
         ref={refChart}
         style={{
           width: matchesMobile ? (!isContactsVisible ? "100%" : 0) : "",
@@ -904,7 +920,7 @@ const Chart = observer(
       >
         {store.chatingWith && (
           <div className={styles.contact}>
-            <NavBackIcon onClick={() => setIsContactsVisible(true)} />
+            {matchesMobile && <NavBackIcon onClick={() => setIsContactsVisible(true)} />}
 
             {store.chatingWith.avatar ? (
               <img src={store.chatingWith.avatar} alt='Аватар' className={styles.contact__avatar} />
@@ -950,7 +966,8 @@ const Chart = observer(
             height: `calc(100% - 200px - ${rows * 18}px)`,
             marginTop: store.contacts.length === 0 ? "80px" : "0",
           }}
-          ref={refMessages}
+          {...handlers}
+          ref={refPassthrough}
         >
           {isLoadingMessages && (
             <div style={{ marginTop: "25vh" }}>
