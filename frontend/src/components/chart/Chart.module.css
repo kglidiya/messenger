@@ -188,9 +188,14 @@
 }
 
 @media (max-width: 576px) {
+  .wrapper {
+    border-radius: 0;
+    height: 100vh;
+  }
   .contact {
     padding: 10px 0 20px 5px;
     gap: 10px;
+    z-index: 6;
   }
   .details {
     width: 40%;

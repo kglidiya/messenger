@@ -139,6 +139,10 @@
   }
 }
 @media (max-width: 576px) {
+  .wrapper {
+    height: 100vh;
+    border-radius: 0;
+  }
   .content {
     height: calc(100% - 200px);
   }

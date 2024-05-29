@@ -222,7 +222,7 @@ export class MessagesService {
       status:
         user && !user.isOnline ? IMessageStatus.SENT : IMessageStatus.DELIVERED,
       file: {
-        path: `${process.env.REACT_APP_WS_URL}/files/${uploadedFile.id}`,
+        path: `${process.env.REACT_APP_SERVER_URL}/files/${uploadedFile.id}`,
         type: uploadedFile.mimetype,
         name: uploadedFile.originalname,
       },
