@@ -12,20 +12,41 @@ import ShrugIcon from "../../ui/icons/shrug-icon/ShrugIcon";
 const Home = () => {
   const [isLoadingContacts, setIsLoading] = useState(true);
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
-  const matches = useMediaQuery("(max-width: 805px)");
-  if (matches) {
-    return (
-      <div style={{ display: "flex", alignItems: "center", flexDirection: "column" }}>
-        <p style={{ color: "#f8f3e9" }}>Мобильная версия в разработке</p>
-        <ShrugIcon color='#f8f3e9' />
-      </div>
-    );
-  }
+  const [isContactsVisible, setIsContactsVisible] = useState(true);
+  const [isChartVisible, setIsChartVisible] = useState(true);
+  const matches = useMediaQuery("(min-width: 576px)");
+  // if (matches) {
+  //   return (
+  //     <div style={{ display: "flex", alignItems: "center", flexDirection: "column" }}>
+  //       <p style={{ color: "#f8f3e9" }}>Мобильная версия в разработке</p>
+  //       <ShrugIcon color='#f8f3e9' />
+  //     </div>
+  //   );
+  // }
+  // useEffect(() => {
+  //   if (matches) {
+  //     setIsChartVisible(false);
+  //   } else setIsChartVisible(true);
+  //   if (isContactsVisible) {
+  //     setIsContactsVisible(false);
+  //   } else setIsContactsVisible(true);
+  // }, [matches]);
   return (
     <SocketProvider>
       <div className={styles.content}>
-        <SideBar isLoadingContacts={isLoadingContacts} isLoadingMessages={isLoadingMessages} />
-        <Chart isLoadingMessages={isLoadingMessages} setIsLoading={setIsLoadingMessages} />
+        <SideBar
+          isLoadingContacts={isLoadingContacts}
+          isLoadingMessages={isLoadingMessages}
+          isContactsVisible={isContactsVisible}
+          setIsContactsVisible={setIsContactsVisible}
+        />
+
+        <Chart
+          isLoadingMessages={isLoadingMessages}
+          setIsLoading={setIsLoadingMessages}
+          isContactsVisible={isContactsVisible}
+          setIsContactsVisible={setIsContactsVisible}
+        />
       </div>
     </SocketProvider>
   );

@@ -29,6 +29,7 @@ export default function MessageFileElement({
   const isPageVisible = usePageVisibility();
   const [loaded, setLoaded] = useState(false);
   const matches = useMediaQuery("(min-width: 1200px)");
+  const matchesMobile = useMediaQuery("(max-width: 576px)");
   return (
     <>
       {type.includes("image") && (
@@ -64,8 +65,8 @@ export default function MessageFileElement({
         style={{
           left: myMessage ? 0 : "",
           right: !myMessage ? 0 : "",
-          visibility: hover ? "visible" : "hidden",
-          opacity: hover ? 1 : 0,
+          visibility: hover || matchesMobile ? "visible" : "hidden",
+          opacity: hover || matchesMobile ? 1 : 0,
           // transition: "all 0.3s linear",
         }}
       >

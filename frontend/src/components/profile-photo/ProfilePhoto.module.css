@@ -80,3 +80,9 @@
   visibility: hidden;
   opacity: 0;
 }
+
+@media (max-width: 576px) {
+  .wrapper {
+    height: 120px;
+  }
+}

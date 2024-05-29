@@ -17,7 +17,7 @@
   overflow: hidden;
   /* background-color: var(--beige-light); */
 }
-.inputContainer{
+.inputContainer {
   padding-top: 15px;
   width: 90%;
   margin: auto;
@@ -36,7 +36,6 @@
   --moz-scrollbar-color: #eae2cc #fff;
   --moz-scrollbar-width: thin;
   /* overflow: hidden; */
-  
 }
 .list::-webkit-scrollbar {
   width: 4px;
@@ -91,7 +90,6 @@
 .form {
   width: 90%;
   overflow: hidden;
-  
 }
 /* .addToAdminButton {
   background-color: var(--white);
@@ -123,4 +121,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+@media (max-width: 576px) {
+  .wrapper {
+    top: 0;
+    right: 0;
+    width: 95%;
+  }
 }

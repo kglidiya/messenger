@@ -9,21 +9,19 @@ import { usePageVisibility } from "react-page-visibility";
 import { Context } from "../..";
 
 const HelmetSeo = observer(() => {
-  const userStore = useContext(Context).user;
+  const store = useContext(Context).user;
   const isPageVisible = usePageVisibility();
-  const [title, setTitle] = useState(
-    userStore.totalUnread > 0 ? `(${userStore.totalUnread}) PigeonMailer` : "PigeonMailer",
-  );
+  const [title, setTitle] = useState(store.totalUnread > 0 ? `(${store.totalUnread}) PigeonMailer` : "PigeonMailer");
 
   useEffect(() => {
-    setTitle(userStore.totalUnread > 0 ? `(${userStore.totalUnread}) PigeonMailer` : "PigeonMailer");
-  }, [userStore.totalUnread]);
+    setTitle(store.totalUnread > 0 ? `(${store.totalUnread}) PigeonMailer` : "PigeonMailer");
+  }, [store.totalUnread]);
 
   useEffect(() => {
     if (!isPageVisible) {
-      document.title = userStore.totalUnread > 0 ? `(${userStore.totalUnread}) PigeonMailer` : "PigeonMailer";
+      document.title = store.totalUnread > 0 ? `(${store.totalUnread}) PigeonMailer` : "PigeonMailer";
     }
-  }, [isPageVisible, userStore.totalUnread]);
+  }, [isPageVisible, store.totalUnread]);
 
   return (
     <Helmet>

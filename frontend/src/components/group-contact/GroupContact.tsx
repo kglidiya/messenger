@@ -26,29 +26,29 @@ interface IContactProps {
 // const Contact = observer(({ id, userName, avatar, message, timeStamp, unread, email }: IContactProps) => {
 const GroupContact = observer(({ user }: IContactProps) => {
   const socket = useContext(SocketContext);
-  const userStore = useContext(Context).user;
-  const isAdmin = userStore.currentRoom.admin.includes(userStore.user.id);
-  // const activeParticipants = userStore.currentRoom.participants.filter((user: any) => !user.isDeleted).length;
+  const store = useContext(Context).user;
+  const isAdmin = store.currentRoom.admin.includes(store.user.id);
+  // const activeParticipants = store.currentRoom.participants.filter((user: any) => !user.isDeleted).length;
 
-  // // console.log(toJS(userStore.chatingWith));
+  // // console.log(toJS(store.chatingWith));
   // console.log(toJS("activeParticipants", activeParticipants));
   const deleteUser = (userId: string) => {
-    const participantsId = userStore.currentRoom.usersId
+    const participantsId = store.currentRoom.usersId
       .split(",")
       .filter((id: string) => id !== userId)
       .join();
 
-    const participants = userStore.currentRoom.participants.map((user: any) => {
+    const participants = store.currentRoom.participants.map((user: any) => {
       if (user.userId === userId) {
         return { addedOn: user.addedOn, userId: user.userId, isDeleted: true };
       } else return { addedOn: user.addedOn, userId: user.userId, isDeleted: user.isDeleted };
     });
-    // console.log(toJS(participants));
+    console.log(toJS(participants));
     // console.log("userId", userId);
     const data = {
-      roomId: userStore.currentRoom.id,
+      roomId: store.currentRoom.id,
       usersId: participantsId,
-      participants: participants,
+      participants,
       // groupAvatar: values.groupAvatar,
     };
     socket && socket.emit("edit-group", data);
@@ -57,11 +57,11 @@ const GroupContact = observer(({ user }: IContactProps) => {
   const addAdmin = (userId: string) => {
     // e.stopPropagation();
     // console.log(userId);
-    // const participants = userStore.forwardTo.join();
+    // const participants = store.forwardTo.join();
     // console.log(e.target.nodeName);
-    const andmins = [...userStore.currentRoom.admin, userId];
+    const andmins = [...store.currentRoom.admin, userId];
     const data = {
-      roomId: userStore.currentRoom.id,
+      roomId: store.currentRoom.id,
       admin: andmins,
     };
     // console.log(data);
@@ -81,17 +81,17 @@ const GroupContact = observer(({ user }: IContactProps) => {
               {user.email && <p className={styles.name}>{user.email}</p>}
               {user.userName && <p className={styles.name}>{user.userName}</p>}
             </div>
-            {userStore.currentRoom.admin.includes(user.userId) && <p className={styles.role}>Admin</p>}
+            {store.currentRoom.admin.includes(user.userId) && <p className={styles.role}>Admin</p>}
           </div>
-          {isAdmin && !userStore.currentRoom.admin.includes(user.userId) && (
+          {isAdmin && !store.currentRoom.admin.includes(user.userId) && (
             <button onClick={() => addAdmin(user.userId)} className={styles.addToAdminButton}>
               Добавить в admin
             </button>
           )}
 
           {isAdmin &&
-            !userStore.currentRoom.admin.includes(user.userId) &&
-            userStore.currentRoom.usersId.split(",").length >= 4 && (
+            !store.currentRoom.admin.includes(user.userId) &&
+            store.currentRoom.usersId.split(",").length >= 4 && (
               <TrashIcon
                 width={28}
                 height={28}

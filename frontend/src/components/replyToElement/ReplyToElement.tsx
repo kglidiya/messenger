@@ -17,7 +17,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 export default function ReplyToElement({ message, file, contact }: IReplyToElementProps) {
   // console.log(contact);
-  const userStore = useContext(Context).user;
+  const store = useContext(Context).user;
   return (
     <div className={styles.wrapper}>
       {message && <p className={styles.message}>{message}</p>}
@@ -44,7 +44,7 @@ export default function ReplyToElement({ message, file, contact }: IReplyToEleme
       )}
       <button
         onClick={() => {
-          userStore.setParentMessage(null);
+          store.setParentMessage(null);
         }}
         className={styles.button}
       />

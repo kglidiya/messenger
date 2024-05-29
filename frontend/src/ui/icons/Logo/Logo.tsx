@@ -4,12 +4,14 @@ import styles from "./Logo.module.css";
 
 interface ILogoProps {
   color: string;
+  width: number;
+  height: number;
   top?: number;
   bottom?: number;
   left?: number;
   right?: number;
 }
-export default function Logo({ color, top, bottom, left, right }: ILogoProps) {
+export default function Logo({ color, width, height, top, bottom, left, right }: ILogoProps) {
   return (
     <div
       className={styles.wrapper}
@@ -22,8 +24,8 @@ export default function Logo({ color, top, bottom, left, right }: ILogoProps) {
     >
       <svg
         xmlns='http://www.w3.org/2000/svg'
-        width='100px'
-        height='100px'
+        width={`${width}px`}
+        height={`${height}px`}
         viewBox='0 0 100 100'
         version='1.1'
         fill={color}

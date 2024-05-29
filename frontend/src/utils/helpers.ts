@@ -1,16 +1,5 @@
 import { IContact } from "./types";
 
-export const chunkFile = (str: any, size: any) => {
-  const numChunks = Math.ceil(str.length / size);
-  const chunks = new Array(numChunks);
-
-  for (let i = 0, o = 0; i < numChunks; ++i, o += size) {
-    chunks[i] = str.substr(o, size);
-  }
-
-  return chunks;
-};
-
 export const isAllContactsInTheGroup = (arr: IContact[], userId: string, usersId: string) => {
   const res = arr.filter((user: any) => {
     if (user.id !== userId && user.email !== "" && !usersId.includes(user.id)) return user;
@@ -37,28 +26,14 @@ export const countArrayItems = (arr: any) => {
   return output;
 };
 
-const getDiffDays = (date: Date) => Math.floor((new Date().getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-
 export const getFormattedTime = (createdAt: string) => {
   const date = new Date(createdAt);
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 };
-// export const isToday = (date: Date): boolean => getDiffDays(date) === 0;
-// export const isYesterday = (date: Date): boolean => getDiffDays(date) === 1;
-// export const getDay = (date: Date) => {
-//   if (getDiffDays(date) === 0) {
-//     return "Сегодня";
-//   }
-//   if (getDiffDays(date) === 1) {
-//     return "Вчера";
-//   }
-// };
 
 const isToday = (createdAt: any) => {
   const today = new Date();
   const dateToCheck = new Date(createdAt);
-  // 👇️ Today's date
-  // console.log(today.toDateString());
 
   if (today.toDateString() === dateToCheck.toDateString()) {
     return true;
@@ -71,7 +46,6 @@ const isYesterday = (createdAt: any) => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const dateToCheck = new Date(createdAt);
-  // 👇️ Yesterday's date
 
   if (yesterday.toDateString() === dateToCheck.toDateString()) {
     return true;
@@ -81,11 +55,6 @@ const isYesterday = (createdAt: any) => {
 };
 export const getDate = (createdAt: any) => {
   const date = new Date(createdAt);
-  // if (getDiffDays(date) === 0) {
-  //   return "Сегодня";
-  // }
-  // const t = new Date("2024-05-17T06:14:42.727Z");
-  // console.log(isYesterday(t));
   if (isToday(createdAt)) {
     return "Сегодня";
   }
@@ -100,21 +69,11 @@ export const getDate = (createdAt: any) => {
       String(date.getFullYear())
     );
 };
-// import plural from 'plural-ru';
 
-// const getDiffDays = (date: Date) =>
-//     Math.floor((new Date().getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+export const creactFileToSend = (fileData: any, type: string) => {
+  return new File([fileData], "image.png", { type: type });
+};
 
-// export const getFormattedTime = (date: Date): string =>
-//     `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-
-// export const getFormattedDate = (date: Date): string => {
-//     const diffDays = getDiffDays(date);
-//     return `${plural(diffDays, '%d день', '%d дня', '%d дней')} назад, ${getFormattedTime(date)}`;
-// };
-
-// export const isToday = (date: Date): boolean => getDiffDays(date) === 0;
-// export const isYesterday = (date: Date): boolean => getDiffDays(date) === 1;
 export const countLines = (textarea: any) => {
   let _buffer: any;
   if (_buffer == null) {

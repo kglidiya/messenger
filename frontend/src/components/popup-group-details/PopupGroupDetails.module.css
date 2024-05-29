@@ -177,30 +177,36 @@
   z-index: 20;
 }
 
-/* .addToAdminButton {
-  display: inline-block;
-  background-color: var(--white);
-  border-radius: var(--border-radius);
-  padding: 5px;
-  font-size: var(--font-size-default);
-  font-weight: bold;
-  color: #ddd6c7;
-  border: 2px solid #ddd6c7;
-  margin-left: auto;
-  margin-left: auto;
-  position: absolute;
-  top: 7px;
-  right: 40px;
-  height: auto;
-  width: 90px;
-  cursor: pointer;
-  word-break: break-word;
-  white-space: pre-line;
-  overflow-wrap: break-word;
-  -ms-word-break: break-word;
-  word-break: break-word;
-  -ms-hyphens: auto;
-  -moz-hyphens: auto;
-  -webkit-hyphens: auto;
-  hyphens: auto;
-} */
+@media (max-width: 576px) {
+  .list {
+    top: 0;
+    right: 0;
+    width: 100%;
+    padding: 10px 0;
+  }
+  .contacts {
+    max-height: 260px;
+  }
+  .input {
+    margin-bottom: 0;
+  }
+
+  .groupName {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .avatar {
+    height: 120px;
+    object-fit: contain;
+  }
+
+  .buttonSend {
+    margin-bottom: 0;
+    margin-top: 10px;
+  }
+  .addContactBtn {
+    font-size: 16px;
+    /* margin-bottom: 10px; */
+  }
+}

@@ -122,7 +122,7 @@ export class AppGateway
       reaction: payload.reaction,
       from: payload.from,
     };
-    console.log(payload);
+    // console.log(payload);
     const findDuplicateReaction = message.reactions.filter((reaction: any) => {
       return reaction.from === payload.from;
     });
@@ -368,6 +368,7 @@ export class AppGateway
       result.participants[i].userName = userData.userName;
       result.participants[i].email = userData.email;
     }
+    // console.log(result);
     this.server.emit('receive-groupData', result);
   }
 

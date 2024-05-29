@@ -70,3 +70,17 @@
   font-weight: bold;
   cursor: pointer;
 }
+
+@media (max-width: 576px) {
+  .wrapper {
+    top: 0;
+    right: 0;
+    width: 95%;
+    padding: 10px;
+    height: auto;
+  }
+  .avatar {
+    height: 220px;
+    object-fit: contain;
+  }
+}

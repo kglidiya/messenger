@@ -62,7 +62,6 @@
   margin-left: auto;
 }
 
-
 .addToAdminButton {
   display: inline-block;
   background-color: var(--white);
@@ -89,4 +88,21 @@
   -moz-hyphens: auto;
   -webkit-hyphens: auto;
   hyphens: auto;
+}
+@media (max-width: 576px) {
+  .wrapper {
+    height: 50px;
+  }
+
+  .addToAdminButton {
+    top: 6px;
+    font-size: 12px;
+  }
+  .role {
+    font-size: 14px;
+  }
+
+  .name {
+    font-size: var(--font-size-default);
+  }
 }

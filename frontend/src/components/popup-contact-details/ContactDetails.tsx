@@ -3,9 +3,11 @@ import React from "react";
 
 import styles from "./ContactDetails.module.css";
 
+import useMediaQuery from "../../hooks/useMediaQuery";
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
 import ShareIcon from "../../ui/icons/share-icon/ShareIcon";
 import TrashIcon from "../../ui/icons/trash-icon/TrashIcon";
+
 interface IContactDetailsProps {
   // id: string;
   avatar: string;
@@ -22,6 +24,7 @@ export default function ContactDetails({
   onClick,
   isPopupDetailsOpen,
 }: IContactDetailsProps) {
+  const matchesMobile = useMediaQuery("(max-width: 576px)");
   return (
     <motion.aside
       className={styles.wrapper}
@@ -30,7 +33,11 @@ export default function ContactDetails({
       transition={{ duration: 0.3 }}
     >
       <div className={styles.avatar}>
-        {avatar ? <img src={avatar} alt='Аватар' className={styles.avatar} /> : <NoAvatar width={200} height={300} />}
+        {avatar ? (
+          <img src={avatar} alt='Аватар' className={styles.avatar} />
+        ) : (
+          <NoAvatar width={200} height={matchesMobile ? 220 : 300} />
+        )}
       </div>
       <div className={styles.userDetails}>
         <div>

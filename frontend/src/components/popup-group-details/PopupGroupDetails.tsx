@@ -8,6 +8,7 @@ import styles from "./PopupGroupDetails.module.css";
 
 import { Context } from "../..";
 import { SocketContext } from "../../hoc/SocketProvider";
+import useMediaQuery from "../../hooks/useMediaQuery";
 import Avatar from "../../ui/avatar/Avatar";
 import ButtonSend from "../../ui/button-send/ButtonSend";
 import CloseIcon from "../../ui/icons/closeIcon/CloseIcon";
@@ -40,27 +41,27 @@ const PopupGroupDetails = observer(
     isPopupDetailsOpen,
     closeDetailsPopup,
   }: IPopupGroupDetailsProps) => {
-    const userStore = useContext(Context).user;
+    const store = useContext(Context).user;
     const socket = useContext(SocketContext);
-    const isAdmin = userStore.currentRoom.admin.includes(userStore.user.id);
+    const isAdmin = store.currentRoom.admin.includes(store.user.id);
     const [values, setValues] = useState({
-      avatar: userStore.chatingWith.avatar,
-      groupName: userStore.chatingWith.userName,
+      avatar: store.chatingWith.avatar,
+      groupName: store.chatingWith.userName,
       // avatar: avatar,
       // groupName: userName,
     });
-
-    // console.log("userStore.chatingWith", toJS(userStore.chatingWith.userName));
+    const matchesMobile = useMediaQuery("(max-width: 576px)");
+    // console.log("store.chatingWith", toJS(store.chatingWith.userName));
     const [isAddUserOpen, setIsAddUserOpen] = useState(false);
-    const handleChange = (e: any) => {
+    const handleGroupNameChange = (e: any) => {
       const target = e.target;
       setValues({ ...values, groupName: target.value });
     };
-    const handleSubmit = (e: any) => {
+    const handleSubmitGroupName = (e: any) => {
       e.preventDefault();
       // console.log(values);
       const data = {
-        roomId: userStore.currentRoom.id,
+        roomId: store.currentRoom.id,
         groupName: values.groupName,
         // groupAvatar: values.groupAvatar,
       };
@@ -71,42 +72,42 @@ const PopupGroupDetails = observer(
     };
     useEffect(() => {
       setValues({
-        avatar: userStore.chatingWith.avatar,
-        groupName: userStore.chatingWith.userName,
+        avatar: store.chatingWith.avatar,
+        groupName: store.chatingWith.userName,
         // avatar: avatar,
         // groupName: userName,
       });
-    }, [userStore.chatingWith]);
+    }, [store.chatingWith]);
     // console.log("isAdmin", isAdmin);
-    // console.log("isAdmin", userStore.currentRoom.admin.includes(userStore.user.id));
-    // console.log("userStore.currentRoom.admin", toJS(userStore.currentRoom.admin));
-    // console.log("user", toJS(userStore.user.id));
-    // console.log(toJS(userStore.roomAll));
+    // console.log("isAdmin", store.currentRoom.admin.includes(store.user.id));
+    // console.log("store.currentRoom.admin", toJS(store.currentRoom.admin));
+    // console.log("user", toJS(store.user.id));
+    // console.log(toJS(store.roomAll));
     // console.log(participants);
-    // console.log(isAdmin && userStore.currentRoom.admin.length > 1);
-    // console.log("userStore.currentRoom", toJS(userStore.currentRoom));
+    // console.log(isAdmin && store.currentRoom.admin.length > 1);
+    // console.log("store.currentRoom", toJS(store.currentRoom));
     // console.log(values);
     const closePopup = () => {
       setIsAddUserOpen(false);
-      userStore.clearSelectedUsers();
+      store.clearSelectedUsers();
     };
     const refInput = useRef<HTMLInputElement | null>(null);
     const handleChangeInputCheckbox = (e: any) => {
       const target = e.target;
       // console.log(target.value);
-      userStore.setSelectedUsers(target.value, target.checked);
+      store.setSelectedUsers(target.value, target.checked);
     };
-    // console.log(toJS(userStore.forwardTo));
+    // console.log(toJS(store.forwardTo));
     const addParticipants = (e: any) => {
       // e.stopPropagation();
-      // console.log(toJS(userStore.forwardTo));
-      const participants = userStore.selectedUsers.join();
-      const users = userStore.contacts.filter((user: any) => participants.includes(user.id));
+      // console.log(toJS(store.selectedUsers));
+      const participants = store.selectedUsers.join();
+      const users = store.contacts.filter((user: any) => participants.includes(user.id));
       const newParticipants = users.map((user: any) => {
         return { userId: user.id, addedOn: Date.now(), isDeleted: false };
       });
-      // const oldParticipants = [...userStore.currentRoom.participants];
-      const oldParticipants = userStore.currentRoom.participants
+      // const oldParticipants = [...store.currentRoom.participants];
+      const oldParticipants = store.currentRoom.participants
         .filter((user: any) => {
           for (let i = 0; i < newParticipants.length; i++) {
             if (user.userId !== newParticipants[i].userId) {
@@ -117,11 +118,11 @@ const PopupGroupDetails = observer(
         .map((user: any) => {
           return { userId: user.userId, addedOn: user.addedOn, isDeleted: user.isDeleted };
         });
-      // console.log("participantsUpdated", toJS(participantsUpdated));
+      // console.log("participantsUpdated", toJS(oldParticipants));
       // console.log("newParticipants", newParticipants);
       const data = {
-        roomId: userStore.currentRoom.id,
-        usersId: userStore.currentRoom.usersId + "," + participants,
+        roomId: store.currentRoom.id,
+        usersId: store.currentRoom.usersId + "," + participants,
         participants: [...oldParticipants, ...newParticipants],
       };
       // console.log(data);
@@ -134,11 +135,11 @@ const PopupGroupDetails = observer(
     const addAdmin = (userId: string) => {
       // e.stopPropagation();
       // console.log(userId);
-      // const participants = userStore.forwardTo.join();
+      // const participants = store.forwardTo.join();
       // console.log(e.target.nodeName);
-      const andmins = [...userStore.currentRoom.admin, userId];
+      const andmins = [...store.currentRoom.admin, userId];
       const data = {
-        roomId: userStore.currentRoom.id,
+        roomId: store.currentRoom.id,
         admin: andmins,
       };
       // console.log(data);
@@ -150,27 +151,27 @@ const PopupGroupDetails = observer(
 
     const quitGroup = () => {
       // e.stopPropagation();
-      // console.log(toJS(userStore.forwardTo));
-      const usersIdUpdated = userStore.currentRoom.usersId
+      // console.log(toJS(store.forwardTo));
+      const usersIdUpdated = store.currentRoom.usersId
         .split(",")
-        .filter((id: string) => id !== userStore.user.id)
+        .filter((id: string) => id !== store.user.id)
         .join();
-      const participants = userStore.currentRoom.participants.map((user: any) => {
-        if (user.userId === userStore.user.id) {
+      const participants = store.currentRoom.participants.map((user: any) => {
+        if (user.userId === store.user.id) {
           return { addedOn: user.addedOn, userId: user.userId, isDeleted: true };
         } else return { addedOn: user.addedOn, userId: user.userId, isDeleted: user.isDeleted };
       });
-      const admins = isAdmin ? userStore.currentRoom.admin.filter((el: string) => el !== userStore.user.id) : null;
+      const admins = isAdmin ? store.currentRoom.admin.filter((el: string) => el !== store.user.id) : null;
       // console.log(e.target.nodeName);
       const data = admins
         ? {
-            roomId: userStore.currentRoom.id,
+            roomId: store.currentRoom.id,
             usersId: usersIdUpdated,
             admin: admins,
             participants: participants,
           }
         : {
-            roomId: userStore.currentRoom.id,
+            roomId: store.currentRoom.id,
             usersId: usersIdUpdated,
             participants: participants,
           };
@@ -178,14 +179,14 @@ const PopupGroupDetails = observer(
       socket && socket.emit("edit-group", data);
       setTimeout(() => {
         closeDetailsPopup();
-        // userStore.setContacts();
-        userStore.setChatingWith(null);
-        userStore.setCurrentRoom(null);
+        // store.setContacts();
+        store.setChatingWith(null);
+        store.setCurrentRoom(null);
       });
 
       // socket && socket.emit("edit-group", data);
     };
-    // console.log('userStore.currentRoom.usersId.split(",").length', userStore.currentRoom.usersId.split(",").length);
+    // console.log('store.currentRoom.usersId.split(",").length', store.currentRoom.usersId.split(",").length);
     return (
       <motion.aside
         className={styles.list}
@@ -193,10 +194,13 @@ const PopupGroupDetails = observer(
         animate={{ scale: isPopupDetailsOpen ? 1 : 0, opacity: isPopupDetailsOpen ? 1 : 0 }}
         transition={{ duration: 0.3 }}
       >
+        {matchesMobile && (
+          <CloseIcon onClick={closeDetailsPopup} width={34} height={34} top={10} right={10} color='#ddd6c7' />
+        )}
         {isAdmin ? (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmitGroupName}>
             <ProfilePhoto
-              // id={userStore.chatingWith.id}
+              // id={store.chatingWith.id}
               avatar={values.avatar}
               setValue={setValues}
               isGroupEditOpen={isPopupDetailsOpen}
@@ -208,7 +212,7 @@ const PopupGroupDetails = observer(
                 type='text'
                 placeholder='Название группы'
                 value={values.groupName || ""}
-                onChange={handleChange}
+                onChange={handleGroupNameChange}
                 name='groupName'
               />
 
@@ -217,10 +221,10 @@ const PopupGroupDetails = observer(
               </button>
             </div>
           </form>
-        ) : userStore.currentRoom.avatar ? (
-          <img src={userStore.currentRoom.avatar} alt='Аватар' className={styles.avatar} />
+        ) : store.currentRoom.avatar ? (
+          <img src={store.currentRoom.avatar} alt='Аватар' className={styles.avatar} />
         ) : (
-          <NoAvatar width={200} height={200} />
+          <NoAvatar width={matchesMobile ? 120 : 200} height={matchesMobile ? 120 : 200} />
         )}
 
         {/* {!isAdmin && avatar ? (
@@ -229,7 +233,7 @@ const PopupGroupDetails = observer(
           <NoAvatar width={200} height={200} />
         )} */}
 
-        <p className={styles.groupName}>{userStore.currentRoom.name}</p>
+        <p className={styles.groupName}>{store.currentRoom.name}</p>
 
         {/* <ul>
           {participants.length > 0 &&
@@ -238,14 +242,14 @@ const PopupGroupDetails = observer(
             })}
         </ul> */}
         <ul className={styles.contacts}>
-          {userStore.currentRoom.participants &&
-            userStore.currentRoom.participants.map((user: any) => {
-              // console.log(findItemById(userStore.contacts, userId)[0]);
+          {store.currentRoom.participants &&
+            store.currentRoom.participants.map((user: any) => {
+              // console.log(findItemById(store.contacts, userId)[0]);
               if (!user.isDeleted) {
                 return (
                   <li key={user.userId} className={styles.contact}>
                     <GroupContact user={user} />
-                    {/* {userStore.currentRoom.admin.findIndex((el: any) => el === user.id) === -1 && (
+                    {/* {store.currentRoom.admin.findIndex((el: any) => el === user.id) === -1 && (
                       <button onClick={() => addAdmin(user.id)} className={styles.addToAdminButton}>
                         Добавить в admin
                       </button>
@@ -256,35 +260,36 @@ const PopupGroupDetails = observer(
             })}
         </ul>
 
-        {/* && userStore.chatingWith.participants.length <= userStore.contacts.length - 1 && */}
-        {isAdmin && !isAllContactsInTheGroup(userStore.contacts, userStore.user.id, userStore.currentRoom.usersId) && (
+        {/* && store.chatingWith.participants.length <= store.contacts.length - 1 && */}
+        {isAdmin && !isAllContactsInTheGroup(store.contacts, store.user.id, store.currentRoom.usersId) && (
           <button
             onClick={() => {
               setIsAddUserOpen(true);
+              store.clearSelectedUsers();
             }}
             className={styles.addContactBtn}
           >
             Добавить участника
           </button>
         )}
-        {isAdmin && userStore.currentRoom.admin.length > 1 && userStore.currentRoom.usersId.split(",").length > 3 && (
+        {isAdmin && store.currentRoom.admin.length > 1 && store.currentRoom.usersId.split(",").length > 3 && (
           <button onClick={quitGroup} className={styles.addContactBtn}>
             Выйти из группы
           </button>
         )}
-        {!isAdmin && userStore.currentRoom.usersId.split(",").length > 3 && (
+        {!isAdmin && store.currentRoom.usersId.split(",").length > 3 && (
           <button onClick={quitGroup} className={styles.addContactBtn}>
             Выйти из группы
           </button>
         )}
         {isAddUserOpen && (
           <div className={styles.addUserPopup}>
-            <CloseIcon onClick={closePopup} width={34} height={34} top={10} right={10} />
+            <CloseIcon onClick={closePopup} width={34} height={34} top={10} right={10} color='white' />
             <form className={styles.contacts}>
               {/* <DeleteIcon onClick={() => {}} /> */}
 
-              {userStore.contacts.map((user: any) => {
-                if (user.id !== userStore.user.id && user.email && !userStore.currentRoom.usersId.includes(user.id)) {
+              {store.contacts.map((user: any) => {
+                if (user.id !== store.user.id && user.email && !store.currentRoom.usersId.includes(user.id)) {
                   return (
                     <article key={user.id} className={styles.contacts__item}>
                       <InputCheckbox

@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 
 import styles from "./OverLay.module.css";
 
+import useMediaQuery from "../../hooks/useMediaQuery";
 import CloseIcon from "../../ui/icons/closeIcon/CloseIcon";
 
 interface IOverLayProps {
@@ -11,6 +12,7 @@ interface IOverLayProps {
 }
 
 export default function OverLay({ children, closePopup }: IOverLayProps) {
+  const matchesMobile = useMediaQuery("(max-width: 576px)");
   return (
     <AnimatePresence>
       <motion.div
@@ -27,7 +29,14 @@ export default function OverLay({ children, closePopup }: IOverLayProps) {
         // }}
       >
         <span className={styles.closeButton}>
-          <CloseIcon onClick={closePopup} width={53} height={53} top={30} right={30} />
+          <CloseIcon
+            onClick={closePopup}
+            width={matchesMobile ? 40 : 53}
+            height={matchesMobile ? 40 : 53}
+            top={30}
+            right={30}
+            color='white'
+          />
         </span>
         {children}
       </motion.div>

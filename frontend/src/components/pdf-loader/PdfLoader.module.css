@@ -3,3 +3,9 @@
   height: 336px;
   border-radius: var(--border-radius);
 }
+@media (max-width: 576px) {
+  .wrapper {
+    width: 178px;
+    height: 252px;
+  }
+}

@@ -12,17 +12,15 @@ import {
   registerUser,
   // updateAvatar,
 } from "../utils/api";
-import { files, messages, users } from "../utils/mockData";
 import { IContact, ILoginDto, IMessage, IMessageStatus, IRoom, IUnreadCount } from "../utils/types";
 
-export const DEFAULT_STATE = users[0];
 const streamToBlob = require("stream-to-blob");
 
 // interface IRoom {
 //   id: string;
 //   name: string;
 // }
-export default class UserStore {
+export default class AppStore {
   _user: any | null;
   _isAuth: boolean;
   _contacts: IContact[];
@@ -100,21 +98,6 @@ export default class UserStore {
   setUser(user: IContact | null) {
     this._user = user;
   }
-
-  // setAvatar(id: any) {
-  //   if (id) {
-  //     this._avatar = `http://localhost:3001/avatar/${id}`;
-  //   } else this._avatar = null;
-  // }
-  // async getOneRoom(roomId: string) {
-  //   const result = await getOneRoom(roomId);
-  //   runInAction(() => {
-  //     const room = this._roomAll.filter((room: any) => room.id === result.id)[0];
-  //     this._currentRoom = room;
-  //     const oldRoom = this._roomAll.findIndex((el) => el.id === result.id);
-  //     this._roomAll.splice(oldRoom, 1, result);
-  //   });
-  // }
 
   async setCurrentRoom(id: string) {
     // console.log("setCurrentRoom usersId", usersId);
@@ -439,7 +422,7 @@ export default class UserStore {
   }
 
   get prevMessages() {
-    // console.log("this._prevMessages", toJS(this._prevMessages.length));
+    console.log("this._prevMessages", toJS(this._prevMessages.length));
     return this._prevMessages;
   }
 
@@ -462,7 +445,7 @@ export default class UserStore {
     return this._contactToForward;
   }
   get selectedUsers() {
-    // console.log("toJS(this._selectedUsers)", toJS(this._selectedUsers));
+    console.log("toJS(this._selectedUsers)", toJS(this._selectedUsers));
     return this._selectedUsers;
   }
 
@@ -492,7 +475,7 @@ export default class UserStore {
   }
 
   get error() {
-    console.log("this._error", toJS(this._error));
+    // console.log("this._error", toJS(this._error));
     return this._error;
   }
 }

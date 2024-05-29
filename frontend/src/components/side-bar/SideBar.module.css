@@ -61,6 +61,7 @@
   width: calc(100% - 127px);
   margin: 78px 10px 7px 110px;
   position: relative;
+  display: flex;
 }
 
 .searchInput {
@@ -126,6 +127,25 @@
 } */
 @media (max-width: 992px) {
   .wrapper {
-    width: 350px;
+    width: 300px;
+  }
+
+  .searchContainer {
+    width: calc(100% - 90px);
+    margin: 78px 0 7px 75px;
+  }
+  .searchInput {
+    width: 90%;
+  }
+}
+@media (max-width: 576px) {
+  .content {
+    height: calc(100% - 200px);
+  }
+  .menu {
+    width: 95%;
+  }
+  .searchContainer {
+    margin: 45px 0 7px 75px;
   }
 }

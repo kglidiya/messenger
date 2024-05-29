@@ -4,7 +4,7 @@ import ReactDOM from "react-dom/client";
 import "./index.scss";
 
 import { App } from "./components/app/App";
-import UserStore from "./store/UserStore";
+import AppStore from "./store/AppStore";
 
 export const Context = createContext<any>(null);
 
@@ -13,7 +13,7 @@ root.render(
   // <React.StrictMode>
   <Context.Provider
     value={{
-      user: new UserStore(),
+      user: new AppStore(),
     }}
   >
     <App />

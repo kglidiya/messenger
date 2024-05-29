@@ -6,6 +6,7 @@ import styles from "./Contact.module.css";
 
 import { Context } from "../..";
 import { SocketContext } from "../../hoc/SocketProvider";
+import useMediaQuery from "../../hooks/useMediaQuery";
 import Avatar from "../../ui/avatar/Avatar";
 import Counter from "../../ui/counter/Counter";
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
@@ -13,6 +14,7 @@ import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
 interface IContactProps {
   user: any;
   unread: number;
+  setIsContactsVisible?: any;
   // id: string;
   // userName: string;
   // avatar: string;
@@ -23,28 +25,30 @@ interface IContactProps {
 }
 
 // const Contact = observer(({ id, userName, avatar, message, timeStamp, unread, email }: IContactProps) => {
-const Contact = observer(({ user, unread }: IContactProps) => {
-  const socket = useContext(SocketContext);
-  const userStore = useContext(Context).user;
+const Contact = observer(({ user, unread, setIsContactsVisible }: IContactProps) => {
+  const matchesMobile = useMediaQuery("(max-width: 576px)");
+  const store = useContext(Context).user;
   const handleContactClick = () => {
-    // userStore.setChatingWith(user);
-    // userStore.clearMessages();
-    if (userStore.chatingWith.chatId !== user.chatId) {
-      userStore.clearMessages();
-      userStore.setChatingWith(user);
-      // userStore.getOneRoom({ roomId: userStore.currentRoom?.id });
-      // userStore.setCurrentRoom(userStore.chatingWith.id);
+    // store.setChatingWith(user);
+    // store.clearMessages();
+    if (store.chatingWith.chatId !== user.chatId) {
+      store.clearMessages();
+      store.setChatingWith(user);
+      // store.getOneRoom({ roomId: store.currentRoom?.id });
+      // store.setCurrentRoom(store.chatingWith.id);
     }
-
-    // if (userStore.chatingWith.groupId) {
-    //   userStore.setCurrentRoom(userStore.chatingWith.id);
+    if (matchesMobile) {
+      setIsContactsVisible(false);
+    }
+    // if (store.chatingWith.groupId) {
+    //   store.setCurrentRoom(store.chatingWith.id);
     // } else {
-    //   const userIds = [userStore.user.id, userStore.chatingWith.id].sort();
-    //   userStore.setCurrentRoom(userIds.join());
+    //   const userIds = [store.user.id, store.chatingWith.id].sort();
+    //   store.setCurrentRoom(userIds.join());
     // }
-    // userStore.getOneRoom({ roomId: userStore.currentRoom?.id });
+    // store.getOneRoom({ roomId: store.currentRoom?.id });
   };
-  // console.log(toJS(userStore.chatingWith));
+  // console.log(toJS(store.chatingWith));
   // console.log(user);
   return (
     <>

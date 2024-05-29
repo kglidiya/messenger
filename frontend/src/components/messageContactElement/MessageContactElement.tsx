@@ -17,15 +17,15 @@ interface IMessageContactElementProps {
 }
 
 export default function MessageContactElement({ contact, openMessageActionsPopup }: IMessageContactElementProps) {
-  const userStore = useContext(Context).user;
+  const store = useContext(Context).user;
   // const [isMenuOpen, setMenuIsOpen] = useState(false);
 
   // const creatChart = () => {
-  //   createChat({ usersId: [contact.id, userStore.user.id] });
+  //   createChat({ usersId: [contact.id, store.user.id] });
   //   setTimeout(() => {
-  //     userStore.setContacts();
-  //     userStore.setChatingWith(contact);
-  //     userStore.clearMessages();
+  //     store.setContacts();
+  //     store.setChatingWith(contact);
+  //     store.clearMessages();
   //     // setMenuIsOpen(false);
   //     //   setSearchResult([]);
   //   });

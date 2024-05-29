@@ -29,7 +29,7 @@ export default function PopupSearchMessage({
   onClick,
   isPopupSearchMessageOpen,
 }: IContactDetailsProps) {
-  const userStore = useContext(Context).user;
+  const store = useContext(Context).user;
   const { register, handleSubmit, setValue, watch } = useForm({ values: { query: "" } });
   const [searchResult, setSearchResult] = useState<any>([]);
   const matches = useMediaQuery("(min-width: 576px)");
@@ -46,7 +46,7 @@ export default function PopupSearchMessage({
       if (query.length > 1) {
         const res = await findMessages({
           query: query,
-          roomId: userStore.roomId,
+          roomId: store.roomId,
         });
         if (res.length) {
           setSearchResult(res);

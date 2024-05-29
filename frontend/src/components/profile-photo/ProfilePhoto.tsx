@@ -8,6 +8,7 @@ import styles from "./ProfilePhoto.module.css";
 
 import { Context } from "../..";
 import { SocketContext } from "../../hoc/SocketProvider";
+import useMediaQuery from "../../hooks/useMediaQuery";
 import EditIcon from "../../ui/icons/edit-icon/EditIcon";
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
 import Loader from "../../ui/loader/Loader";
@@ -25,12 +26,13 @@ interface IProfilePhoto {
 }
 
 const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileEditOpen, isGroupEditOpen, values }) => {
-  const userStore = useContext(Context).user;
+  const store = useContext(Context).user;
   const socket = useContext(SocketContext);
   const [hover, setHover] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [img, setImg] = useState<any>("");
   const [loaded, setLoaded] = useState(true);
+  const matchesMobile = useMediaQuery("(max-width: 576px)");
   const handleInputHover: MouseEventHandler<HTMLLabelElement> = (e) => {
     if (e.type === "mouseenter") {
       setHover(true);
@@ -68,14 +70,14 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
       setValue({ ...values, avatar: img });
       if (isProfileEditOpen) {
         const data = {
-          userId: userStore.user.id,
+          userId: store.user.id,
           avatar: img,
         };
         socket && socket.emit("update-userData", data);
       }
       if (isGroupEditOpen) {
         const data = {
-          roomId: userStore.currentRoom.id,
+          roomId: store.currentRoom.id,
           avatar: img,
         };
         socket && socket.emit("edit-group", data);
@@ -133,7 +135,7 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
           )}
           <span
             className={`${styles.button} 
-            ${isVisible ? styles.button_default : styles.button_active}`}
+            ${isVisible || matchesMobile ? styles.button_default : styles.button_active}`}
           >
             <EditIcon color='white' />
           </span>

@@ -9,7 +9,6 @@ import { Context } from "../..";
 import OverLay from "../../components/overlay/Overlay";
 import PdfLoader from "../../components/pdf-loader/PdfLoader";
 import { SocketContext } from "../../hoc/SocketProvider";
-import { chunkFile } from "../../utils/helpers";
 import { IMessage } from "../../utils/types";
 import ButtonSend from "../button-send/ButtonSend";
 import DeleteIcon from "../icons/delete-icon/DeleteIcon";
@@ -40,8 +39,8 @@ export default function InputFile({
   const [files, setFiles] = useState<any>([]);
   const ref = useRef<HTMLInputElement>(null);
   // const [filesToSend, setFilesToSend] = useState<any>([]);
-  const socket = useContext(SocketContext);
-  const userStore = useContext(Context).user;
+  // const socket = useContext(SocketContext);
+  // const userStore = useContext(Context).user;
   // const [roomId, setRoomId] = useState<string>("");
   // const [numPages, setNumPages] = useState<number>();
   // const [pageNumber, setPageNumber] = useState<number>(1);

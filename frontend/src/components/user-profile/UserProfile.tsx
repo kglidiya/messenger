@@ -32,7 +32,7 @@ const UserProfile = observer(
     //   avatar: string;
     //   username: string;
   }) => {
-    const userStore = useContext(Context).user;
+    const store = useContext(Context).user;
     const socket = useContext(SocketContext);
     const navigate = useNavigate();
     const [isProfileEditOpen, setIsProfileEditOpen] = useState(false);
@@ -41,7 +41,7 @@ const UserProfile = observer(
     const [isDisabled, setIsDisabled] = useState(true);
     const [usersCount, setUsersCount] = useState(0);
     const [errorMsg, setErrorMsg] = useState("");
-    const [values, setValues] = useState({ avatar: userStore.user.avatar, userName: userStore.user.userName });
+    const [values, setValues] = useState({ avatar: store.user.avatar, userName: store.user.userName });
     const [groupData, setGroupData] = useState({ usersId: "", name: "", admin: [] });
     const toggleProfileEdit = () => {
       if (isGroupEditOpen) {
@@ -55,33 +55,33 @@ const UserProfile = observer(
         setIsProfileEditOpen(false);
       }
       if (!isProfileEditOpen) {
-        // userStore.setContactToForward(null);
-        userStore.clearSelectedUsers();
+        // store.setContactToForward(null);
+        store.clearSelectedUsers();
         setErrorMsg("");
       }
       setIsGroupEditOpen(!isGroupEditOpen);
     };
     // useEffect(() => {
-    //   if (groupData.name && userStore.selectedUsers.length > 1) {
+    //   if (groupData.name && store.selectedUsers.length > 1) {
     //     setIsDisabled(false);
     //   } else setIsDisabled(true);
-    // }, [groupData.name, userStore.selectedUsers.length]);
-    useEffect(() => {}, [userStore.selectedUsers.length]);
+    // }, [groupData.name, store.selectedUsers.length]);
+    useEffect(() => {}, [store.selectedUsers.length]);
     const logOut = () => {
       const data = {
-        userId: userStore.user.id,
+        userId: store.user.id,
         isOnline: false,
       };
       socket && socket.emit("update-userData", data);
       socket.disconnect();
-      userStore.setUser(null);
-      userStore.setAuth(false);
-      userStore.setChatingWith(null);
-      userStore.clearContacts();
-      userStore.clearMessages();
-      userStore.clearUnreadCount();
-      userStore.setCurrentRoom(null);
-      userStore.setRoomId(null);
+      store.setUser(null);
+      store.setAuth(false);
+      store.setChatingWith(null);
+      store.clearContacts();
+      store.clearMessages();
+      store.clearUnreadCount();
+      store.setCurrentRoom(null);
+      store.setRoomId(null);
       deleteCookie("token");
       localStorage.removeItem("token");
       localStorage.removeItem("expires_on");
@@ -98,7 +98,7 @@ const UserProfile = observer(
       e.preventDefault();
 
       const data = {
-        userId: userStore.user.id,
+        userId: store.user.id,
         userName: values.userName,
       };
       socket && socket.emit("update-userData", data);
@@ -110,25 +110,25 @@ const UserProfile = observer(
     useEffect(() => {
       socket &&
         socket.on("receive-userData", (user: any) => {
-          // console.log("userStore.addMessage(message)");
+          // console.log("store.addMessage(message)");
 
           if (
-            findIndex(userStore.contacts, {
+            findIndex(store.contacts, {
               id: user.id,
             }) !== -1
           ) {
-            userStore.updateUserData(user);
+            store.updateUserData(user);
           }
 
-          //userStore.updateUserData(user);
+          //store.updateUserData(user);
           // setValues({ ...values, avatar: user.avatar });
-          //userStore.setContacts();
+          //store.setContacts();
         });
     }, []);
 
     useEffect(() => {
-      setValues({ ...values, avatar: userStore.user.avatar });
-    }, [userStore.user.avatar]);
+      setValues({ ...values, avatar: store.user.avatar });
+    }, [store.user.avatar]);
 
     useEffect(() => {
       if (!isMenuOpen) {
@@ -141,10 +141,11 @@ const UserProfile = observer(
     const refInput = useRef<HTMLInputElement | null>(null);
     const handleChangeInputCheckbox = (e: any) => {
       const target = e.target;
-      userStore.setSelectedUsers(target.value, target.checked);
+      store.setSelectedUsers(target.value, target.checked);
     };
     const handleGropNameChange = (e: any) => {
       const target = e.target;
+      // setGroupData({ ...groupData, name: target.value });
       setGroupData({ ...groupData, name: target.value });
     };
     const handleSubmitGroupData = async (e: any) => {
@@ -152,32 +153,32 @@ const UserProfile = observer(
       if (!groupData.name) {
         setErrorMsg("Укажите название!");
       }
-      if (groupData.name && userStore.selectedUsers.length > 1) {
-        // const usersId = [...userStore.selectedUsers, userStore.user.id];
-        const users = userStore.contacts.filter((user: any) => userStore.selectedUsers.includes(user.id));
+      if (groupData.name && store.selectedUsers.length > 1) {
+        // const usersId = [...store.selectedUsers, store.user.id];
+        const users = store.contacts.filter((user: any) => store.selectedUsers.includes(user.id));
         const participants = users.map((user: any) => {
           return { userId: user.id, addedOn: Date.now(), isDeleted: false };
         });
-        // console.log("userStore.user", userStore.user);
+        // console.log("store.user", store.user);
         try {
           const chat = await createChat({
-            usersId: [...userStore.selectedUsers, userStore.user.id],
+            usersId: [...store.selectedUsers, store.user.id],
             name: groupData.name,
-            admin: [userStore.user.id],
-            participants: [...participants, { userId: userStore.user.id, addedOn: Date.now(), isDeleted: false }],
+            admin: [store.user.id],
+            participants: [...participants, { userId: store.user.id, addedOn: Date.now(), isDeleted: false }],
           });
 
           setTimeout(() => {
             if (chat) {
               socket && socket.emit("create-chat", chat);
-              // userStore.setContacts();
-              // userStore.setUnreadCount();
+              // store.setContacts();
+              // store.setUnreadCount();
             }
-            userStore.setContacts();
+            store.setContacts();
             setMenuIsOpen(false);
-            // userStore.setUnreadCount();
-            // userStore.setChatingWith(searchResult[0]);
-            // userStore.clearMessages();
+            // store.setUnreadCount();
+            // store.setChatingWith(searchResult[0]);
+            // store.clearMessages();
             // setSearchResult([]);
             // setValue("");
           }, 0);
@@ -186,34 +187,34 @@ const UserProfile = observer(
         }
       }
     };
-    console.log("error", errorMsg);
+    // console.log("error", errorMsg);
     //   e.preventDefault();
     //   if (groupData.name) {
-    //     const usersId = [...userStore.selectedUsers, userStore.user.id];
-    //     const users = userStore.contacts.filter((user: any) => usersId.includes(user.id));
+    //     const usersId = [...store.selectedUsers, store.user.id];
+    //     const users = store.contacts.filter((user: any) => usersId.includes(user.id));
     //     const participants = users.map((user: any) => {
     //       return { ...user, addedOn: Date.now(), isDeleted: false };
     //     });
-    //     // console.log("userStore.user", userStore.user);
+    //     // console.log("store.user", store.user);
     //     try {
     //       const chat = await createChat({
     //         usersId: usersId,
     //         name: groupData.name,
-    //         admin: [userStore.user.id],
-    //         participants: [...participants, { ...userStore.user, addedOn: Date.now(), isDeleted: false }],
+    //         admin: [store.user.id],
+    //         participants: [...participants, { ...store.user, addedOn: Date.now(), isDeleted: false }],
     //       });
 
     //       setTimeout(() => {
     //         if (chat) {
     //           socket && socket.emit("create-chat", chat);
-    //           // userStore.setContacts();
-    //           // userStore.setUnreadCount();
+    //           // store.setContacts();
+    //           // store.setUnreadCount();
     //         }
-    //         userStore.setContacts();
+    //         store.setContacts();
     //         setMenuIsOpen(false);
-    //         // userStore.setUnreadCount();
-    //         // userStore.setChatingWith(searchResult[0]);
-    //         // userStore.clearMessages();
+    //         // store.setUnreadCount();
+    //         // store.setChatingWith(searchResult[0]);
+    //         // store.clearMessages();
     //         // setSearchResult([]);
     //         // setValue("");
     //       }, 0);
@@ -259,7 +260,7 @@ const UserProfile = observer(
                 transition={{ duration: 0.3 }}
               >
                 <ProfilePhoto
-                  // id={userStore.user.id}
+                  // id={store.user.id}
                   avatar={values.avatar}
                   setValue={setValues}
                   isProfileEditOpen={isProfileEditOpen}
@@ -296,7 +297,7 @@ const UserProfile = observer(
               className={styles.list__item}
             >
               <form onSubmit={handleSubmitGroupData} className={styles.form}>
-                {/* {userStore.selectedUsers.length < 2 && <p className={styles.warning}>Выберите не менее 2 участников</p>} */}
+                {/* {store.selectedUsers.length < 2 && <p className={styles.warning}>Выберите не менее 2 участников</p>} */}
                 <p className={styles.warning}>Выберите не менее 2 участников</p>
                 <motion.ul
                   className={styles.contacts}
@@ -307,8 +308,8 @@ const UserProfile = observer(
                   }}
                   transition={{ duration: 0.3 }}
                 >
-                  {userStore.contacts.map((user: any) => {
-                    if (user.id !== userStore.user.id && user.email) {
+                  {store.contacts.map((user: any) => {
+                    if (user.id !== store.user.id && user.email) {
                       return (
                         <li key={user.id} className={styles.contacts__item}>
                           <InputCheckbox

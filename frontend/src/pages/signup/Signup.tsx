@@ -21,7 +21,7 @@ const Signup = observer(() => {
     setValue,
     formState: { errors },
   } = useForm({ values: { email: "", password: "" } });
-  const userStore = useContext(Context).user;
+  const store = useContext(Context).user;
   const matches = useMediaQuery("(min-width: 576px)");
   const navigate = useNavigate();
   //   const [status, setStatus] = useState<IStatus<undefined | IUser>>({
@@ -32,16 +32,16 @@ const Signup = observer(() => {
 
   const onSubmit = (values: any) => {
     // console.log(values);
-    userStore.registerUser({
+    store.registerUser({
       email: values.email.toLowerCase(),
       password: values.password,
       isOnline: true,
     });
 
     // setTimeout(() => {
-    //   userStore.setAuth(true);
+    //   store.setAuth(true);
     //   // const data = {
-    //   //   userId: userStore.user.id,
+    //   //   userId: store.user.id,
     //   //   isOnline: true,
     //   // };
     //   // socket && socket.emit("update-userData", data);
@@ -50,13 +50,13 @@ const Signup = observer(() => {
   };
 
   useEffect(() => {
-    if (userStore.user && userStore.user.id) {
-      // console.log(toJS(userStore.user));
-      userStore.setAuth(true);
-      userStore.clearError();
-      // userStore.setContacts();
+    if (store.user && store.user.id) {
+      // console.log(toJS(store.user));
+      store.setAuth(true);
+      store.clearError();
+      // store.setContacts();
       // const data = {
-      //   userId: userStore.user.id,
+      //   userId: store.user.id,
       //   isOnline: true,
       // };
       // socket && socket.emit("update-userData", data);
@@ -64,13 +64,13 @@ const Signup = observer(() => {
         navigate("/");
       }, 0);
     }
-  }, [userStore.user]);
+  }, [store.user]);
 
   return (
     <main className={styles.container}>
       <h3 className={styles.title}>Регистрация</h3>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-        <Logo top={-115} right={0} color='#eae2cc' />
+        <Logo width={100} height={100} top={-115} right={0} color='#eae2cc' />
         <Input
           type='text'
           placeholder='Email'
@@ -103,7 +103,7 @@ const Signup = observer(() => {
           width={matches ? "300px" : "95%"}
           fontSize={matches ? "24px" : "18px"}
         />
-        {userStore.error && <p className={styles.error}>{userStore.error}</p>}
+        {store.error && <p className={styles.error}>{store.error}</p>}
       </form>
       {/* {status.error && <p className={styles.error}>{status.error}</p>} */}
       <div className={styles.singupGroup}>
@@ -112,7 +112,7 @@ const Signup = observer(() => {
           to='/signin'
           className={styles.link}
           onClick={() => {
-            userStore.clearError();
+            store.clearError();
           }}
         >
           Войти

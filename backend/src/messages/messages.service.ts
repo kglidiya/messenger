@@ -38,6 +38,7 @@ export class MessagesService {
   async getAllMessages(
     roomId: string,
     query: string,
+    userId: string,
   ): Promise<MessagesEntity[]> {
     // console.log(roomId);
     try {
@@ -56,6 +57,24 @@ export class MessagesService {
       //   return res;
       // } else return messagesAll;
       if (query) {
+        const msgToGroupChart = await this.messageRepository
+          .findOne({
+            where: { roomId: roomId },
+          })
+          .then((message) => {
+            return message && message.recipientUserId === message.roomId;
+          });
+        let addedToGroupChartOn;
+        if (msgToGroupChart) {
+          const room = await this.roomsRepository.findOne({
+            where: { id: roomId },
+          });
+
+          addedToGroupChartOn = room.participants.filter((user: any) => {
+            return user.userId === userId;
+          })[0].addedOn;
+        }
+
         return await this.messageRepository.find({
           relations: ['contact', 'parentMessage', 'parentMessage.contact'],
           where: [
@@ -63,6 +82,9 @@ export class MessagesService {
               roomId: roomId,
               message: ILike(`%${query}%`),
               isDeleted: Not('true'),
+              createdAt: addedToGroupChartOn
+                ? Between(new Date(addedToGroupChartOn), new Date())
+                : '',
             },
             {
               roomId: roomId,
@@ -105,7 +127,6 @@ export class MessagesService {
           where: { roomId: roomId },
         })
         .then((message) => {
-          // console.log(message);
           return message && message.recipientUserId === message.roomId;
         });
       let addedToGroupChartOn;
@@ -117,25 +138,8 @@ export class MessagesService {
         addedToGroupChartOn = room.participants.filter((user: any) => {
           return user.userId === userId;
         })[0].addedOn;
-        // console.log(
-        //   room.participants.filter((user: any) => {
-        //     console.log('user', user.id === userId);
-        //   }),
-        // );
       }
-      // console.log('addedToGroupChartOn', new Date(addedToGroupChartOn));
-      // const firstMessagesAll = await this.messageRepository.find({
-      //   where: { roomId: roomId },
-      //   order: { createdAt: 'ASC' },
-      // });
-      // const firstUnreadMsg = firstMessagesAll.findIndex((msg: any) => {
-      //   console.log(msg.readBy);
-      //   if (msg.readBy.length > 0) {
-      //     return !msg.readBy.includes(userId);
-      //   } else return msg.readBy.length === 0;
-      // });
-      // console.log('firstUnreadMsg', firstUnreadMsg);
-      // console.log('userId', userId);
+
       if (addedToGroupChartOn) {
         return await this.messageRepository.find({
           where: {

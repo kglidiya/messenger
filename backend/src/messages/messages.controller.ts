@@ -33,7 +33,8 @@ export class MessagesController {
 
     const ver = verify(token);
     if (ver) {
-      return this.messageService.getAllMessages(roomId, query);
+      const userId = ver.id;
+      return this.messageService.getAllMessages(roomId, query, userId);
     } else {
       throw new UnauthorizedException({ key: 'Invalid token!' });
     }

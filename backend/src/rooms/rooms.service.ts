@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, getMongoManager } from 'typeorm';
 
 import { RoomsEntity } from './rooms.entity';
 import { GroupData, RoomData } from './interfaces';
@@ -42,10 +42,11 @@ export class RoomsService {
   }
 
   async createGroupChat(groupData: GroupData): Promise<RoomsEntity> {
-    console.log(groupData);
-    const id = uuidv4();
+    // console.log(groupData);
+    // const id = uuidv4();
     const ids = groupData.usersId.sort();
     if (!groupData.name) {
+      const id = uuidv4();
       const newPrivateGroup = {
         usersId: `${ids}`,
         name: 'private',
@@ -55,6 +56,7 @@ export class RoomsService {
       await this.roomsRepository.save({ ...group, id });
       return group;
     } else {
+      const id = uuidv4();
       const newGroup = {
         usersId: `${ids}`,
         name: groupData.name,
@@ -65,33 +67,6 @@ export class RoomsService {
       await this.roomsRepository.save({ ...group, id });
       return group;
     }
-    // const findDuplicateGroup = await this.roomsRepository.findOne({
-    //   where: { usersId: `${ids}`, name: groupData.name },
-    // });
-    // if (findDuplicateGroup) {
-    //   return findDuplicateGroup;
-    // } else {
-    //   if (!groupData.name) {
-    //     const newPrivateGroup = {
-    //       usersId: `${ids}`,
-    //       name: 'private',
-    //       admin: [],
-    //     };
-    //     const group = this.roomsRepository.create(newPrivateGroup);
-    //     await this.roomsRepository.save({ ...group, id });
-    //     return group;
-    //   } else {
-    //     const newGroup = {
-    //       usersId: `${ids}`,
-    //       name: groupData.name,
-    //       admin: groupData.admin,
-    //       participants: groupData.participants,
-    //     };
-    //     const group = this.roomsRepository.create(newGroup);
-    //     await this.roomsRepository.save({ ...group, id });
-    //     return group;
-    //   }
-    // }
   }
 
   async getAllGroups(userId: string): Promise<any[]> {
@@ -112,52 +87,63 @@ export class RoomsService {
         where: { roomId: group.id },
         order: { createdAt: 'DESC' },
       });
-      let lastMessageId;
-      let firstMessageId;
+      // console.log(group.id);
+      // let lastMessageId;
+      // let firstMessageId;
       const unreadMessages = [];
-      if (msg.length) {
-        lastMessageId = msg[0].id;
-        firstMessageId = msg[msg.length - 1].id;
-      }
-
+      const groupMessagesIds = [];
       // console.log(msg);
       if (group.name === 'private') {
         const unread = msg.filter((m: any, i: number) => {
-          // console.log(m.readBy);
-          if (
-            // m.status !== IMessageStatus.READ &&
-            // m.currentUserId !== userId &&
-            !m.readBy.includes(userId) &&
-            !m.isDeleted
-          ) {
+          if (!m.readBy.includes(userId) && !m.isDeleted) {
             unreadMessages.push(m.id);
             return m;
           }
         }).length;
         group.unread = unread || 0;
         // t.push({ roomId: String(room.id), unread: unread || 0 });
-      } else {
+      } else if (group.name !== 'private') {
+        const addedToGroupChartOn = group.participants.filter(
+          (el) => el.userId === userId,
+        )[0].addedOn;
         const unread = msg.filter((m: any, i: number) => {
-          const addedToGroupChartOn = group.participants.filter(
-            (el) => el.userId === userId,
-          )[0].addedOn;
-          // console.log(m.readBy.findIndex((i: string) => i === this._user.id) === -1);
-          if (
-            // m.currentUserId !== userId &&
-            m.readBy.findIndex((i: string) => i === userId) === -1 &&
-            !m.isDeleted &&
-            new Date(m.createdAt).getTime() > addedToGroupChartOn
-          ) {
-            unreadMessages.push(m.id);
-            return m;
+          if (new Date(m.createdAt).getTime() > addedToGroupChartOn) {
+            groupMessagesIds.push(m.id);
+            // console.log(m.message);
+            if (
+              !m.isDeleted &&
+              m.readBy.findIndex((i: string) => i === userId) === -1
+            ) {
+              unreadMessages.push(m.id);
+              return m;
+            }
           }
         }).length;
         group.unread = unread || 0;
-        // t.push({ roomId: room.id, unread: unread || 0 });
       }
-      group.messagesTotal = msg.length;
-      group.lastMessageId = lastMessageId;
-      group.firstMessageId = firstMessageId;
+      // console.log(groupMessagesIds);
+
+      if (group.name === 'private') {
+        group.messagesTotal = msg.length;
+        group.lastMessageId = (msg.length && msg[0].id) || null;
+        group.firstMessageId = (msg.length && msg[msg.length - 1].id) || null;
+      } else {
+        group.messagesTotal = groupMessagesIds.length;
+        group.lastMessageId =
+          (groupMessagesIds.length && groupMessagesIds[0]) || null;
+        group.firstMessageId =
+          (groupMessagesIds.length &&
+            groupMessagesIds[groupMessagesIds.length - 1]) ||
+          null;
+      }
+      // if (groupMessagesIds.length) {
+      //   lastMessageId = groupMessagesIds[0].id;
+      //   firstMessageId = groupMessagesIds[groupMessagesIds.length - 1].id;
+      // }
+
+      // group.messagesTotal = msg.length;
+      // group.lastMessageId = lastMessageId || null;
+      // group.firstMessageId = firstMessageId || null;
       group.firstUnreadMessage =
         unreadMessages[unreadMessages.length - 1] || null;
     }
@@ -165,6 +151,7 @@ export class RoomsService {
       (a, b) => b.messagesTotal - a.messagesTotal,
     );
     for (const group of groupsSorted) {
+      // console.log(group.name, group.id);
       const usersId = group.usersId.split(',');
       const groupData = {
         id: group.usersId,
@@ -179,14 +166,19 @@ export class RoomsService {
 
           const { recoveryCode, password, createdAt, ...rest } = userData;
           contacts.push({ ...rest, chatId: group.id });
-        } else if (usersId[i] === userId && group.name !== 'private') {
-          contacts.push({
-            ...groupData,
-            avatar: group.avatar ? group.avatar : null,
-          });
         }
+        // else if (usersId[i] === userId && group.name !== 'private') {
+        //   contacts.push({
+        //     ...groupData,
+        //     avatar: group.avatar ? group.avatar : null,
+        //   });
+        // }
       }
       if (group.name !== 'private') {
+        contacts.push({
+          ...groupData,
+          avatar: group.avatar ? group.avatar : null,
+        });
         for (let i = 0; i < group.participants.length; i++) {
           const userData = await this.usersRepository.findOne({
             where: { id: group.participants[i].userId },
@@ -210,47 +202,43 @@ export class RoomsService {
       order: { createdAt: 'DESC' },
     });
     // console.log('msg.length', msg.length);
-    let lastMessageId;
-    let firstMessageId;
+    // let lastMessageId;
+    // let firstMessageId;
     // msg.forEach((m) => console.log(m.id));
     const unreadMessages = [];
-    if (msg.length) {
-      lastMessageId = msg[0].id;
-      firstMessageId = msg[msg.length - 1].id;
-    }
+    const groupMessagesIds = [];
+    // if (msg.length) {
+    //   lastMessageId = msg[0].id;
+    //   firstMessageId = msg[msg.length - 1].id;
+    // }
     const participantsUpdated = [];
     // console.log(msg);
     if (group.name === 'private') {
       const unread = msg.filter((m: any, i: number) => {
         // console.log(m.readBy);
-        if (
-          // m.status !== IMessageStatus.READ &&
-          // m.currentUserId !== userId &&
-          !m.readBy.includes(userId) &&
-          !m.isDeleted
-        ) {
+        if (!m.readBy.includes(userId) && !m.isDeleted) {
           unreadMessages.push(m.id);
           return m;
         }
       }).length;
       res.unread = unread || 0;
       // t.push({ roomId: String(room.id), unread: unread || 0 });
-    } else {
-      // console.log('elfff');
-      const unread = msg.filter((m: any, i: number) => {
-        const addedToGroupChartOn = group.participants.filter((el) => {
-          // console.log('el', el);
-          return el.userId === userId;
-        })[0].addedOn as any;
+    } else if (group.name !== 'private') {
+      const addedToGroupChartOn = group.participants.filter((el) => {
+        return el.userId === userId;
+      })[0].addedOn as any;
 
-        if (
-          // m.currentUserId !== userId &&
-          m.readBy.findIndex((i: string) => i === userId) === -1 &&
-          !m.isDeleted &&
-          new Date(m.createdAt).getTime() > addedToGroupChartOn
-        ) {
-          unreadMessages.push(m.id);
-          return m;
+      const unread = msg.filter((m: any, i: number) => {
+        if (new Date(m.createdAt).getTime() > addedToGroupChartOn) {
+          groupMessagesIds.push(m.id);
+          // console.log(m.message);
+          if (
+            !m.isDeleted &&
+            m.readBy.findIndex((i: string) => i === userId) === -1
+          ) {
+            unreadMessages.push(m.id);
+            return m;
+          }
         }
       }).length;
       res.unread = unread || 0;
@@ -270,9 +258,23 @@ export class RoomsService {
       }
     }
     group.participants = participantsUpdated;
-    res.messagesTotal = msg.length;
-    res.lastMessageId = lastMessageId;
-    res.firstMessageId = firstMessageId;
+
+    if (group.name === 'private') {
+      res.messagesTotal = msg.length;
+      res.lastMessageId = (msg.length && msg[0].id) || null;
+      res.firstMessageId = (msg.length && msg[msg.length - 1].id) || null;
+    } else {
+      res.messagesTotal = groupMessagesIds.length;
+      res.lastMessageId =
+        (groupMessagesIds.length && groupMessagesIds[0]) || null;
+      res.firstMessageId =
+        (groupMessagesIds.length &&
+          groupMessagesIds[groupMessagesIds.length - 1]) ||
+        null;
+    }
+    // res.messagesTotal = msg.length;
+    // res.lastMessageId = lastMessageId;
+    // res.firstMessageId = firstMessageId;
     res.firstUnreadMessage = unreadMessages[unreadMessages.length - 1] || null;
     // console.log('group.firstUnreadMessage', res.firstUnreadMessage);
     return { ...group, ...res };

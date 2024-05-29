@@ -27,25 +27,6 @@ export interface ICreateChatDto {
   participants?: IGroupParticipant[];
 }
 
-export interface IMessage {
-  id: string;
-  message: string;
-  parentMessage: IMessage;
-  currentUserId: string;
-  recipientUserId: string;
-  reactions: IReactions;
-  createdAt: string;
-  status: IMessageStatus;
-  file: { path: string; type: string; name: string } | null;
-  contact: any;
-  roomId: string;
-  readBy: string[];
-  modified: boolean;
-  isDeleted: boolean;
-  isDelivered: boolean;
-  isForwarded: boolean;
-}
-
 export interface IUser {
   email: string;
   id: string;
@@ -57,6 +38,25 @@ export interface IUser {
 export interface IContact extends IUser {
   chatId?: string;
   participants?: IUser[];
+}
+
+export interface IMessage {
+  id: string;
+  message: string;
+  parentMessage: IMessage;
+  currentUserId: string;
+  recipientUserId: string;
+  reactions: IReactions;
+  createdAt: string;
+  status: IMessageStatus;
+  file: { path: string; type: string; name: string } | null;
+  contact: IContact;
+  roomId: string;
+  readBy: string[];
+  modified: boolean;
+  isDeleted: boolean;
+  isDelivered: boolean;
+  isForwarded: boolean;
 }
 
 export interface IRoom {

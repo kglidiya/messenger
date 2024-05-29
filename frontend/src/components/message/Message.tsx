@@ -20,6 +20,7 @@ import styles from "./Message.module.css";
 
 import { Context } from "../..";
 import { SocketContext } from "../../hoc/SocketProvider";
+import useMediaQuery from "../../hooks/useMediaQuery";
 import Corner from "../../ui/corner/Corner";
 import ForwardedMessageIcon from "../../ui/icons/forwarded-message/ForwardedMessageIcon";
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
@@ -120,9 +121,9 @@ const MessageWithForwardRef = React.forwardRef(
     {
       // const refMessage = useRef<HTMLParagraphElement>(null);
       // const [contentEditable, setContentEditable] = useState(false);
-      // const [messaget, setMessage] = useState<IMessage | undefined>(undefined);
+      const matchesMobile = useMediaQuery("(max-width: 576px)");
       const [reactionsCount, setReactionCount] = useState<any>(countArrayItems(reactions));
-      const userStore = useContext(Context).user;
+      const store = useContext(Context).user;
       const socket = useContext(SocketContext);
       const refText = useRef<HTMLParagraphElement>(null);
       const refWrapper = useRef<HTMLDivElement>(null);
@@ -142,8 +143,8 @@ const MessageWithForwardRef = React.forwardRef(
       useEffect(() => {
         if (isMessageToGroupChart) {
           setAuthor(
-            userStore.currentRoom.participants.filter(
-              (user: any) => user.userId === currentUserId && user.userId !== userStore.user.id,
+            store.currentRoom.participants.filter(
+              (user: any) => user.userId === currentUserId && user.userId !== store.user.id,
             )[0] || null,
           );
         }
@@ -182,8 +183,8 @@ const MessageWithForwardRef = React.forwardRef(
         setIsCollapsed(false);
       };
       const replyToMessage = () => {
-        // setParentMessage(findItemById(userStore.prevMessages, id));
-        userStore.setParentMessage(findItemById(userStore.prevMessages, id)[0]);
+        // setParentMessage(findItemById(store.prevMessages, id));
+        store.setParentMessage(findItemById(store.prevMessages, id)[0]);
         closeMessageActionsPopup();
         // scrollToBottom();
         // console.log(id);
@@ -193,7 +194,7 @@ const MessageWithForwardRef = React.forwardRef(
         // moment.locale();
         const reaction = {
           reaction: emoji,
-          from: userStore.user.id,
+          from: store.user.id,
           messageId: id,
           roomId: roomId,
         };
@@ -204,7 +205,7 @@ const MessageWithForwardRef = React.forwardRef(
       const deleteReaction = () => {
         // moment.locale();
         const reaction = {
-          from: userStore.user.id,
+          from: store.user.id,
           messageId: id,
           roomId: roomId,
         };
@@ -223,7 +224,7 @@ const MessageWithForwardRef = React.forwardRef(
         // setReactionCount(countArrayItems(reactions));
       };
 
-      // console.log(userStore.parentMessage);
+      // console.log(store.parentMessage);
       const [hover, setHover] = useState(false);
       const handleHover: MouseEventHandler<any> = (e) => {
         if (e.type === "mouseenter") {
@@ -235,17 +236,17 @@ const MessageWithForwardRef = React.forwardRef(
       useEffect(() => {
         if (
           isInView &&
-          userStore.user.id !== currentUserId &&
+          store.user.id !== currentUserId &&
           // status !== IMessageStatus.READ &&
-          !readBy.includes(userStore.user.id)
+          !readBy.includes(store.user.id)
         ) {
           const message = {
             messageId: id,
             roomId: roomId,
-            readBy: userStore.user.id,
+            readBy: store.user.id,
           };
           socket && socket.emit("update-message-status", message);
-          // userStore.decrementRoomUndeadIndex(roomId);
+          // store.decrementRoomUndeadIndex(roomId);
         }
 
         // console.log("Element is in view: ", isInView);
@@ -253,19 +254,19 @@ const MessageWithForwardRef = React.forwardRef(
 
       const addContact = async () => {
         try {
-          const chat = await createChat({ usersId: [contact.id, userStore.user.id] });
+          const chat = await createChat({ usersId: [contact.id, store.user.id] });
 
           setTimeout(() => {
             if (chat) {
               socket && socket.emit("create-chat", chat);
-              // userStore.clearMessages();
-              // userStore.setContacts();
-              // userStore.setUnreadCount();
+              // store.clearMessages();
+              // store.setContacts();
+              // store.setUnreadCount();
             }
-            // userStore.setContacts();
-            // userStore.setUnreadCount();
-            // userStore.setChatingWith(contact);
-            // userStore.clearMessages();
+            // store.setContacts();
+            // store.setUnreadCount();
+            // store.setChatingWith(contact);
+            // store.clearMessages();
 
             // setMenuIsOpen(false);
             //   setSearchResult([]);
@@ -274,15 +275,15 @@ const MessageWithForwardRef = React.forwardRef(
           console.log(e);
         }
       };
-      // console.log(toJS(userStore.chatingWith));
+      // console.log(toJS(store.chatingWith));
       // console.log(toJS(author));
       return (
         <motion.article
           className={styles.wrapper}
           style={
-            userStore.user.id === currentUserId
-              ? { ...messageFromMe, maxWidth: file ? "50%" : "60%" }
-              : { ...messageToMe, maxWidth: file ? "50%" : "60%" }
+            store.user.id === currentUserId
+              ? { ...messageFromMe, maxWidth: file ? (matchesMobile ? "70%" : "50%") : matchesMobile ? "70%" : "60%" }
+              : { ...messageToMe, maxWidth: file ? (matchesMobile ? "70%" : "50%") : matchesMobile ? "70%" : "60%" }
           }
           onClick={() => {
             setMessageClicked(id);
@@ -293,7 +294,7 @@ const MessageWithForwardRef = React.forwardRef(
           // ref={el => itemsRef.current[i] = el}
         >
           <div ref={refMessage}></div>
-          {isMessageToGroupChart && author && userStore.user.id !== currentUserId && (
+          {isMessageToGroupChart && author && store.user.id !== currentUserId && (
             <div className={styles.authorContainer}>
               {author.avatar ? (
                 <img className={styles.author_avatar} src={author.avatar} alt='Аватар' />
@@ -304,13 +305,11 @@ const MessageWithForwardRef = React.forwardRef(
             </div>
           )}
           <Corner
-            right={userStore.user.id === currentUserId ? "-15px" : ""}
-            left={userStore.user.id !== currentUserId ? "-15px" : ""}
-            rotate={userStore.user.id === currentUserId ? "180deg" : ""}
-            borderWidth={userStore.user.id === currentUserId ? "10px 15px 0 0" : "0 15px 10px 0"}
-            borderColor={
-              userStore.user.id === currentUserId ? "transparent rgb(193 218 221) transparent transparent" : ""
-            }
+            right={store.user.id === currentUserId ? "-15px" : ""}
+            left={store.user.id !== currentUserId ? "-15px" : ""}
+            rotate={store.user.id === currentUserId ? "180deg" : ""}
+            borderWidth={store.user.id === currentUserId ? "10px 15px 0 0" : "0 15px 10px 0"}
+            borderColor={store.user.id === currentUserId ? "transparent rgb(193 218 221) transparent transparent" : ""}
           />
           {isForwarded && (
             <span className={styles.forwarded}>
@@ -324,7 +323,7 @@ const MessageWithForwardRef = React.forwardRef(
               type={file.type}
               name={file.name}
               openMessageActionsPopup={openMessageActionsPopup}
-              myMessage={userStore.user.id === currentUserId}
+              myMessage={store.user.id === currentUserId}
             />
           )}
           {parentMessage && <ParentElement parentMessage={parentMessage} onClick={scrollIntoView} />}
@@ -336,13 +335,13 @@ const MessageWithForwardRef = React.forwardRef(
           {contact && !isDeleted && (
             <MessageContactElement contact={contact} openMessageActionsPopup={openMessageActionsPopup} />
           )}
-          {!isDeleted && <MessageStatus status={status} user={userStore.user.id} creator={currentUserId} />}
+          {!isDeleted && <MessageStatus status={status} user={store.user.id} creator={currentUserId} />}
           {modified && (
             <span
               className={styles.timeStamp}
               style={{
-                right: userStore.user.id === currentUserId ? "70px" : "",
-                left: userStore.user.id !== currentUserId ? "70px" : "",
+                right: store.user.id === currentUserId ? "70px" : "",
+                left: store.user.id !== currentUserId ? "70px" : "",
               }}
             >
               Изменено
@@ -351,8 +350,8 @@ const MessageWithForwardRef = React.forwardRef(
           <span
             className={styles.timeStamp}
             style={{
-              right: userStore.user.id === currentUserId ? "30px" : "",
-              left: userStore.user.id !== currentUserId ? "30px" : "",
+              right: store.user.id === currentUserId ? "30px" : "",
+              left: store.user.id !== currentUserId ? "30px" : "",
             }}
           >
             {getFormattedTime(createdAt)}
@@ -362,9 +361,9 @@ const MessageWithForwardRef = React.forwardRef(
               onClick={toggleHeight}
               className={styles.hideButton}
               style={{
-                left: userStore.user.id === currentUserId ? "10px" : "",
-                right: userStore.user.id !== currentUserId ? "10px" : "",
-                backgroundColor: userStore.user.id !== currentUserId ? "white" : "rgb(193 218 221)",
+                left: store.user.id === currentUserId ? "10px" : "",
+                right: store.user.id !== currentUserId ? "10px" : "",
+                backgroundColor: store.user.id !== currentUserId ? "white" : "rgb(193 218 221)",
               }}
             >
               Читать далее...
@@ -374,8 +373,8 @@ const MessageWithForwardRef = React.forwardRef(
             <div
               className={styles.reaction}
               style={{
-                right: userStore.user.id === currentUserId ? "25px" : "",
-                left: userStore.user.id !== currentUserId ? "25px" : "",
+                right: store.user.id === currentUserId ? "25px" : "",
+                left: store.user.id !== currentUserId ? "25px" : "",
               }}
             >
               {reactionsCount.map((el: any, i: number) => {
@@ -390,9 +389,9 @@ const MessageWithForwardRef = React.forwardRef(
                 <motion.div
                   className={styles.popup}
                   style={{
-                    right: userStore.user.id === currentUserId ? "50%" : "",
-                    left: userStore.user.id !== currentUserId ? "50%" : "",
-                    transformOrigin: userStore.user.id === currentUserId ? "right top" : "left top",
+                    right: store.user.id === currentUserId ? "50%" : "",
+                    left: store.user.id !== currentUserId ? "50%" : "",
+                    transformOrigin: store.user.id === currentUserId ? "right top" : "left top",
                   }}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: isPopupReactionOpen ? 1 : 0, opacity: isPopupReactionOpen ? 1 : 0 }}
@@ -404,15 +403,15 @@ const MessageWithForwardRef = React.forwardRef(
                         <li key={i} className={styles.summary_item}>
                           <p className={styles.summary_reaction}>{el.reaction}</p>
                           <p className={styles.summary_name}>
-                            {findItemById(userStore.contacts.concat(userStore.user), el.from)[0].userName !== ""
-                              ? findItemById(userStore.contacts.concat(userStore.user), el.from)[0].userName
-                              : findItemById(userStore.contacts.concat(userStore.user), el.from)[0].email}
+                            {findItemById(store.contacts.concat(store.user), el.from)[0].userName !== ""
+                              ? findItemById(store.contacts.concat(store.user), el.from)[0].userName
+                              : findItemById(store.contacts.concat(store.user), el.from)[0].email}
                           </p>
 
-                          {findItemById(userStore.contacts.concat(userStore.user), el.from)[0].avatar ? (
+                          {findItemById(store.contacts.concat(store.user), el.from)[0].avatar ? (
                             <img
                               className={styles.summary_avatar}
-                              src={findItemById(userStore.contacts.concat(userStore.user), el.from)[0].avatar}
+                              src={findItemById(store.contacts.concat(store.user), el.from)[0].avatar}
                               alt='Аватар'
                             />
                           ) : (
@@ -421,7 +420,7 @@ const MessageWithForwardRef = React.forwardRef(
                               <NoAvatar width={44} height={44} />
                             </span>
                           )}
-                          {el.from === userStore.user.id && (
+                          {el.from === store.user.id && (
                             <span className={styles.delete_reaction} onClick={deleteReaction}>
                               Удалить реакцию
                             </span>
@@ -449,12 +448,12 @@ const MessageWithForwardRef = React.forwardRef(
               <li className={styles.action} onClick={openEmojiReactionsPopup}>
                 Отреагировать
               </li>
-              {userStore.contacts.length > 1 && (
+              {store.contacts.length > 1 && (
                 <li
                   className={styles.action}
                   onClick={() => {
                     openForwardContactPopup();
-                    userStore.setMessageToForward(id);
+                    store.setMessageToForward(id);
                   }}
                 >
                   Переслать
@@ -463,9 +462,10 @@ const MessageWithForwardRef = React.forwardRef(
               <li className={styles.action} onClick={replyToMessage}>
                 Ответить
               </li>
-              {userStore.user.id !== currentUserId &&
+              {contact &&
+                store.user.id !== contact.id &&
                 contact &&
-                findIndex(userStore.contacts, {
+                findIndex(store.contacts, {
                   id: contact.id,
                 }) === -1 && (
                   <li className={styles.action} onClick={addContact}>
@@ -495,19 +495,19 @@ const MessageWithForwardRef = React.forwardRef(
                   Открыть
                 </li>
               )}
-              {!contact && userStore.user.id === currentUserId && (
+              {!contact && store.user.id === currentUserId && (
                 <li
                   className={styles.action}
                   onClick={() => {
                     closeMessageActionsPopup();
-                    userStore.setMessageToEdit(id);
+                    store.setMessageToEdit(id);
                     openPopupEditMessage();
                   }}
                 >
                   Редактировать
                 </li>
               )}
-              {userStore.user.id === currentUserId && (
+              {store.user.id === currentUserId && (
                 <li className={styles.action} onClick={deleteMessage}>
                   Удалить
                 </li>
@@ -523,8 +523,10 @@ const MessageWithForwardRef = React.forwardRef(
                 position: "absolute",
                 transition: " all 0s linear",
                 backgroundColor: "white",
-                right: userStore.user.id === currentUserId ? 0 : "",
-                left: userStore.user.id !== currentUserId ? 0 : "",
+                right: store.user.id === currentUserId ? 0 : "",
+                left: store.user.id !== currentUserId ? 0 : "",
+                width: matchesMobile ? "300px" : "350px",
+                height: matchesMobile ? "400px" : "450px",
               }}
               lazyLoadEmojis={true}
               emojiStyle={EmojiStyle.NATIVE}

@@ -156,3 +156,9 @@
   font-size: var(--font-size-large);
   color: gray;
 }
+
+@media (max-width: 576px) {
+  .contacts {
+    max-height: 235px;
+  }
+}

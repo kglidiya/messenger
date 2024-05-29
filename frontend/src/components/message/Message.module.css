@@ -260,3 +260,9 @@
   background-color: var(--white);
   border-radius: var(--border-radius);
 }
+
+@media (max-width: 576px) {
+  .popup {
+    width: 70vw;
+  }
+}

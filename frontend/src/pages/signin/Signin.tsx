@@ -23,7 +23,7 @@ const Signin = observer(() => {
     formState: { errors },
   } = useForm({ values: { email: "", password: "" } });
   const matches = useMediaQuery("(min-width: 576px)");
-  const userStore = useContext(Context)?.user;
+  const store = useContext(Context)?.user;
   const navigate = useNavigate();
   //   const [status, setStatus] = useState<IStatus<undefined | IUser>>({
   //     isloading: false,
@@ -33,7 +33,7 @@ const Signin = observer(() => {
 
   const onSubmit = (values: any) => {
     // console.log(values);
-    userStore.login({
+    store.login({
       email: values.email.toLowerCase(),
       password: values.password,
       isOnline: true,
@@ -41,11 +41,11 @@ const Signin = observer(() => {
 
     // setIsLoading(true)
     // setTimeout(() => {
-    //   console.log(toJS(userStore.user));
-    //   userStore.setAuth(true);
-    //   // userStore.setContacts();
+    //   console.log(toJS(store.user));
+    //   store.setAuth(true);
+    //   // store.setContacts();
     //   // const data = {
-    //   //   userId: userStore.user.id,
+    //   //   userId: store.user.id,
     //   //   isOnline: true,
     //   // };
     //   // socket && socket.emit("update-userData", data);
@@ -53,13 +53,13 @@ const Signin = observer(() => {
     // }, 0);
   };
   useEffect(() => {
-    if (userStore.user && userStore.user.id) {
-      // console.log(toJS(userStore.user));
-      userStore.setAuth(true);
-      userStore.clearError();
-      // userStore.setContacts();
+    if (store.user && store.user.id) {
+      // console.log(toJS(store.user));
+      store.setAuth(true);
+      store.clearError();
+      // store.setContacts();
       // const data = {
-      //   userId: userStore.user.id,
+      //   userId: store.user.id,
       //   isOnline: true,
       // };
       // socket && socket.emit("update-userData", data);
@@ -67,7 +67,7 @@ const Signin = observer(() => {
         navigate("/");
       }, 0);
     }
-  }, [userStore.user]);
+  }, [store.user]);
   //   useEffect(() => {
   //     if (status.data) {
   //       user.setUser(status.data);
@@ -80,7 +80,7 @@ const Signin = observer(() => {
     <section className={styles.container}>
       <h3 className={styles.title}>Вход</h3>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-        <Logo top={-115} right={0} color='#eae2cc' />
+        <Logo width={100} height={100} top={-115} right={0} color='#eae2cc' />
         <Input
           type='text'
           placeholder='Email'
@@ -109,7 +109,7 @@ const Signin = observer(() => {
         />
 
         <Button type='submit' text='Войти' width={matches ? "300px" : "95%"} fontSize={matches ? "24px" : "18px"} />
-        {userStore.error && <p className={styles.error}>{userStore.error}</p>}
+        {store.error && <p className={styles.error}>{store.error}</p>}
         {/* <p className={styles.error}>Вы - новый пользователь</p> */}
       </form>
       <div className={styles.singupGroup}>
