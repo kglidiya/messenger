@@ -722,7 +722,53 @@ const Chart = observer(
     };
 
     // console.log("roomDataddddd", roomData && roomData.lastMessageId);
+    // const scrollHander = (e: WheelEvent) => {
+    //   refMessages.current && setScroll(refMessages.current?.scrollHeight - refMessages.current?.scrollTop);
+
+    //   const chartHeight = refMessages.current?.scrollHeight;
+    //   const chartBottomPos =
+    //     refMessages.current &&
+    //     refChart.current &&
+    //     refMessages.current?.scrollTop + refChart.current?.scrollHeight - 150;
+    //   if (e.deltaY < 0 || e.deltaY > 0) {
+    //     setNewMessagesNotification(false);
+    //   }
+
+    //   if (
+    //     store.prevMessages.length &&
+    //     refMessages.current &&
+    //     refMessages.current?.scrollTop < 100 &&
+    //     e.deltaY < 0 &&
+    //     store.prevMessages[0].id !== store.currentRoom.firstMessageId
+    //   ) {
+    //     // console.log("set prev");
+    //     setFetchPrev(true);
+    //     setFetchNext(false);
+    //     setFetching(true);
+    //   }
+
+    //   if (
+    //     store.prevMessages.length &&
+    //     e.deltaY > 0 &&
+    //     store.prevMessages[store.prevMessages.length - 1].id !== store.currentRoom.lastMessageId &&
+    //     chartBottomPos &&
+    //     chartHeight &&
+    //     chartBottomPos - chartHeight > 0
+    //   ) {
+    //     // console.log("fetch next");
+
+    //     setFetchNext(true);
+    //     setFetchPrev(false);
+    //     setFetching(true);
+
+    //   }
+    //   // console.log("fetchNext", fetchNext);
+    //   // console.log("fetchPrev", fetchPrev);
+    // };
+    // console.log(toJS(roomData));
+    // console.log("fetching", fetching);
     const scrollHander = (e: WheelEvent) => {
+      // console.log("e.deltaY ", e.deltaY);
       refMessages.current && setScroll(refMessages.current?.scrollHeight - refMessages.current?.scrollTop);
 
       const chartHeight = refMessages.current?.scrollHeight;
@@ -733,45 +779,47 @@ const Chart = observer(
       if (e.deltaY < 0 || e.deltaY > 0) {
         setNewMessagesNotification(false);
       }
-
+      // console.log("chartHeight ", chartHeight);
+      // console.log("chartBottomPos ", chartBottomPos);
+      // console.log("refMessages.current?.scrollTop < 100", refMessages.current && refMessages.current?.scrollTop < 100);
+      // console.log(
+      //   "store.prevMessages[0].id !== store.currentRoom.firstMessageId",
+      //   store.prevMessages[0].id !== store.currentRoom.firstMessageId,
+      // );
+      // console.log("e.deltaY < 0", e.deltaY < 0);
       if (
         store.prevMessages.length &&
         refMessages.current &&
         refMessages.current?.scrollTop < 100 &&
-        e.deltaY < 0 &&
-        // store.prevMessages[0].id !== roomData.firstMessageId
         store.prevMessages[0].id !== store.currentRoom.firstMessageId
       ) {
-        // console.log("set prev");
-        setFetchPrev(true);
-        setFetchNext(false);
-        setFetching(true);
-        // if (isFirstRender) {
-        //   setOffsetPrev(5);
-        // } else setOffsetPrev((prev: any) => prev + 5);
+        if ((matchesMobile && e.deltaY > 0) || (!matchesMobile && e.deltaY < 0)) {
+          console.log("set prev");
+          setFetchPrev(true);
+          setFetchNext(false);
+          setFetching(true);
+        }
       }
 
       if (
         store.prevMessages.length &&
-        e.deltaY > 0 &&
         store.prevMessages[store.prevMessages.length - 1].id !== store.currentRoom.lastMessageId &&
-        // store.prevMessages[store.prevMessages.length - 1].id !== roomData.lastMessageId &&
         chartBottomPos &&
         chartHeight &&
         chartBottomPos - chartHeight > 0
       ) {
-        // console.log("fetch next");
-        // setFetching(true);
-        setFetchNext(true);
-        setFetchPrev(false);
-        setFetching(true);
-        // setOffsetNext((prev: any) => prev - 5);
+        if ((matchesMobile && e.deltaY < 0) || (!matchesMobile && e.deltaY > 0)) {
+          console.log("fetch next");
+
+          setFetchNext(true);
+          setFetchPrev(false);
+          setFetching(true);
+        }
       }
       // console.log("fetchNext", fetchNext);
       // console.log("fetchPrev", fetchPrev);
     };
-    // console.log(toJS(roomData));
-    // console.log("fetching", fetching);
+
     useEffect(() => {
       const chart = refMessages.current;
 
@@ -780,7 +828,6 @@ const Chart = observer(
       return function () {
         chart && chart.removeEventListener("wheel", scrollHander);
       };
-      // }, [roomData, store.prevMessages.length]);
     }, [store.currentRoom]);
 
     const handlers = useSwipeable({

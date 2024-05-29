@@ -5,13 +5,13 @@
   /* right: 15px;
   bottom: 3px; */
 
-  display: flex;
+  /* display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: center; */
 
   width: 42px;
   height: 42px;
-
+  padding: 3px;
   background-color: var(--white);
   border: none;
   border-radius: 50%;
