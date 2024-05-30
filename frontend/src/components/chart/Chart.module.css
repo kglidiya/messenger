@@ -3,7 +3,7 @@
 
   width: calc(100% - 400px);
   height: 95vh;
-  height: var(--doc-height - 5%);
+  /* height: calc(var(--doc-height) - 5%); */
 
   background-color: var(--beige-dark);
   border-radius: var(--border-radius);

@@ -5,7 +5,7 @@
 
   width: 400px;
   height: 95vh;
-  height: var(--doc-height - 5%);
+  /* height: calc(var(--doc-height) - 5%); */
 
   background-color: var(--beige-dark);
   border-radius: var(--border-radius);
@@ -152,6 +152,6 @@
     width: 95%;
   }
   .searchContainer {
-    margin: 45px 0 7px 75px;
+    margin: 45px 0 7px 80px;
   }
 }

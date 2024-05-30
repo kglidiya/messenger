@@ -195,7 +195,7 @@ const PopupGroupDetails = observer(
         transition={{ duration: 0.3 }}
       >
         {matchesMobile && (
-          <CloseIcon onClick={closeDetailsPopup} width={34} height={34} top={10} right={10} color='#ddd6c7' />
+          <CloseIcon onClick={closeDetailsPopup} width={36} height={36} top={15} right={15} color='#ddd6c7' />
         )}
         {isAdmin ? (
           <form onSubmit={handleSubmitGroupName}>

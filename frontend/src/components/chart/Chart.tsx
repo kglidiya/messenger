@@ -1127,7 +1127,7 @@ const Chart = observer(
                     onClick={(e: any) => setCaretPos(e.target.selectionStart)}
                     setFocused={setFocused}
                   />
-                  <ButtonSend right={15} bottom={3} onClick={() => sendMessageFile(filesToSend)} />
+                  <ButtonSend right={5} bottom={4} onClick={() => sendMessageFile(filesToSend)} />
                 </div>
               )}
             </InputFile>
@@ -1172,7 +1172,7 @@ const Chart = observer(
                   onClick={(e: any) => setCaretPos(e.target.selectionStart)}
                   setFocused={setFocused}
                 />
-                <ButtonSend right={15} bottom={3} onClick={sendFileFromClipboard} />
+                <ButtonSend right={5} bottom={4} onClick={sendFileFromClipboard} />
               </div>
             </div>
           </OverLay>
@@ -1195,7 +1195,7 @@ const Chart = observer(
                   onClick={(e: any) => setCaretPos(e.target.selectionStart)}
                   setFocused={setFocused}
                 />
-                <ButtonSend right={15} bottom={3} onClick={editMessage} />
+                <ButtonSend right={15} bottom={5} onClick={editMessage} />
               </div>
             </div>
           </OverLay>

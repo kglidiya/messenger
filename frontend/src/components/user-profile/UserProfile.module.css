@@ -128,19 +128,22 @@
 }
 
 .buttonSend {
-  display: flex;
+  display: block;
+  /* display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: center; */
   position: relative;
   height: 32px;
   width: 32px;
   border-radius: 50%;
-  border: 3px solid var(--beige-dark);
+  border: none;
+  /* border: 3px solid var(--beige-dark); */
   overflow: hidden;
   box-sizing: content-box;
   background-color: white;
   margin-bottom: 5px;
   cursor: pointer;
+  /* flex: none; */
 }
 
 .buttonSend:disabled {

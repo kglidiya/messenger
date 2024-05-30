@@ -208,7 +208,7 @@ const SideBar = observer(
             value={value}
           />
         </form>
-        <Logo width={matchesTablet ? 100 : 60} height={matchesTablet ? 100 : 60} bottom={5} left={5} color='#23425a' />
+        <Logo width={matchesTablet ? 100 : 70} height={matchesTablet ? 100 : 70} bottom={15} left={3} color='#23425a' />
         <span className={styles.searchIcon}>
           <SearchIcon color='#ddd6c7' />
         </span>

@@ -104,14 +104,15 @@
 }
 
 .buttonSend {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+  /* align-items: center;
+  justify-content: center; */
   position: relative;
   height: 32px;
   width: 32px;
   border-radius: 50%;
-  border: 3px solid var(--beige-dark);
+  /* border: 3px solid var(--beige-dark); */
+  border: none;
   overflow: hidden;
   box-sizing: content-box;
   background-color: white;

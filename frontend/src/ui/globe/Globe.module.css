@@ -74,12 +74,11 @@
   width: 500%;
   height: 100%;
   margin: 0;
-  background-position: 5% 50%;
   /* overflow: visible; */
-  background-image: url("./map_front.svg");
+  background: url("../../images/mapfront.svg");
   background-repeat: repeat-x;
   background-size: contain;
-
+  background-position: 5% 50%;
   animation: textureSpinreverse 200s linear infinite;
 }
 
@@ -93,7 +92,7 @@
   opacity: 0.3;
 
   /* overflow: visible; */
-  background-image: url("./map_back.svg");
+  background: url("../../images/mapback.svg");
   background-repeat: repeat-x;
   /* background-position: -50% 50%; */
   background-position: -50% 50%;

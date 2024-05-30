@@ -1,10 +1,10 @@
 .button {
   width: 45px;
   height: 45px;
-  display: flex;
+  /* display: flex;
   align-self: center;
   align-items: center;
-  justify-content: center;
+  justify-content: center; */
   cursor: pointer;
   position: absolute;
   /* top: calc(100% - 140px); */
@@ -18,8 +18,8 @@
   /* opacity: 0.7; */
 }
 
-/* @media (max-width: 414px) {
+@media (max-width: 414px) {
   .button {
-    top: calc(100vh - 90px);
+    top: calc(var(--doc-height) - 130px);
   }
-} */
+}
