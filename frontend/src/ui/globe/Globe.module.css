@@ -11,10 +11,10 @@
   transform: scale(1.1);
   transform: translate(-50%, -30%);
 
-  aspect-ratio: 1/1;
+  /* aspect-ratio: 1/1; */
   width: 82%;
   max-width: 82vh;
-  height: calc(width * 1/1);
+  height: calc(82% * 1/1);
   /* height: calc(82vh * 1/1); */
 
 }
@@ -26,9 +26,9 @@
 
   display: block;
 
-  aspect-ratio: 1/1;
+  /* aspect-ratio: 1/1; */
   width: 100%;
-  height: calc(width * 1/1);
+  height: calc(82% * 1/1);
   margin: 0;
   padding: 0;
 }
@@ -36,9 +36,9 @@
 .map,
 .sphere {
   display: block;
-  aspect-ratio: 1/1;
+  /* aspect-ratio: 1/1; */
   width: 100%;
-  height: calc(width * 1/1);
+  height: calc(82% * 1/1);
   position: absolute;
 
   margin: 0;
