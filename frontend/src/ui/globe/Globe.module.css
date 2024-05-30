@@ -1,6 +1,6 @@
 .wrapper {
   position: absolute;
-  top: 50%;
+  top: 30%;
   left: 50%;
 
   /* position: absolute;   */
@@ -14,8 +14,9 @@
   aspect-ratio: 1/1;
   width: 82%;
   max-width: 82vh;
-  height: 82vh;
-  /* overflow: hidden; */
+  height: calc(width * 1/1);
+  /* height: calc(82vh * 1/1); */
+
 }
 
 .content {
@@ -27,7 +28,7 @@
 
   aspect-ratio: 1/1;
   width: 100%;
-  height: auto;
+  height: calc(width * 1/1);
   margin: 0;
   padding: 0;
 }
@@ -37,7 +38,7 @@
   display: block;
   aspect-ratio: 1/1;
   width: 100%;
-  height: auto;
+  height: calc(width * 1/1);
   position: absolute;
 
   margin: 0;
@@ -58,7 +59,7 @@
 .map {
   overflow: hidden;
 
-  aspect-ratio: 1/1;
+  /* aspect-ratio: 1/1; */
 
   /* left: 0; 
     top: 0;  */
