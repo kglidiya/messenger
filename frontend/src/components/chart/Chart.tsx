@@ -112,9 +112,12 @@ const Chart = observer(
     useEffect(() => {
       const setChatWidth = () => {
         const doc = document.documentElement;
-        // console.log(refChart.current?.clientWidth);
+        console.log(refChart.current?.clientWidth);
         doc.style.setProperty("--chat-width", `${refChart.current?.clientWidth}px`);
       };
+      if (refChart.current?.clientWidth || !isContactsVisible) {
+        setChatWidth();
+      }
       setChatWidth();
       window.addEventListener("resize", setChatWidth);
       // window.addEventListener("load", setChatWidth);
@@ -122,14 +125,15 @@ const Chart = observer(
         window.removeEventListener("resize", setChatWidth);
         // window.removeEventListener("load", setChatWidth);
       };
-    }, [refChart]);
+    }, [refChart.current?.clientWidth, isContactsVisible]);
+    // console.log(refChart);
     const scrollToBottom = () => {
       // if (itemsRef.current && store.prevMessages.length) {
       //   itemsRef.current[store.prevMessages.length - 1].scrollIntoView({
       //     behavior: "smooth",
       //   });
       // }
-      // console.log("scrollToBottom");
+      console.log("scrollToBottom");
       // console.log("offsetNext", offsetNext);
       // console.log("offsetPrev", offsetPrev);
       if (itemsRef.current && store.prevMessages.length) {
@@ -216,7 +220,9 @@ const Chart = observer(
         // console.log("store.setCurrentRoom");
         setValue("");
         store.setCurrentRoom(store.chatingWith.chatId);
-        refTextArea.current?.focus();
+        if (!matchesMobile) {
+          refTextArea.current?.focus();
+        }
       }
     }, [store.chatingWith]);
 

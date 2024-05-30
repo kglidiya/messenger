@@ -56,9 +56,15 @@
   flex-direction: row;
   gap: 15px;
   align-items: center;
-  /* border-radius: var(--border-radius); */
   padding: 10px 0 20px 20px;
-  position: relative;
+  /* position: relative; */
+  z-index: 6;
+
+  position: sticky;
+  top: 0;
+  right: 0;
+  background-color: var(--beige-dark);
+  border-radius: var(--border-radius);
 }
 .contactNone {
   width: 100%;
