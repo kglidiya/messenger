@@ -12,6 +12,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: rgb(38 68 92 / 97%);
+  height: 100vh;
+  height: var(--doc-height);
 }
 
 code {
@@ -21,5 +23,4 @@ code {
 #root {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  min-height: 100vh;
 }

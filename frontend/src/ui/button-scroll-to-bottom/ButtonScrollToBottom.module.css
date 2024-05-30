@@ -7,7 +7,8 @@
   justify-content: center;
   cursor: pointer;
   position: absolute;
-  top: calc(100vh - 180px);
+  /* top: calc(100% - 140px); */
+  top: calc(var(--doc-height) - 180px);
   right: 15px;
   z-index: 10;
   background-color: var(--white);

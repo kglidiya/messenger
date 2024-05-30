@@ -3,6 +3,7 @@
 
   width: calc(100% - 400px);
   height: 95vh;
+  height: var(--doc-height - 5%);
 
   background-color: var(--beige-dark);
   border-radius: var(--border-radius);
@@ -191,6 +192,7 @@
   .wrapper {
     border-radius: 0;
     height: 100vh;
+    height: var(--doc-height);
   }
   .contact {
     padding: 10px 0 20px 5px;

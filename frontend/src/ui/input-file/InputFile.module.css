@@ -58,7 +58,7 @@
 .image {
   background-color: var(--beige-light);
   border-radius: var(--border-radius);
-  max-width: 30vh;
+  max-width: 30vw;
   object-fit: contain;
   /* justify-self: center; */
   /* flex: 1; */
@@ -68,25 +68,25 @@
 .pdf {
   border-radius: var(--border-radius);
   justify-self: center;
-  max-width: 30vh;
+  max-width: 30vw;
 }
 
 .pdf canvas {
   justify-self: center;
-  max-width: 30vh;
+  max-width: 30vw;
   object-fit: contain;
   border-radius: var(--border-radius);
 }
 
 .video {
-  max-width: 30vh;
+  max-width: 30vw;
   border-radius: var(--border-radius);
 }
 
 .file {
   position: relative;
-  width: 30vh;
-  height: 30vh;
+  width: 30vw;
+  height: 30vw;
   border-radius: var(--border-radius);
   background-color: var(--beige-light);
   border-radius: var(--border-radius);

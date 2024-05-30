@@ -5,6 +5,7 @@
 
   width: 400px;
   height: 95vh;
+  height: var(--doc-height - 5%);
 
   background-color: var(--beige-dark);
   border-radius: var(--border-radius);
@@ -141,6 +142,7 @@
 @media (max-width: 576px) {
   .wrapper {
     height: 100vh;
+    height: var(--doc-height);
     border-radius: 0;
   }
   .content {

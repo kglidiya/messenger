@@ -49,8 +49,8 @@
 /* react-pdf__Page__textContent textLayer */
 .file {
   position: relative;
-  width: 7vh;
-  height: 7vh;
+  width: 7vw;
+  height: 7vw;
   border-radius: var(--border-radius);
   /* background-color: var(--white);
   border-radius: var(--border-radius); */

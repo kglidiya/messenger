@@ -445,7 +445,7 @@ export default class AppStore {
     return this._contactToForward;
   }
   get selectedUsers() {
-    console.log("toJS(this._selectedUsers)", toJS(this._selectedUsers));
+    // console.log("toJS(this._selectedUsers)", toJS(this._selectedUsers));
     return this._selectedUsers;
   }
 

@@ -5,6 +5,7 @@
 
   width: 100vw;
   height: 100vh;
+  height: var(--doc-height);
   /* background-color: var(--background-dark); */
   /* background-color: rgb(38 68 92 / 97%);
   background-image: url("../../images/background.png");

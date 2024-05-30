@@ -2,7 +2,7 @@
   max-width: 90%;
   min-width: 10vw;
   object-fit: contain;
-  max-height: 30vh;
+  max-height: 30%;
   border-radius: var(--border-radius);
   margin: 15px auto;
   display: block;
@@ -34,7 +34,7 @@
 .pdf {
   border-radius: var(--border-radius);
   justify-self: center;
-  max-width: 20vh;
+  max-width: 20vw;
   margin: 25px auto 15px auto;
   cursor: pointer;
   /* overflow: hidden; */
@@ -43,8 +43,8 @@
 
 .file {
   position: relative;
-  width: 10vh;
-  height: 10vh;
+  width: 10vw;
+  height: 10vw;
   border-radius: var(--border-radius);
   background-color: var(--beige-light);
   display: flex;

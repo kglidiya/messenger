@@ -14,6 +14,18 @@ import { SIGN_UP_URL, SIGN_IN_URL, REFRESH_TOKEN, RESET_PASSWORD_URL, BASE_URL }
 import ProtectedRoute from "../protectedRoute/ProtectedRoute";
 
 export const AppRouter = () => {
+  useEffect(() => {
+    const setAppHeight = () => {
+      const doc = document.documentElement;
+      doc.style.setProperty("--doc-height", `${window.innerHeight}px`);
+    };
+    setAppHeight();
+    window.addEventListener("resize", setAppHeight);
+    return () => {
+      window.removeEventListener("resize", setAppHeight);
+    };
+  }, []);
+
   return (
     <main className={styles.main}>
       <Routes>
