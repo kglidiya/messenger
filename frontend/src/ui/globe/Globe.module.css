@@ -12,11 +12,11 @@
   transform: translate(-50%, -30%);
 
   /* aspect-ratio: 1/1; */
+  /* width: 82%; */
   width: 82%;
   max-width: 82vh;
-  height: calc(82% * 1/1);
+  /* height: calc(82% * 1/1); */
   /* height: calc(82vh * 1/1); */
-
 }
 
 .content {
@@ -28,7 +28,7 @@
 
   /* aspect-ratio: 1/1; */
   width: 100%;
-  height: calc(82% * 1/1);
+  /* height: calc(100% * 1/1); */
   margin: 0;
   padding: 0;
 }
@@ -38,11 +38,10 @@
   display: block;
   /* aspect-ratio: 1/1; */
   width: 100%;
-  height: calc(82% * 1/1);
+  /* height: calc(100% * 1/1); */
   position: absolute;
 
   margin: 0;
-
 }
 
 .sphere {
@@ -150,4 +149,23 @@
     height: 300px;
     background-repeat: no-repeat;
   } */
+}
+@supports not (aspect-ratio: 1 / 1) {
+  .wrapper,
+  .content,
+  .map,
+  .sphere::before {
+    float: left;
+    padding-top: 100%;
+    content: "";
+  }
+
+  .wrapper,
+  .content,
+  .map,
+  .sphere::after {
+    display: block;
+    content: "";
+    clear: both;
+  }
 }
