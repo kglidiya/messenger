@@ -13,8 +13,13 @@
 
   /* aspect-ratio: 1/1; */
   /* width: 82%; */
-  width: 82%;
+  /* width: 82%;
+  max-width: 82vh; */
+  width: calc(var(--chat-width) * 0.82);
+  height: calc(var(--chat-width) * 0.82);
   max-width: 82vh;
+  border-radius: 50%;
+  overflow: hidden;
   /* height: calc(82% * 1/1); */
   /* height: calc(82vh * 1/1); */
 }
@@ -28,9 +33,12 @@
 
   /* aspect-ratio: 1/1; */
   width: 100%;
-  /* height: calc(100% * 1/1); */
+  height: var(--globe-width);
+
   margin: 0;
   padding: 0;
+  border-radius: 50%;
+  overflow: hidden;
 }
 
 .map,
@@ -38,10 +46,11 @@
   display: block;
   /* aspect-ratio: 1/1; */
   width: 100%;
-  /* height: calc(100% * 1/1); */
+  height: var(--globe-width);
   position: absolute;
 
   margin: 0;
+
 }
 
 .sphere {
@@ -149,23 +158,4 @@
     height: 300px;
     background-repeat: no-repeat;
   } */
-}
-@supports not (aspect-ratio: 1 / 1) {
-  .wrapper,
-  .content,
-  .map,
-  .sphere::before {
-    float: left;
-    padding-top: 100%;
-    content: "";
-  }
-
-  .wrapper,
-  .content,
-  .map,
-  .sphere::after {
-    display: block;
-    content: "";
-    clear: both;
-  }
 }

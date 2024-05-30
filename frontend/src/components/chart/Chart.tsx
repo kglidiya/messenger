@@ -109,6 +109,20 @@ const Chart = observer(
       itemsRef.current = itemsRef.current.slice(0, store.prevMessages.length);
     }, [store.prevMessages.length]);
 
+    useEffect(() => {
+      const setChatWidth = () => {
+        const doc = document.documentElement;
+        // console.log(refChart.current?.clientWidth);
+        doc.style.setProperty("--chat-width", `${refChart.current?.clientWidth}px`);
+      };
+      setChatWidth();
+      window.addEventListener("resize", setChatWidth);
+      // window.addEventListener("load", setChatWidth);
+      return () => {
+        window.removeEventListener("resize", setChatWidth);
+        // window.removeEventListener("load", setChatWidth);
+      };
+    }, [refChart.current]);
     const scrollToBottom = () => {
       // if (itemsRef.current && store.prevMessages.length) {
       //   itemsRef.current[store.prevMessages.length - 1].scrollIntoView({
