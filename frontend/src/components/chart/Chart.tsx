@@ -1101,6 +1101,7 @@ const Chart = observer(
                   );
                 }
               })}
+            {/* {store.parentMessage && <ReplyToElement {...store.parentMessage} />} */}
             {store.parentMessage && <ReplyToElement {...store.parentMessage} />}
             <Textarea
               ref={refTextArea}

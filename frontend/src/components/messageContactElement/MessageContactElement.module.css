@@ -1,12 +1,13 @@
 .wrapper {
   display: flex;
   flex-direction: row;
-  max-width: 300px;
-  min-width: 300px;
-  gap: 25px;
+  /* max-width: 300px;
+  min-width: 300px; */
+  gap: 10px;
   align-items: center;
   cursor: pointer;
   position: relative;
+  width: 240px;
 }
 
 .details {
@@ -16,7 +17,8 @@
   gap: 10px;
 }
 
-.test {
+.text {
+  width: 180px;
   overflow: hidden;
   font-size: var(--font-size-large);
   text-overflow: ellipsis;

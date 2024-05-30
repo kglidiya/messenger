@@ -1,10 +1,11 @@
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import React from "react";
+import React, { useContext } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 
 import styles from "./ParentElement.module.css";
 
+import { Context } from "../..";
 import { IMessage } from "../../utils/types";
 import MessageContactElement from "../messageContactElement/MessageContactElement";
 
@@ -15,7 +16,8 @@ interface IParentElementProps {
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const ParentElement = observer(({ parentMessage, onClick }: IParentElementProps) => {
-  // console.log(toJS(parentMessage));
+  const store = useContext(Context).user;
+  console.log(toJS(parentMessage));
   return (
     <div className={styles.wrapper} onClick={() => onClick(parentMessage.id)}>
       {parentMessage.message && <p className={styles.reply}>{parentMessage.message}</p>}

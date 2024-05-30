@@ -1,6 +1,6 @@
 .wrapper {
   position: absolute;
-  top: 30%;
+  top: 50%;
   left: 50%;
 
   /* position: absolute;   */
@@ -14,7 +14,7 @@
   aspect-ratio: 1/1;
   width: 82%;
   max-width: 82vh;
-
+  height: 82vh;
   /* overflow: hidden; */
 }
 
@@ -27,17 +27,21 @@
 
   aspect-ratio: 1/1;
   width: 100%;
+  height: auto;
   margin: 0;
   padding: 0;
 }
 
 .map,
 .sphere {
-  width: 100%;
-  position: absolute;
   display: block;
-  margin: 0;
   aspect-ratio: 1/1;
+  width: 100%;
+  height: auto;
+  position: absolute;
+
+  margin: 0;
+
 }
 
 .sphere {

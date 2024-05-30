@@ -327,6 +327,7 @@ const MessageWithForwardRef = React.forwardRef(
             />
           )}
           {parentMessage && <ParentElement parentMessage={parentMessage} onClick={scrollIntoView} />}
+          {/* {parentMessage && <ParentElement onClick={scrollIntoView} />} */}
           {!isDeleted && (
             <p className={styles.text} onClick={openMessageActionsPopup} ref={refText} style={{ maxHeight: height }}>
               {message}

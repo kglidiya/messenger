@@ -1,4 +1,5 @@
 import { findIndex } from "lodash";
+import { observer } from "mobx-react-lite";
 import React, { useContext, useState } from "react";
 
 import styles from "./MessageContactElement.module.css";
@@ -16,7 +17,7 @@ interface IMessageContactElementProps {
   openMessageActionsPopup?: any;
 }
 
-export default function MessageContactElement({ contact, openMessageActionsPopup }: IMessageContactElementProps) {
+const MessageContactElement = observer(({ contact, openMessageActionsPopup }: IMessageContactElementProps) => {
   const store = useContext(Context).user;
   // const [isMenuOpen, setMenuIsOpen] = useState(false);
 
@@ -59,4 +60,6 @@ export default function MessageContactElement({ contact, openMessageActionsPopup
       )} */}
     </div>
   );
-}
+});
+
+export default MessageContactElement;
