@@ -172,7 +172,7 @@ const Chart = observer(
 
     useEffect(() => {
       if (store.isAuth) {
-        setIsLoading(false);
+        // setIsLoading(false);
 
         store.setContacts();
         const data = {
@@ -202,11 +202,13 @@ const Chart = observer(
         // console.log("store.setCurrentRoom");
         setValue("");
         store.setCurrentRoom(store.chatingWith.chatId);
+        refTextArea.current?.focus();
       }
     }, [store.chatingWith]);
 
     useEffect(() => {
       if (store.currentRoom) {
+        setIsLoading(true);
         store.setRoomId(store.currentRoom?.id);
       }
     }, [store.currentRoom]);
@@ -1017,7 +1019,7 @@ const Chart = observer(
           ref={refPassthrough}
         >
           {isLoadingMessages && (
-            <div style={{ marginTop: "25vh" }}>
+            <div style={{ marginTop: matchesMobile ? "38%" : "25vh" }}>
               <Loader color='white' />
             </div>
           )}

@@ -1,4 +1,5 @@
 import { toJS } from "mobx";
+import { observer } from "mobx-react-lite";
 import React from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 
@@ -13,7 +14,7 @@ interface IParentElementProps {
 }
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-export default function ParentElement({ parentMessage, onClick }: IParentElementProps) {
+const ParentElement = observer(({ parentMessage, onClick }: IParentElementProps) => {
   // console.log(toJS(parentMessage));
   return (
     <div className={styles.wrapper} onClick={() => onClick(parentMessage.id)}>
@@ -43,4 +44,5 @@ export default function ParentElement({ parentMessage, onClick }: IParentElement
       {parentMessage.contact && <MessageContactElement contact={parentMessage.contact} />}
     </div>
   );
-}
+});
+export default ParentElement;
