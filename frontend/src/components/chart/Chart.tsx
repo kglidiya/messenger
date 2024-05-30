@@ -122,7 +122,7 @@ const Chart = observer(
         window.removeEventListener("resize", setChatWidth);
         // window.removeEventListener("load", setChatWidth);
       };
-    }, [refChart.current]);
+    }, [refChart]);
     const scrollToBottom = () => {
       // if (itemsRef.current && store.prevMessages.length) {
       //   itemsRef.current[store.prevMessages.length - 1].scrollIntoView({

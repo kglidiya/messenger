@@ -2,82 +2,54 @@
   position: absolute;
   top: 30%;
   left: 50%;
-
-  /* position: absolute;   */
-
-  display: inline-block;
-
-  /* margin: 30px; */
+  display: block;
   transform: scale(1.1);
   transform: translate(-50%, -30%);
-
-  /* aspect-ratio: 1/1; */
-  /* width: 82%; */
-  /* width: 82%;
-  max-width: 82vh; */
   width: calc(var(--chat-width) * 0.82);
   height: calc(var(--chat-width) * 0.82);
   max-width: 82vh;
   border-radius: 50%;
   overflow: hidden;
-  /* height: calc(82% * 1/1); */
-  /* height: calc(82vh * 1/1); */
 }
 
 .content {
   position: relative;
   top: 0;
   left: 0;
-
   display: block;
-
-  /* aspect-ratio: 1/1; */
-  width: 100%;
-  height: var(--globe-width);
-
+  width: calc(var(--chat-width) * 0.82);
+  height: calc(var(--chat-width) * 0.82);
   margin: 0;
   padding: 0;
   border-radius: 50%;
   overflow: hidden;
 }
 
-.map,
-.sphere {
-  display: block;
-  /* aspect-ratio: 1/1; */
-  width: 100%;
-  height: var(--globe-width);
-  position: absolute;
-
-  margin: 0;
-
-}
-
-.sphere {
-  top: 0;
-  left: 0;
-
-  /* aspect-ratio: 1/1; */
-  /* width: 100%; */
-
-  background-repeat: no-repeat;
-  background-position: 0 0;
-}
-
 .map {
+  display: block;
+  width: calc(var(--chat-width) * 0.82);
+  height: calc(var(--chat-width) * 0.82);
+  position: absolute;
+  margin: 0;
   overflow: hidden;
-
-  /* aspect-ratio: 1/1; */
-
-  /* left: 0; 
-    top: 0;  */
-  /* width: 100%; */
-
   background-color: #ddd6c7;
   border-radius: 50%;
 
-  /* background: radial-gradient(circle at 65% 10%, #eeebe4, #ddd6c7); */
 }
+.sphere {
+  display: block;
+  width: calc(var(--chat-width) * 0.82);
+  height: calc(var(--chat-width) * 0.82);
+  position: absolute;
+  margin: 0;
+  top: 0;
+  left: 0;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+ 
+}
+
+
 
 .map_front {
   position: absolute;
