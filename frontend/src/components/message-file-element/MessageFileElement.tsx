@@ -28,7 +28,8 @@ export default function MessageFileElement({
 }: IMessageFileElementProps) {
   const isPageVisible = usePageVisibility();
   const [loaded, setLoaded] = useState(false);
-  const matches = useMediaQuery("(min-width: 1200px)");
+  const matchesLarge = useMediaQuery("(min-width: 1200px)");
+  const matchesTablet = useMediaQuery("(max-width: 768px)");
   const matchesMobile = useMediaQuery("(max-width: 576px)");
   return (
     <>
@@ -50,7 +51,12 @@ export default function MessageFileElement({
       {isPageVisible && type.includes("pdf") && (
         <div onClick={openMessageActionsPopup} style={{ zIndex: 5, position: "relative", cursor: "pointer" }}>
           <Document file={path} loading={<PdfLoader />}>
-            <Page pageNumber={1} scale={matches ? 0.4 : 0.3} className={styles.pdf} renderTextLayer={false} />
+            <Page
+              pageNumber={1}
+              scale={matchesLarge ? 0.4 : matchesMobile ? 0.3 : 0.2}
+              className={styles.pdf}
+              renderTextLayer={false}
+            />
           </Document>
         </div>
       )}

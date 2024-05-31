@@ -122,6 +122,7 @@ const MessageWithForwardRef = React.forwardRef(
       // const refMessage = useRef<HTMLParagraphElement>(null);
       // const [contentEditable, setContentEditable] = useState(false);
       const matchesMobile = useMediaQuery("(max-width: 576px)");
+      const matchesTablet = useMediaQuery("(max-width: 768px)");
       const [reactionsCount, setReactionCount] = useState<any>(countArrayItems(reactions));
       const store = useContext(Context).user;
       const socket = useContext(SocketContext);
@@ -282,8 +283,14 @@ const MessageWithForwardRef = React.forwardRef(
           className={styles.wrapper}
           style={
             store.user.id === currentUserId
-              ? { ...messageFromMe, maxWidth: file ? (matchesMobile ? "70%" : "50%") : matchesMobile ? "85%" : "60%" }
-              : { ...messageToMe, maxWidth: file ? (matchesMobile ? "70%" : "50%") : matchesMobile ? "85%" : "60%" }
+              ? {
+                  ...messageFromMe,
+                  maxWidth: file ? (matchesMobile ? "70%" : "50%") : matchesTablet ? "85%" : "60%",
+                }
+              : {
+                  ...messageToMe,
+                  maxWidth: file ? (matchesMobile ? "70%" : "50%") : matchesTablet ? "85%" : "60%",
+                }
           }
           onClick={() => {
             setMessageClicked(id);

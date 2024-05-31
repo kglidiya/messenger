@@ -235,7 +235,8 @@
 .author_name {
   font-size: var(--font-size-small);
   color: gray;
-  width: 80%;
+  width: fit-content;
+  max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -261,8 +262,21 @@
   border-radius: var(--border-radius);
 }
 
+@media (max-width: 768px) {
+  .popup {
+    width: 240px;
+  }
+
+  .summary_name {
+    width: 30%;
+  }
+}
+
 @media (max-width: 576px) {
   .popup {
     width: 70vw;
   }
+  /* .summary_name {
+    width: 50%;
+  } */
 }

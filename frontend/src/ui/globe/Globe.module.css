@@ -3,13 +3,14 @@
   top: 30%;
   left: 50%;
   display: block;
-  transform: scale(1.1);
+  /* transform: scale(1.1); */
   transform: translate(-50%, -30%);
-  width: calc(var(--chat-width) * 0.82);
-  height: calc(var(--chat-width) * 0.82);
-  max-width: 82vh;
-  border-radius: 50%;
-  overflow: hidden;
+  /* width: calc(var(--chat-width) * 0.82);
+  height: calc(var(--chat-width) * 0.82); */
+  width: calc(var(--chat-width) * 0.68);
+  height: calc(var(--chat-width) * 0.68);
+  /* max-width: 82vh;
+  min-height: 82vh; */
 }
 
 .content {
@@ -17,8 +18,10 @@
   top: 0;
   left: 0;
   display: block;
-  width: calc(var(--chat-width) * 0.82);
-  height: calc(var(--chat-width) * 0.82);
+  width: calc(var(--chat-width) * 0.68);
+  height: calc(var(--chat-width) * 0.68);
+  /* max-width: 82vh;
+  min-height: 82vh; */
   margin: 0;
   padding: 0;
   border-radius: 50%;
@@ -27,29 +30,29 @@
 
 .map {
   display: block;
-  width: calc(var(--chat-width) * 0.82);
-  height: calc(var(--chat-width) * 0.82);
+  width: calc(var(--chat-width) * 0.68);
+  height: calc(var(--chat-width) * 0.68);
+  /* max-width: 82vh;
+  min-height: 82vh; */
   position: absolute;
   margin: 0;
   overflow: hidden;
   background-color: #ddd6c7;
   border-radius: 50%;
-
 }
 .sphere {
   display: block;
-  width: calc(var(--chat-width) * 0.82);
-  height: calc(var(--chat-width) * 0.82);
+  width: calc(var(--chat-width) * 0.68);
+  height: calc(var(--chat-width) * 0.68);
+  /* max-width: 82vh;
+  min-height: 82vh; */
   position: absolute;
   margin: 0;
   top: 0;
   left: 0;
   background-repeat: no-repeat;
   background-position: 0 0;
- 
 }
-
-
 
 .map_front {
   position: absolute;
@@ -124,6 +127,13 @@
     top: 38%;
     /* width: 300px;
     height: 300px; */
+  }
+  .wrapper,
+  .content,
+  .map,
+  .sphere {
+    width: calc(var(--chat-width) * 0.82);
+    height: calc(var(--chat-width) * 0.82);
   }
   /* .map_front {
     width: 300px;

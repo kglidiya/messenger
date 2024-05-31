@@ -5,9 +5,11 @@
   min-width: 300px; */
   gap: 10px;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
   position: relative;
-  width: 240px;
+  /* width: 250px; */
+  width: 100%;
 }
 
 .details {
@@ -18,7 +20,7 @@
 }
 
 .text {
-  width: 180px;
+  width: 170px;
   overflow: hidden;
   font-size: var(--font-size-large);
   text-overflow: ellipsis;
@@ -47,4 +49,10 @@
   padding: 15px;
   box-shadow: var(--box-shadow-down);
   white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .text {
+    font-size: var(--font-size-default);
+  }
 }

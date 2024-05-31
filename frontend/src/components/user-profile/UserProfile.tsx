@@ -323,9 +323,9 @@ const UserProfile = observer(
                           ) : (
                             <NoAvatar width={50} height={50} />
                           )}
-                          <div className={styles.details}>
-                            <p> {user.userName}</p>
-                            <p> {user.email}</p>
+                          <div>
+                            <p className={styles.details}> {user.userName}</p>
+                            <p className={styles.details}> {user.email}</p>
                           </div>
                         </li>
                       );

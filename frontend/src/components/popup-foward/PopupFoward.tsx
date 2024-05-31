@@ -173,8 +173,8 @@ export default function PopupFoward({
                   <NoAvatar width={50} height={50} />
                 )}
                 <div className={styles.details}>
-                  <p> {contact.userName}</p>
-                  <p> {contact.email}</p>
+                  <p className={styles.text}> {contact.userName}</p>
+                  <p className={styles.text}> {contact.email}</p>
                 </div>
               </li>
             );

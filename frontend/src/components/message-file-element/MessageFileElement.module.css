@@ -2,7 +2,7 @@
   max-width: 90%;
   min-width: 10vw;
   object-fit: contain;
-  max-height: 30vw;
+  max-height: 30vh;
   border-radius: var(--border-radius);
   margin: 15px auto;
   display: block;
@@ -84,5 +84,10 @@
 @media (max-width: 576px) {
   .image {
     max-height: 50vh;
+  }
+
+  .file {
+    width: 15vh;
+    height: 15vh;
   }
 }

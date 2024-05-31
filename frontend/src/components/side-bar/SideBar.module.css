@@ -45,11 +45,11 @@
   height: 60px;
   padding: 10px 10px;
 
-  position: sticky;
+  /* position: sticky;
   top: 0;
   right: 0;
   background-color: var(--beige-dark);
-  border-radius: var(--border-radius);
+  border-radius: var(--border-radius); */
 }
 
 .avatar {
@@ -109,6 +109,8 @@
   flex-direction: column;
   align-items: center;
   gap: 15px;
+  justify-content: center;
+  height: 100%;
 }
 
 .notification {
@@ -143,6 +145,11 @@
   }
   .searchInput {
     width: 90%;
+  }
+}
+@media (max-width: 768px) {
+  .wrapper {
+    width: 250px;
   }
 }
 @media (max-width: 576px) {

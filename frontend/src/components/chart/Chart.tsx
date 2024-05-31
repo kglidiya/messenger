@@ -22,6 +22,7 @@ import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
 import SearchIcon from "../../ui/icons/search-icon/SearchIcon";
 import InputFile from "../../ui/input-file/InputFile";
 import Loader from "../../ui/loader/Loader";
+import SendingFilesLoader from "../../ui/loaders/sending-files-loader/SendingFilesLoader";
 import Textarea from "../../ui/textarea/Textarea";
 import { getMessageIndex, getOneUser, getPrevMessage, sendFile } from "../../utils/api";
 import { countLines, creactFileToSend, findItemById, getDate } from "../../utils/helpers";
@@ -72,6 +73,7 @@ const Chart = observer(
     const [isPopupAttachFileOpen, setIsPopupAttachFileOpen] = useState(false);
     const [filesToSend, setFilesToSend] = useState<any>([]);
     const [filesToRemove, setFilesToRemove] = useState<any>([]);
+    const [isSendingFiles, setSendingFiles] = useState(false);
     const [isPopupReactionOpen, setIsPopupReactionOpen] = useState(false);
     const [isPopupMessageActionsOpen, setIsPopupMessageActionsOpen] = useState(false);
     const [isPopupEmojiReactionsOpen, setIsPopupEmojiReactionsOpen] = useState(false);
@@ -96,6 +98,7 @@ const Chart = observer(
     const [scroll, setScroll] = useState<number | undefined>();
     const [focused, setFocused] = React.useState(false);
     const matchesMobile = useMediaQuery("(max-width: 576px)");
+    const matchesTablet = useMediaQuery("(max-width: 768px)");
     const isFirstRender = useIsFirstRender();
     const resetFetchParams = () => {
       setFetching(true);
@@ -112,10 +115,14 @@ const Chart = observer(
     useEffect(() => {
       const setChatWidth = () => {
         const doc = document.documentElement;
+        const width = refChart.current?.clientWidth;
+        const height = refChart.current?.clientHeight;
         console.log(refChart.current?.clientWidth);
-        doc.style.setProperty("--chat-width", `${refChart.current?.clientWidth}px`);
+        if (height && width) {
+          doc.style.setProperty("--chat-width", `${height > width ? width : height}px`);
+        }
       };
-      if (refChart.current?.clientWidth || !isContactsVisible) {
+      if (!isContactsVisible) {
         setChatWidth();
       }
       setChatWidth();
@@ -125,7 +132,7 @@ const Chart = observer(
         window.removeEventListener("resize", setChatWidth);
         // window.removeEventListener("load", setChatWidth);
       };
-    }, [refChart.current?.clientWidth, isContactsVisible]);
+    }, [isContactsVisible]);
     // console.log(refChart);
     const scrollToBottom = () => {
       // if (itemsRef.current && store.prevMessages.length) {
@@ -485,7 +492,7 @@ const Chart = observer(
           message: value,
           // contact:
           // status: IMessageStatus.SENT,
-          parentMessage: store.parentMessage,
+          parentMessage: store.parentMessage || null,
           roomId: store.roomId,
           readBy: store.user.id,
         };
@@ -500,6 +507,9 @@ const Chart = observer(
           // scrollToBottom();
           if (store.parentMessage) {
             store.setParentMessage(null);
+          }
+          if (isEmojiOpen) {
+            setIsEmojiOpen(false);
           }
         }, 0);
       }
@@ -637,6 +647,7 @@ const Chart = observer(
     };
 
     const sendMessageFile = async (files: FileList) => {
+      setSendingFiles(true);
       // console.log("sendMessageFile");
       // e.preventDefault();
       for (let index = 0; index < files.length; index++) {
@@ -647,39 +658,35 @@ const Chart = observer(
           form.append("file", files[index]);
           const data = {
             currentUserId: store.user.id,
-            // recipientUserId: store.chatingWith.id,
             recipientUserId: store.chatingWith.email ? store.chatingWith.id : store.roomId,
             message: index === 0 && value ? value : "",
             parentMessage: store.parentMessage,
             roomId: store.roomId,
             readBy: store.user.id,
-            // form,
           };
           for (let key in data) {
-            // console.log(data[key as keyof typeof data]);
             form.append(key, data[key as keyof typeof data]);
-            // setFilesCounter((prev) => prev++);
           }
-          // form.append(data);
+
           const message = await sendFile(form);
-          // console.log("index", index);
-          // store.setFilesCounter(index);
-          // setFilesCounter(files.length);
-          // store.updateRooms(store.roomId, message.id);
+
           setTimeout(() => {
             socket.emit("send-file", message);
             store.incrementFilesCounter();
-            // setFilesCounter((prev) => prev + 1);
+            if (isEmojiOpen) {
+              setIsEmojiOpen(false);
+            }
+
             setValue("");
             setRows(2);
-            // refTextArea.current?.focus();
-            // setFilesCounter(0);
           }, 0);
         }
       }
-      setIsPopupAttachFileOpen(false);
+      //setIsPopupAttachFileOpen(false);
       setFilesToRemove([]);
       store.setFilesCounter(0);
+      setSendingFiles(false);
+      setIsPopupAttachFileOpen(false);
       //setFilesCounter(0);
     };
     const [fileFromClipboard, setFileFromClipboard] = useState<any>(null);
@@ -713,6 +720,7 @@ const Chart = observer(
     };
     const sendFileFromClipboard = async () => {
       // e.preventDefault();
+      setSendingFiles(true);
       const file = creactFileToSend(fileFromClipboard, "image/png");
       const form = new FormData();
       form.append("file", file);
@@ -737,58 +745,18 @@ const Chart = observer(
         // store.updateRooms(store.roomId, message.id);
         setValue("");
         setRows(2);
-        setIsPopupFileOpen(false);
+        setSendingFiles(false);
+
         setFileFromClipboard(null);
+        if (isEmojiOpen) {
+          setIsEmojiOpen(false);
+        }
+
+        setIsPopupFileOpen(false);
         // refTextArea.current?.focus();
       }, 0);
     };
 
-    // console.log("roomDataddddd", roomData && roomData.lastMessageId);
-    // const scrollHander = (e: WheelEvent) => {
-    //   refMessages.current && setScroll(refMessages.current?.scrollHeight - refMessages.current?.scrollTop);
-
-    //   const chartHeight = refMessages.current?.scrollHeight;
-    //   const chartBottomPos =
-    //     refMessages.current &&
-    //     refChart.current &&
-    //     refMessages.current?.scrollTop + refChart.current?.scrollHeight - 150;
-    //   if (e.deltaY < 0 || e.deltaY > 0) {
-    //     setNewMessagesNotification(false);
-    //   }
-
-    //   if (
-    //     store.prevMessages.length &&
-    //     refMessages.current &&
-    //     refMessages.current?.scrollTop < 100 &&
-    //     e.deltaY < 0 &&
-    //     store.prevMessages[0].id !== store.currentRoom.firstMessageId
-    //   ) {
-    //     // console.log("set prev");
-    //     setFetchPrev(true);
-    //     setFetchNext(false);
-    //     setFetching(true);
-    //   }
-
-    //   if (
-    //     store.prevMessages.length &&
-    //     e.deltaY > 0 &&
-    //     store.prevMessages[store.prevMessages.length - 1].id !== store.currentRoom.lastMessageId &&
-    //     chartBottomPos &&
-    //     chartHeight &&
-    //     chartBottomPos - chartHeight > 0
-    //   ) {
-    //     // console.log("fetch next");
-
-    //     setFetchNext(true);
-    //     setFetchPrev(false);
-    //     setFetching(true);
-
-    //   }
-    //   // console.log("fetchNext", fetchNext);
-    //   // console.log("fetchPrev", fetchPrev);
-    // };
-    // console.log(toJS(roomData));
-    // console.log("fetching", fetching);
     const scrollHander = (e: WheelEvent) => {
       // console.log("e.deltaY ", e.deltaY);
       refMessages.current && setScroll(refMessages.current?.scrollHeight - refMessages.current?.scrollTop);
@@ -1098,13 +1066,6 @@ const Chart = observer(
                 userName={store.chatingWith.userName}
               />
             )}
-            {/* {store.chatingWith && !store.chatingWith.groupId && (
-            <TypingIndicator
-              avatar={store.chatingWith.avatar}
-              email={store.chatingWith.email}
-              userName={store.chatingWith.userName}
-            />
-          )} */}
             {store.chatingWith &&
               !store.chatingWith.email &&
               typingUserData &&
@@ -1150,11 +1111,13 @@ const Chart = observer(
                     onClick={(e: any) => setCaretPos(e.target.selectionStart)}
                     setFocused={setFocused}
                   />
-                  <ButtonSend right={5} bottom={4} onClick={() => sendMessageFile(filesToSend)} />
+                  {isSendingFiles && <SendingFilesLoader />}
+                  {!isSendingFiles && <ButtonSend right={5} bottom={4} onClick={() => sendMessageFile(filesToSend)} />}
                 </div>
               )}
             </InputFile>
           </div>
+
           <ButtonSend onClick={sendMessage} right={15} bottom={3} />
         </div>
 
@@ -1195,7 +1158,8 @@ const Chart = observer(
                   onClick={(e: any) => setCaretPos(e.target.selectionStart)}
                   setFocused={setFocused}
                 />
-                <ButtonSend right={5} bottom={4} onClick={sendFileFromClipboard} />
+                {isSendingFiles && <SendingFilesLoader />}
+                {!isSendingFiles && <ButtonSend right={5} bottom={4} onClick={sendFileFromClipboard} />}
               </div>
             </div>
           </OverLay>

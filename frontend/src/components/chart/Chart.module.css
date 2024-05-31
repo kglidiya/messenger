@@ -55,16 +55,17 @@
   display: flex;
   flex-direction: row;
   gap: 15px;
+  /* width: 100%; */
   align-items: center;
   padding: 10px 0 20px 20px;
   /* position: relative; */
   z-index: 6;
 
-  position: sticky;
+  /* position: sticky;
   top: 0;
   right: 0;
   background-color: var(--beige-dark);
-  border-radius: var(--border-radius);
+  border-radius: var(--border-radius); */
 }
 .contactNone {
   width: 100%;
@@ -79,7 +80,7 @@
   /* align-items: center;
   justify-content: flex-start; */
   gap: 5px;
-  width: 90%;
+  width: calc(100% - 170px);
 }
 .contact__avatar {
   align-self: center;
@@ -94,7 +95,8 @@
 
 .contact__name {
   font-size: var(--font-size-large);
-  width: 80%;
+  width: 70%;
+  /* max-width: 100px; */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -193,7 +195,11 @@
     width: calc(100% - 300px);
   }
 }
-
+@media (max-width: 768px) {
+  .wrapper {
+    width: calc(100% - 250px);
+  }
+}
 @media (max-width: 576px) {
   .wrapper {
     border-radius: 0;
