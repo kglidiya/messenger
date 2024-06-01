@@ -185,6 +185,10 @@ const SideBar = observer(
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1, transition: { duration: 0.5 } }}
                       exit={{ opacity: 0, transition: { duration: 0.5 } }}
+                      style={{
+                        height: matchesMobile ? "90%" : "auto",
+                        justifyContent: matchesMobile ? "flex-end" : "",
+                      }}
                     >
                       <Contact user={el} unread={0} setIsContactsVisible={setIsContactsVisible} />
                       {store.contacts.findIndex((user: any) => user.id === searchResult[0].id) === -1 && (

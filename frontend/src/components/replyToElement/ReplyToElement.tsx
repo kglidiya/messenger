@@ -39,7 +39,7 @@ export default function ReplyToElement({ message, file, contact }: IReplyToEleme
       )}
       {contact && (
         <div className={styles.contact}>
-          <MessageContactElement contact={contact} />
+          <MessageContactElement {...contact} />
         </div>
       )}
       <button

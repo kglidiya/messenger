@@ -2,7 +2,7 @@ import { IContact } from "./types";
 
 export const isAllContactsInTheGroup = (arr: IContact[], userId: string, usersId: string) => {
   const res = arr.filter((user: any) => {
-    if (user.id !== userId && user.email !== "" && !usersId.includes(user.id)) return user;
+    if (user.id !== userId && user.email && !usersId.includes(user.id)) return user;
   });
   // console.log(res);
   if (res.length === 0) {

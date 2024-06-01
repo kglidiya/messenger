@@ -333,7 +333,7 @@ const MessageWithForwardRef = React.forwardRef(
               myMessage={store.user.id === currentUserId}
             />
           )}
-          {parentMessage && <ParentElement parentMessage={parentMessage} onClick={scrollIntoView} />}
+          {parentMessage && <ParentElement {...parentMessage} onClick={scrollIntoView} />}
           {/* {parentMessage && <ParentElement onClick={scrollIntoView} />} */}
           {!isDeleted && (
             <p className={styles.text} onClick={openMessageActionsPopup} ref={refText} style={{ maxHeight: height }}>
@@ -341,7 +341,7 @@ const MessageWithForwardRef = React.forwardRef(
             </p>
           )}
           {contact && !isDeleted && (
-            <MessageContactElement contact={contact} openMessageActionsPopup={openMessageActionsPopup} />
+            <MessageContactElement {...contact} openMessageActionsPopup={openMessageActionsPopup} />
           )}
           {!isDeleted && <MessageStatus status={status} user={store.user.id} creator={currentUserId} />}
           {modified && (

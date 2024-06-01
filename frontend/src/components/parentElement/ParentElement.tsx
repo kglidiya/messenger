@@ -10,40 +10,38 @@ import { IMessage } from "../../utils/types";
 import MessageContactElement from "../messageContactElement/MessageContactElement";
 
 interface IParentElementProps {
-  parentMessage: IMessage;
+  id: string;
+  message: string;
+  file: any;
+  contact: any;
+  // parentMessage: IMessage;
   onClick: any;
 }
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-const ParentElement = observer(({ parentMessage, onClick }: IParentElementProps) => {
+const ParentElement = observer(({ id, message, file, contact, onClick }: IParentElementProps) => {
   const store = useContext(Context).user;
   // console.log(toJS(parentMessage));
   return (
-    <div className={styles.wrapper} onClick={() => onClick(parentMessage.id)}>
-      {parentMessage.message && <p className={styles.reply}>{parentMessage.message}</p>}
-      {parentMessage.file && (
+    <div className={styles.wrapper} onClick={() => onClick(id)}>
+      {message && <p className={styles.reply}>{message}</p>}
+      {file && (
         <>
-          {parentMessage.file.type.includes("image") && (
-            <img src={parentMessage.file.path} alt='Картинка' className={styles.image} />
-          )}
-          {parentMessage.file.type.includes("video") && (
-            <video src={parentMessage.file.path} className={styles.image} muted></video>
-          )}
-          {parentMessage.file.type.includes("pdf") && (
-            <Document file={parentMessage.file.path} className={styles.pdf} loading={"Загрузка pdf..."}>
+          {file.type.includes("image") && <img src={file.path} alt='Картинка' className={styles.image} />}
+          {file.type.includes("video") && <video src={file.path} className={styles.image} muted></video>}
+          {file.type.includes("pdf") && (
+            <Document file={file.path} className={styles.pdf} loading={"Загрузка pdf..."}>
               <Page pageNumber={1} scale={0.08} />
             </Document>
           )}
-          {!parentMessage.file.type.includes("pdf") &&
-            !parentMessage.file.type.includes("video") &&
-            !parentMessage.file.type.includes("image") && (
-              <div className={styles.file}>
-                <p className={styles.fileName}>{parentMessage.file.name}</p>
-              </div>
-            )}
+          {!file.type.includes("pdf") && !file.type.includes("video") && !file.type.includes("image") && (
+            <div className={styles.file}>
+              <p className={styles.fileName}>{file.name}</p>
+            </div>
+          )}
         </>
       )}
-      {parentMessage.contact && <MessageContactElement contact={parentMessage.contact} />}
+      {contact && <MessageContactElement {...contact} />}
     </div>
   );
 });
