@@ -335,10 +335,11 @@ const Chart = observer(
                 store.addMessage(message);
                 setOffsetPrev((prev: any) => prev + 1);
               }
-            } else {
-              store.addMessage(message);
-              setOffsetPrev((prev: any) => prev + 1);
             }
+            // else {
+            //   store.addMessage(message);
+            //   setOffsetPrev((prev: any) => prev + 1);
+            // }
           }
           store.updateCurrentRoomLastMsgId(message.id);
           setTimeout(() => {
