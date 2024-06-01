@@ -70,6 +70,14 @@
   border-bottom: 1px solid var(--beige-dark);
   position: relative;
 }
+
+.text {
+  width: 170px;
+  overflow: hidden;
+  font-size: var(--font-size-large);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .inputContainer {
   display: flex;
   flex-direction: row;

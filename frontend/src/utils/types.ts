@@ -55,7 +55,6 @@ export interface IMessage {
   readBy: string[];
   modified: boolean;
   isDeleted: boolean;
-  isDelivered: boolean;
   isForwarded: boolean;
 }
 
@@ -68,8 +67,8 @@ export interface IRoom {
   participants: IUser[];
   unread: number;
   usersId: string;
-  firstMessageId?: string;
-  lastMessageId?: string;
+  firstMessageId?: string | null;
+  lastMessageId?: string | null;
   firstUnreadMessage?: string | null;
 }
 

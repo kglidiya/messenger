@@ -28,6 +28,7 @@ const GroupContact = observer(({ user }: IContactProps) => {
   const socket = useContext(SocketContext);
   const store = useContext(Context).user;
   const isAdmin = store.currentRoom.admin.includes(store.user.id);
+  const [isDeleting, setIsDeteting] = useState(false);
   // const activeParticipants = store.currentRoom.participants.filter((user: any) => !user.isDeleted).length;
 
   // // console.log(toJS(store.chatingWith));

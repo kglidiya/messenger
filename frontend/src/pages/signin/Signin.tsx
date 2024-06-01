@@ -22,7 +22,7 @@ const Signin = observer(() => {
     setValue,
     formState: { errors },
   } = useForm({ values: { email: "", password: "" } });
-  const matches = useMediaQuery("(min-width: 576px)");
+  const matchesMobile = useMediaQuery("(max-width: 576px)");
   const store = useContext(Context)?.user;
   const navigate = useNavigate();
   //   const [status, setStatus] = useState<IStatus<undefined | IUser>>({
@@ -80,7 +80,7 @@ const Signin = observer(() => {
     <section className={styles.container}>
       <h3 className={styles.title}>Вход</h3>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-        <Logo width={100} height={100} top={-115} right={0} color='#eae2cc' />
+        <Logo width={100} height={100} top={matchesMobile ? -180 : -115} right={0} color='#eae2cc' />
         <Input
           type='text'
           placeholder='Email'
@@ -108,7 +108,12 @@ const Signin = observer(() => {
           setValue={setValue}
         />
 
-        <Button type='submit' text='Войти' width={matches ? "300px" : "95%"} fontSize={matches ? "24px" : "18px"} />
+        <Button
+          type='submit'
+          text='Войти'
+          width={!matchesMobile ? "300px" : "95%"}
+          fontSize={!matchesMobile ? "24px" : "18px"}
+        />
         {store.error && <p className={styles.error}>{store.error}</p>}
         {/* <p className={styles.error}>Вы - новый пользователь</p> */}
       </form>

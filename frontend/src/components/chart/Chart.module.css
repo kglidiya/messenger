@@ -58,7 +58,7 @@
   /* width: 100%; */
   align-items: center;
   padding: 10px 0 20px 20px;
-  /* position: relative; */
+  position: relative;
   z-index: 6;
 
   /* position: sticky;
@@ -216,5 +216,11 @@
   }
   .emoji {
     left: 0;
+  }
+
+  .popupImage {
+    max-width: 90%;
+    max-height: 80%;
+    object-fit: contain;
   }
 }

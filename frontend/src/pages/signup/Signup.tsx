@@ -14,7 +14,6 @@ import Input from "../../ui/input/Input";
 import { emailRegex } from "../../utils/helpers";
 
 const Signup = observer(() => {
-  const socket = useContext(SocketContext);
   const {
     register,
     handleSubmit,
@@ -22,7 +21,7 @@ const Signup = observer(() => {
     formState: { errors },
   } = useForm({ values: { email: "", password: "" } });
   const store = useContext(Context).user;
-  const matches = useMediaQuery("(min-width: 576px)");
+  const matchesMobile = useMediaQuery("(max-width: 576px)");
   const navigate = useNavigate();
   //   const [status, setStatus] = useState<IStatus<undefined | IUser>>({
   //     isloading: false,
@@ -70,7 +69,7 @@ const Signup = observer(() => {
     <main className={styles.container}>
       <h3 className={styles.title}>Регистрация</h3>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-        <Logo width={100} height={100} top={-115} right={0} color='#eae2cc' />
+        <Logo width={100} height={100} top={matchesMobile ? -180 : -115} right={0} color='#eae2cc' />
         <Input
           type='text'
           placeholder='Email'
@@ -100,8 +99,8 @@ const Signup = observer(() => {
         <Button
           type='submit'
           text='Зарегистрироваться'
-          width={matches ? "300px" : "95%"}
-          fontSize={matches ? "24px" : "18px"}
+          width={!matchesMobile ? "300px" : "95%"}
+          fontSize={!matchesMobile ? "24px" : "18px"}
         />
         {store.error && <p className={styles.error}>{store.error}</p>}
       </form>

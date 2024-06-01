@@ -20,7 +20,7 @@ const ForgotPassword = () => {
   } = useForm({ values: { email: "" } });
 
   const navigate = useNavigate();
-  const matches = useMediaQuery("(min-width: 576px)");
+  const matchesMobile = useMediaQuery("(max-width: 576px)");
   //   const [status, setStatus] = useState<IStatus<any>>({
   //     isloading: false,
   //     data: undefined,
@@ -47,7 +47,7 @@ const ForgotPassword = () => {
     <main className={styles.container}>
       <h3 className={styles.title}>Восстановление пароля</h3>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Logo width={100} height={100} top={-115} right={0} color='#eae2cc' />
+        <Logo width={100} height={100} top={matchesMobile ? -180 : -115} right={0} color='#eae2cc' />
         <Input
           type='email'
           placeholder='Email'
@@ -63,8 +63,8 @@ const ForgotPassword = () => {
         <Button
           type='submit'
           text='Восстановить'
-          width={matches ? "300px" : "95%"}
-          fontSize={matches ? "24px" : "18px"}
+          width={!matchesMobile ? "300px" : "95%"}
+          fontSize={!matchesMobile ? "24px" : "18px"}
         />
       </form>
     </main>

@@ -82,8 +82,9 @@
   .title {
     margin: 40px;
     font-size: 24px;
+    /* font-size: 24px;
     width: 80%;
-    text-align: right;
+    text-align: right; */
   }
   .link {
     font-size: 16px;

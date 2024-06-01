@@ -4,11 +4,11 @@ export default function ArrowDown() {
       id='Layer_1'
       height={46}
       width={46}
-      enable-background='new 0 0 512 512'
+      enableBackground='new 0 0 512 512'
       viewBox='0 0 512 512'
       xmlns='http://www.w3.org/2000/svg'
     >
-      <g clip-rule='evenodd' fillRule='evenodd'>
+      <g clipRule='evenodd' fillRule='evenodd'>
         <path
           d='m256 0c-141.2 0-256 114.8-256 256s114.8 256 256 256 256-114.8 256-256-114.8-256-256-256z'
           fill='white'

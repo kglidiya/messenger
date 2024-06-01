@@ -303,9 +303,9 @@ const PopupGroupDetails = observer(
                       ) : (
                         <NoAvatar width={50} height={50} />
                       )}
-                      <div className={styles.details}>
-                        <p> {user.userName}</p>
-                        <p> {user.email}</p>
+                      <div>
+                        <p className={styles.text}> {user.userName}</p>
+                        <p className={styles.text}> {user.email}</p>
                       </div>
                     </article>
                   );

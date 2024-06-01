@@ -131,10 +131,10 @@ export default class AppStore {
         this._contacts = result[0];
         this._roomAll = result[1];
         // this.setCurrentRoom(this.chatingWith.id);
-        if (result[0].length === 0) {
-          // console.log(" setIsLoading(false);");
-          setIsLoading(false);
-        }
+        // if (result[0].length === 0) {
+        //   setIsLoading(false);
+        // }
+        setIsLoading(false);
       }
     });
   }

@@ -41,15 +41,17 @@ const { v4: uuidv4 } = require("uuid");
 
 const Chart = observer(
   ({
-    setIsLoading,
+    setIsLoadingMessages,
     isLoadingMessages,
     isContactsVisible,
     setIsContactsVisible,
+    setIsLoadingContacts,
   }: {
-    setIsLoading: any;
+    setIsLoadingMessages: any;
     isLoadingMessages: boolean;
     isContactsVisible: boolean;
     setIsContactsVisible: any;
+    setIsLoadingContacts: any;
   }) => {
     // const socket = io("http://localhost:3001", { transports: ["websocket", "polling", "flashsocket"] });
     // const socket = io("http://localhost:3001", { transports: ["websocket", "polling", "flashsocket"] });
@@ -62,7 +64,7 @@ const Chart = observer(
     const [isEmojiOpen, setIsEmojiOpen] = useState(false);
     // const [addedToGroupOn, setAddedToGroupOn] = useState(0);
     const [value, setValue] = useState("");
-    // const [isLoading, setIsLoading] = useState(true);
+    // const [isLoading, setIsLoadingMessages] = useState(true);
     const [caretPos, setCaretPos] = useState(0);
     const [rows, setRows] = useState(2);
     const [imageSrc, setImageSrc] = useState("");
@@ -117,7 +119,7 @@ const Chart = observer(
         const doc = document.documentElement;
         const width = refChart.current?.clientWidth;
         const height = refChart.current?.clientHeight;
-        console.log(refChart.current?.clientWidth);
+        // console.log(refChart.current?.clientWidth);
         if (height && width) {
           doc.style.setProperty("--chat-width", `${height > width ? width : height}px`);
         }
@@ -197,9 +199,9 @@ const Chart = observer(
 
     useEffect(() => {
       if (store.isAuth) {
-        // setIsLoading(false);
+        // setIsLoadingMessages(false);
 
-        store.setContacts();
+        store.setContacts(setIsLoadingContacts);
         const data = {
           userId: store.user.id,
           isOnline: true,
@@ -235,7 +237,8 @@ const Chart = observer(
 
     useEffect(() => {
       if (store.currentRoom) {
-        setIsLoading(true);
+        // !!!
+        // setIsLoadingMessages(true);
         store.setRoomId(store.currentRoom?.id);
       }
     }, [store.currentRoom]);
@@ -244,7 +247,7 @@ const Chart = observer(
     // console.log(addedToGroupOn);
     useEffect(() => {
       if (store.roomId) {
-        // setIsLoading(false);
+        // setIsLoadingMessages(false);
         // console.log("fetch", store.roomId);
         // store.getOneRoom({ roomId: store.currentRoom?.id });
         // store.setContacts();
@@ -420,7 +423,6 @@ const Chart = observer(
       });
 
       socket.on("receive-userData", (user: any) => {
-        // console.log(user);
         if (
           store.isAuth &&
           (findIndex(store.contacts, {
@@ -430,28 +432,14 @@ const Chart = observer(
         ) {
           store.updateUserData(user);
         }
-        // else {
-        //   store.setContacts();
-        //   //store.setChatingWith(user);
-        // }
-        //store.updateUserData(user);unreadnone
-        //store.setContacts();
-        // store.setChatingWith(user);
       });
 
       socket.on("receive-newChatData", (res: any) => {
         if (res.includes(store.user.id)) {
           console.log("receive-newChatData", res);
           store.setContacts();
-          // store.setUnreadCount();
           store.clearMessages();
-          // console.log("store.contacts.length;", toJS(store.contacts.length));
         }
-
-        // setTimeout(() => {
-        //   // chatWithLastContact();
-        //   console.log("store.contacts.length;", toJS(store.contacts.length));
-        // }, 0);
       });
 
       socket.on("receive-groupData", (groupData: any) => {
@@ -460,15 +448,16 @@ const Chart = observer(
         // console.log("participant", participant);
         const isGroupInContacts = store.contacts.findIndex((el: any) => el.chatId === groupData.id) !== -1;
         if (participant && !participant.isDeleted && isGroupInContacts) {
-          // console.log("1");
+          console.log("1");
           store.updateGroup(groupData);
         }
         if (participant && !participant.isDeleted && !isGroupInContacts) {
-          // console.log("2");
+          console.log("2");
+          store.clearMessages();
           store.setContacts();
         }
         if (participant && participant.isDeleted && isGroupInContacts) {
-          // console.log("3");
+          console.log("3");
           store.setContacts();
           store.setChatingWith(null);
           store.setCurrentRoom(null);
@@ -784,7 +773,7 @@ const Chart = observer(
         store.prevMessages[0].id !== store.currentRoom.firstMessageId
       ) {
         if ((matchesMobile && e.deltaY > 0) || (!matchesMobile && e.deltaY < 0)) {
-          console.log("set prev");
+          // console.log("set prev");
           setFetchPrev(true);
           setFetchNext(false);
           setFetching(true);
@@ -799,7 +788,7 @@ const Chart = observer(
         chartBottomPos - chartHeight > 0
       ) {
         if ((matchesMobile && e.deltaY < 0) || (!matchesMobile && e.deltaY > 0)) {
-          console.log("fetch next");
+          // console.log("fetch next");
 
           setFetchNext(true);
           setFetchPrev(false);
@@ -836,7 +825,9 @@ const Chart = observer(
       // console.log("offsetPrev", offsetPrev);
       // console.log(" limit", limit);
       // console.log("store.prevMessages", toJS(store.prevMessages));
-
+      if (offsetNext === 0 && offsetPrev === 0) {
+        setIsLoadingMessages(true);
+      }
       try {
         // console.log("setNext", offsetNext);
         // console.log("offsetPrev", offsetPrev);
@@ -847,9 +838,11 @@ const Chart = observer(
           roomId: store.roomId,
         });
         const messages = res.reverse();
+        if (offsetNext === 0 && offsetPrev === 0) {
+          setIsLoadingMessages(false);
+        }
         if (fetchPrev) {
           store.setMessages([...messages, ...store.prevMessages]);
-          setIsLoading(false);
         }
         if (fetchNext) {
           store.setMessages([...store.prevMessages, ...messages]);
@@ -996,12 +989,12 @@ const Chart = observer(
             )}
           </div>
         )}
-        {!store.currentRoom || (!store.chatingWith && <div className={styles.contactNone} />)}
+        {(store.contacts.length === 0 || !store.chatingWith) && <div className={styles.contactNone} />}
         <div
           className={styles.content}
           style={{
             height: `calc(100% - 200px - ${rows * 18}px)`,
-            marginTop: store.contacts.length === 0 ? "80px" : "0",
+            // marginTop: store.contacts.length === 0 ? "80px" : "0",
           }}
           {...handlers}
           ref={refPassthrough}

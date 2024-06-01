@@ -1,51 +1,35 @@
+.wrapper,
+.content,
+.map,
+.sphere {
+  display: block;
+  width: calc(var(--chat-width) * 0.85);
+  height: calc(var(--chat-width) * 0.85);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
 .wrapper {
   position: absolute;
   top: 30%;
   left: 50%;
-  display: block;
-  /* transform: scale(1.1); */
   transform: translate(-50%, -30%);
-  /* width: calc(var(--chat-width) * 0.82);
-  height: calc(var(--chat-width) * 0.82); */
-  width: calc(var(--chat-width) * 0.68);
-  height: calc(var(--chat-width) * 0.68);
-  /* max-width: 82vh;
-  min-height: 82vh; */
 }
 
 .content {
   position: relative;
   top: 0;
   left: 0;
-  display: block;
-  width: calc(var(--chat-width) * 0.68);
-  height: calc(var(--chat-width) * 0.68);
-  /* max-width: 82vh;
-  min-height: 82vh; */
   margin: 0;
   padding: 0;
-  border-radius: 50%;
-  overflow: hidden;
 }
 
 .map {
-  display: block;
-  width: calc(var(--chat-width) * 0.68);
-  height: calc(var(--chat-width) * 0.68);
-  /* max-width: 82vh;
-  min-height: 82vh; */
   position: absolute;
   margin: 0;
-  overflow: hidden;
   background-color: #ddd6c7;
-  border-radius: 50%;
 }
 .sphere {
-  display: block;
-  width: calc(var(--chat-width) * 0.68);
-  height: calc(var(--chat-width) * 0.68);
-  /* max-width: 82vh;
-  min-height: 82vh; */
   position: absolute;
   margin: 0;
   top: 0;
@@ -58,13 +42,10 @@
   position: absolute;
   top: 0;
   left: 0;
-
   display: block;
-
   width: 500%;
   height: 100%;
   margin: 0;
-  /* overflow: visible; */
   background-image: url("../../images/mapfront.svg");
   background-repeat: repeat-x;
   background-size: contain;
@@ -74,20 +55,14 @@
 
 .map_back {
   display: block;
-
   width: 500%;
   height: 100%;
   margin: 0;
-  /* margin-left: 5%; */
   opacity: 0.3;
-
-  /* overflow: visible; */
   background-image: url("../../images/mapback.svg");
   background-repeat: repeat-x;
-  /* background-position: -50% 50%; */
   background-position: -50% 50%;
   background-size: contain;
-
   animation: textureSpin 200s linear infinite;
 }
 
@@ -111,33 +86,7 @@
 }
 
 @media (max-width: 576px) {
-  /* .content {
-    width: 300px;
-    height: 300px;
-  }
-  .sphere {
-    width: 300px;
-    height: 300px;
-  }
-  .map {
-    width: 300px;
-    height: 300px;
-  } */
   .wrapper {
     top: 38%;
-    /* width: 300px;
-    height: 300px; */
   }
-  .wrapper,
-  .content,
-  .map,
-  .sphere {
-    width: calc(var(--chat-width) * 0.82);
-    height: calc(var(--chat-width) * 0.82);
-  }
-  /* .map_front {
-    width: 300px;
-    height: 300px;
-    background-repeat: no-repeat;
-  } */
 }

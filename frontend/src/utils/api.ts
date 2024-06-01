@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 
 import { deleteCookie, getCookie, setCookie } from "./cookies";
-import { ICreateChatDto, ILoginDto } from "./types";
+import { ICreateChatDto, ILoginDto, IMessage } from "./types";
 
 export const BASE_URL = process.env.REACT_APP_BASE_URL;
 export const REFRESH_TOKEN = `${BASE_URL}refresh`;
@@ -72,17 +72,6 @@ export const registerUser = async (data: ILoginDto) => {
       return { error: error.response?.data.message };
     }
   }
-  // const res = await axios(SIGN_UP_URL, {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //   },
-  //   data,
-  // });
-  // localStorage.setItem("token", res.data.refreshToken);
-  // localStorage.setItem("expires_on", String(Date.now() + 600000 * 1000));
-  // setCookie("token", res.data.accessToken, { path: "/", expires: 6000 * 7200 });
-  // return checkResponse<any>(res);
 };
 
 export const login = async (data: ILoginDto) => {
@@ -103,17 +92,6 @@ export const login = async (data: ILoginDto) => {
       return { error: error.response?.data.message };
     }
   }
-  // const res = await axios(`${BASE_URL}signin`, {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //   },
-  //   data,
-  // });
-  // localStorage.setItem("token", res.data.refreshToken);
-  // localStorage.setItem("expires_on", String(Date.now() + 600000 * 1000));
-  // setCookie("token", res.data.accessToken, { path: "/", expires: 6000 * 7200 });
-  // return checkResponse<any>(res);
 };
 
 export const findUser = async (data: string) => {
@@ -157,18 +135,6 @@ export const createChat = async (data: ICreateChatDto) => {
   return checkResponse<any>(res);
 };
 
-// export const createGroupChat = async (data: any) => {
-//   checkToken();
-//   const res = await axios(`${BASE_URL}/rooms/createGroupChat`, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `Bearer ${getCookie("token")}`,
-//     },
-//     data,
-//   });
-//   return checkResponse<any>(res);
-// };
 export const getMyChats = async (data: { userId: string }) => {
   await checkToken();
   const res = await axios(`${ROOMS_URL}/getAllGroups`, {
@@ -223,7 +189,7 @@ export const connectToChat = async (data: { currentUserId: string; recipientUser
   return checkResponse<any>(res);
 };
 
-export const getPrevMessage = async (param: any) => {
+export const getPrevMessage = async (param: { limit: number; offset: number; roomId: string }) => {
   // console.log(param);
   await checkToken();
   const res = await axios(`${MESSAGES_URL}/getPrevMessage/${param.limit}/${param.offset}/${param.roomId}`, {
@@ -234,7 +200,7 @@ export const getPrevMessage = async (param: any) => {
     },
     // data,
   });
-  return checkResponse<any>(res);
+  return checkResponse<IMessage[]>(res);
 };
 
 export const findMessages = async (param: any) => {

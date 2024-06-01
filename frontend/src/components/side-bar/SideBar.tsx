@@ -142,7 +142,7 @@ const SideBar = observer(
           <MenuButton onClick={toggle} open={isMenuOpen} />
         </div>
         <div className={styles.content}>
-          {isLoadingContacts && !store.contacts.length && isLoadingMessages && (
+          {isLoadingContacts && (
             <div style={{ marginTop: "30vh" }}>
               <Loader color='white' />
             </div>
@@ -168,6 +168,10 @@ const SideBar = observer(
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1, transition: { duration: 0.5 } }}
                       exit={{ opacity: 0, transition: { duration: 0.5 } }}
+                      style={{
+                        height: matchesMobile ? "90%" : "100%",
+                        justifyContent: matchesMobile ? "flex-end" : "center",
+                      }}
                     >
                       <p className={styles.notification}>{el}</p>
                       <ShrugIcon color={"white"} />
