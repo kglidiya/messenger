@@ -86,7 +86,7 @@ export class AppGateway
         user && !user.isOnline ? IMessageStatus.SENT : IMessageStatus.DELIVERED,
       file: payload.file,
       contact: payload.contact,
-      parentMessage: payload.parentMessage,
+      parentMessage: { ...payload.parentMessage },
       isForwarded: payload.isForwarded,
       readBy: [payload.readBy],
     };

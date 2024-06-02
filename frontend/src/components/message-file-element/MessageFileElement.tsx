@@ -6,6 +6,7 @@ import styles from "./MessageFileElement.module.css";
 
 import useMediaQuery from "../../hooks/useMediaQuery";
 import DownLoadIcon from "../../ui/icons/download-icon/DownLoadIcon";
+import Loader from "../../ui/loader/Loader";
 import { downloadFile } from "../../utils/helpers";
 import PdfLoader from "../pdf-loader/PdfLoader";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -35,7 +36,11 @@ export default function MessageFileElement({
     <>
       {type.includes("image") && (
         <>
-          {loaded ? null : <div className={styles.imageLoader} />}
+          {loaded ? null : (
+            <div className={styles.imageLoader}>
+              <Loader color='#ddd6c7' />
+            </div>
+          )}
           <img
             className={loaded ? styles.image : styles.imageHidden}
             src={path}

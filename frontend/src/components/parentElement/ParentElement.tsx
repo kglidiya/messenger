@@ -21,7 +21,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 const ParentElement = observer(({ id, message, file, contact, onClick }: IParentElementProps) => {
   const store = useContext(Context).user;
-  // console.log(toJS(parentMessage));
+  console.log(toJS(contact));
   return (
     <div className={styles.wrapper} onClick={() => onClick(id)}>
       {message && <p className={styles.reply}>{message}</p>}

@@ -486,10 +486,10 @@ const Chart = observer(
         }
         if (participant && participant.isDeleted && isGroupInContacts) {
           console.log("3");
+          store.clearMessages();
           store.setContacts();
           store.setChatingWith(null);
           store.setCurrentRoom(null);
-          store.clearMessages();
         }
       });
     }, []);

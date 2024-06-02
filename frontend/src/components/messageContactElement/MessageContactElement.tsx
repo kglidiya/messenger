@@ -32,7 +32,7 @@ const MessageContactElement = observer(
     //     //   setSearchResult([]);
     //   });
     // };
-    // console.log(isMenuOpen);
+    console.log("email", email);
     return (
       <div className={styles.wrapper} onClick={openMessageActionsPopup}>
         {avatar ? <img src={avatar} alt='Аватар' className={styles.avatar} /> : <NoAvatar width={44} height={44} />}

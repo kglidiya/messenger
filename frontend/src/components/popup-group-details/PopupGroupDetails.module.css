@@ -33,7 +33,7 @@
 
 .avatar {
   object-fit: cover;
-  width: 90%;
+  max-width: 90%;
   height: 250px;
   object-position: top;
   border-radius: var(--border-radius);
