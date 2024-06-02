@@ -246,7 +246,7 @@ export class AppGateway
     // );
     const res = await this.msgRepository.findOne({
       where: { id: payload.messageId },
-      relations: ['contact', 'parentMessage'],
+      relations: ['contact', 'parentMessage', 'parentMessage.contact'],
     });
     this.server.to(payload.roomId).emit('receive-message-status', res);
   }
