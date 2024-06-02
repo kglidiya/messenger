@@ -111,6 +111,7 @@ export default function PopupFoward({
           contact: contactToForward,
           readBy: store.user.id,
           roomId: chatId,
+          isForwarded: true,
         };
         socket && socket.emit("send-message", message);
       }

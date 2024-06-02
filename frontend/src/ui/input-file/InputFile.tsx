@@ -9,6 +9,7 @@ import { Context } from "../..";
 import OverLay from "../../components/overlay/Overlay";
 import PdfLoader from "../../components/pdf-loader/PdfLoader";
 import { SocketContext } from "../../hoc/SocketProvider";
+import useMediaQuery from "../../hooks/useMediaQuery";
 import { IMessage } from "../../utils/types";
 import ButtonSend from "../button-send/ButtonSend";
 import DeleteIcon from "../icons/delete-icon/DeleteIcon";
@@ -38,6 +39,7 @@ export default function InputFile({
 }: IInputFileProps) {
   const [files, setFiles] = useState<any>([]);
   const ref = useRef<HTMLInputElement>(null);
+  const matchesMobile = useMediaQuery("(max-width: 576px)");
   // const [filesToSend, setFilesToSend] = useState<any>([]);
   // const socket = useContext(SocketContext);
   // const userStore = useContext(Context).user;
@@ -159,7 +161,7 @@ export default function InputFile({
                       <div style={{ position: "relative", width: "fit-content" }} key={i}>
                         <DeleteIcon onClick={() => removeFile(i)} />
                         <Document file={file.fileContent} loading={<PdfLoader color='white' />}>
-                          <Page pageNumber={1} scale={0.5} className={styles.pdf} />
+                          <Page pageNumber={1} scale={matchesMobile ? 0.3 : 0.4} className={styles.pdf} />
                         </Document>
                       </div>
                     );

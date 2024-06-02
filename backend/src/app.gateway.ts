@@ -100,7 +100,8 @@ export class AppGateway
     // }
     const result = await this.msgRepository.save(createNewMsg);
     this.server.emit(
-      result.isForwarded ? 'forward-message' : 'receive-message',
+      // result.isForwarded ? 'forward-message' : 'receive-message',
+      'receive-message',
       result,
     );
   }
@@ -110,7 +111,7 @@ export class AppGateway
     const result = await this.msgRepository.findOne({
       where: { id: payload.id },
     });
-    this.server.emit('receive-file', result);
+    this.server.emit('receive-message', result);
   }
 
   @SubscribeMessage('react-to-message')

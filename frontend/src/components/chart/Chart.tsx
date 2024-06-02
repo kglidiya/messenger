@@ -283,12 +283,6 @@ const Chart = observer(
 
       socket.on("receive-message", (message: IMessage) => {
         console.log("receive-message");
-        // console.log(`store.roomId  ${store.roomId}`);
-        // console.log(`message ${message.roomId}`);
-        // console.log(typeof store.roomId);
-        // console.log(typeof message.roomId);
-        // console.log("message.roomId", message.roomId);
-        // console.log(`store.roomId  ${store.roomId}`);
         if (message.roomId === store.roomId) {
           if (store.prevMessages.length) {
             const lastMessage = store.prevMessages[store.prevMessages.length - 1].id;
@@ -324,31 +318,50 @@ const Chart = observer(
         // console.log(typeof message.roomId);
         // console.log("message.roomId", message.roomId);
         // console.log(`store.roomId  ${store.roomId}`);
+
         if (message.roomId === store.roomId) {
-          if (message.currentUserId !== store.user.id) {
-            if (store.prevMessages.length) {
-              const lastMessage = store.prevMessages[store.prevMessages.length - 1].id;
-              if (store.currentRoom.lastMessageId !== lastMessage) {
-                store.clearMessages();
-                resetFetchParams();
-              } else {
-                store.addMessage(message);
-                setOffsetPrev((prev: any) => prev + 1);
-              }
+          if (store.prevMessages.length) {
+            const lastMessage = store.prevMessages[store.prevMessages.length - 1].id;
+            if (store.currentRoom.lastMessageId !== lastMessage) {
+              store.clearMessages();
+              resetFetchParams();
+            } else {
+              store.addMessage(message);
+              setOffsetPrev((prev: any) => prev + 1);
             }
-            // else {
-            //   store.addMessage(message);
-            //   setOffsetPrev((prev: any) => prev + 1);
-            // }
+          } else {
+            store.addMessage(message);
+            setOffsetPrev((prev: any) => prev + 1);
           }
+
           store.updateCurrentRoomLastMsgId(message.id);
           setTimeout(() => {
             scrollToBottom();
           }, 20);
-          // store.updateUnreadCount(message);
-          // scrollToBottom();
         }
-        // scrollToBottom();
+
+        // if (message.roomId === store.roomId) {
+        //   if (message.currentUserId !== store.user.id) {
+        //     if (store.prevMessages.length) {
+        //       const lastMessage = store.prevMessages[store.prevMessages.length - 1].id;
+        //       if (store.currentRoom.lastMessageId !== lastMessage) {
+        //         store.clearMessages();
+        //         resetFetchParams();
+        //       } else {
+        //         store.addMessage(message);
+        //         setOffsetPrev((prev: any) => prev + 1);
+        //       }
+        //     } else {
+        //       store.addMessage(message);
+        //       setOffsetPrev((prev: any) => prev + 1);
+        //     }
+        //   }
+        //   store.updateCurrentRoomLastMsgId(message.id);
+        //   setTimeout(() => {
+        //     scrollToBottom();
+        //   }, 20);
+        // }
+
         store.incrementUnreadCount(message);
         // if (message.roomId === store.roomId) {
         //   store.incrementRoomUndeadIndex(message.roomId);
@@ -356,37 +369,51 @@ const Chart = observer(
       });
 
       socket.on("receive-file", (message: IMessage) => {
-        // console.log(`store.roomId  ${store.roomId}`);
-        // console.log(`message ${message}`);
-        // console.log(typeof store.roomId);
-        // console.log("filesCounter", store.filesCounter);
         if (message.roomId === store.roomId) {
           if (store.prevMessages.length) {
             const lastMessage = store.prevMessages[store.prevMessages.length - 1].id;
-            if (store.currentRoom.lastMessageId !== lastMessage && store.filesCounter === 1) {
+            if (store.currentRoom.lastMessageId !== lastMessage) {
               store.clearMessages();
               resetFetchParams();
             } else {
               store.addMessage(message);
               setOffsetPrev((prev: any) => prev + 1);
-              setTimeout(() => {
-                scrollToBottom();
-              }, 20);
             }
           } else {
             store.addMessage(message);
             setOffsetPrev((prev: any) => prev + 1);
-            setTimeout(() => {
-              scrollToBottom();
-            }, 20);
           }
 
           store.updateCurrentRoomLastMsgId(message.id);
+          setTimeout(() => {
+            scrollToBottom();
+          }, 20);
         }
         store.incrementUnreadCount(message);
         // if (message.roomId === store.roomId) {
-        //   store.incrementRoomUndeadIndex(message.roomId);
+        //   if (store.prevMessages.length) {
+        //     const lastMessage = store.prevMessages[store.prevMessages.length - 1].id;
+        //     if (store.currentRoom.lastMessageId !== lastMessage && store.filesCounter === 1) {
+        //       store.clearMessages();
+        //       resetFetchParams();
+        //     } else {
+        //       store.addMessage(message);
+        //       setOffsetPrev((prev: any) => prev + 1);
+        //       setTimeout(() => {
+        //         scrollToBottom();
+        //       }, 20);
+        //     }
+        //   } else {
+        //     store.addMessage(message);
+        //     setOffsetPrev((prev: any) => prev + 1);
+        //     setTimeout(() => {
+        //       scrollToBottom();
+        //     }, 20);
+        //   }
+
+        //   store.updateCurrentRoomLastMsgId(message.id);
         // }
+        // store.incrementUnreadCount(message);
       });
 
       socket.on("receive-reaction", (message: IMessage) => {
