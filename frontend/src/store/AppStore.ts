@@ -1,27 +1,21 @@
-import { AxiosError } from "axios";
-import { extendObservable, makeAutoObservable, observe, runInAction, toJS } from "mobx";
-import { makePersistable } from "mobx-persist-store";
-import { Socket, io } from "socket.io-client";
+import { makeAutoObservable, runInAction, toJS } from "mobx";
 
+import { Dispatch, SetStateAction } from "react";
+
+import { getMyChats, getOneRoom, getPrevMessage, login, registerUser } from "../utils/api";
 import {
-  // getAvatar,
-  getMyChats,
-  getOneRoom,
-  getPrevMessage,
-  login,
-  registerUser,
-  // updateAvatar,
-} from "../utils/api";
-import { IContact, ILoginDto, IMessage, IMessageStatus, IRoom, IUnreadCount } from "../utils/types";
+  IContact,
+  ILoginDto,
+  IMessage,
+  IMessageStatus,
+  IRoom,
+  IUnreadCount,
+  IUser,
+  LoginResponse,
+} from "../utils/types";
 
-const streamToBlob = require("stream-to-blob");
-
-// interface IRoom {
-//   id: string;
-//   name: string;
-// }
 export default class AppStore {
-  _user: any | null;
+  _user: IUser | null;
   _isAuth: boolean;
   _contacts: IContact[];
   _chatingWith: IContact | null;
@@ -64,79 +58,66 @@ export default class AppStore {
   async registerUser(data: ILoginDto) {
     const res = await registerUser(data);
     runInAction(() => {
-      if (res.error) {
+      if (res?.error) {
         this._error = res.error;
-      } else this._user = res;
+      } else this._user = res as LoginResponse;
     });
   }
 
   async login(data: ILoginDto) {
     const res = await login(data);
-
     runInAction(() => {
-      // console.log("res", res);
-      if (res.error) {
+      if (res?.error) {
         this._error = res.error;
       } else {
-        const { accessToken, refreshToken, ...rest } = res;
+        const { accessToken, refreshToken, ...rest } = res as LoginResponse;
         this._user = rest;
       }
-      // if (res instanceof AxiosError) {
-      //   console.log({ error: res.response?.data.message });
-      // }
-      // const { accessToken, refreshToken, ...rest } = res;
-      // this._user = rest;
     });
   }
 
-  setRoomId(id: string) {
-    if (id) {
-      this._roomId = id;
-    } else this._roomId = null;
+  setAuth(auth: boolean) {
+    this._isAuth = auth;
   }
 
-  setUser(user: IContact | null) {
+  setUser(user: IUser | null) {
     this._user = user;
   }
 
-  async setCurrentRoom(id: string) {
-    // console.log("setCurrentRoom usersId", usersId);
+  async setContacts(setIsLoading?: Dispatch<SetStateAction<boolean>>) {
+    const result = await getMyChats({ userId: this._user?.id as string });
+    runInAction(() => {
+      if (result) {
+        this._contacts = result.contacts;
+        this._roomAll = result.rooms;
+        if (setIsLoading) {
+          setIsLoading(false);
+        }
+      }
+    });
+  }
+
+  setChatingWith(contact: IContact | null) {
+    this._chatingWith = contact;
+  }
+
+  async setCurrentRoom(id: string | null) {
     if (!id) {
       this._currentRoom = null;
     } else {
-      // const room = this._roomAll.filter((room) => room.usersId === usersId)[0];
-
       const newRoom = await getOneRoom({ roomId: id });
       runInAction(() => {
         this._currentRoom = newRoom;
-        // console.log(newRoom);
-        // this._roomId = newRoom.id;
         const oldRoom = this._roomAll.findIndex((el) => el.id === newRoom.id);
         this._roomAll.splice(oldRoom, 1, newRoom);
-        // this.updateGroup(newRoom);
       });
     }
   }
 
-  updateCurrentRoomLastMsgId(id: string) {
-    if (this._currentRoom) {
-      this._currentRoom.lastMessageId = id;
-    }
-  }
-  async setContacts(setIsLoading: any) {
-    const result = await getMyChats({ userId: this._user.id });
-    // console.log(toJS(result));
-    runInAction(() => {
-      if (result.length) {
-        this._contacts = result[0];
-        this._roomAll = result[1];
-        // this.setCurrentRoom(this.chatingWith.id);
-        // if (result[0].length === 0) {
-        //   setIsLoading(false);
-        // }
-        setIsLoading(false);
-      }
-    });
+  setRoomId(id: string | null) {
+    if (id) {
+      this._roomId = id;
+    } else this._roomId = null;
   }
 
   async getPrevMessages(limit: number, offset: number, roomId: string) {
@@ -157,9 +138,7 @@ export default class AppStore {
   }
 
   setUnreadCount() {
-    const unreadCount = [];
-    // console.log(toJS(this._roomAll));
-    // console.log("this._totalUnread", this._totalUnread);
+    const unreadCount = [] as IUnreadCount[];
     for (let room of this._roomAll) {
       unreadCount.push({ roomId: room.id, unread: room.unread || 0 });
       this._totalUnread += room.unread || 0;
@@ -168,34 +147,33 @@ export default class AppStore {
   }
 
   incrementUnreadCount(message: IMessage) {
-    // console.log(message);
     const room = this._roomAll.filter((room) => room.id === message.roomId)[0];
-    const isPrivate = room.name === "private";
-    if (isPrivate) {
-      this._unreadCount.map((m) => {
-        if (
-          m.roomId === message.roomId &&
-          message.status !== IMessageStatus.READ &&
-          message.recipientUserId === this._user.id
-        ) {
-          this._totalUnread++;
-          return m.unread++;
-        } else return m;
-      });
-    } else {
-      // console.log("message.readBy.findIndex((i: string) => i === this._user.id");
-      this._unreadCount.map((m: any) => {
-        if (
-          m.roomId === message.roomId &&
-          message.currentUserId !== this._user.id &&
-          message.readBy.findIndex((i) => i === this._user.id) === -1
-        ) {
-          // console.log("incrementUnreadCount");
-          // console.log(message.readBy.findIndex((i) => i === this._user.id));
-          this._totalUnread++;
-          return m.unread++;
-        } else return m;
-      });
+    // console.log(room, this._roomAll);
+    if (room) {
+      const isPrivate = room.name === "private";
+      if (isPrivate) {
+        this._unreadCount.map((m) => {
+          if (
+            m.roomId === message.roomId &&
+            message.status !== IMessageStatus.READ &&
+            message.recipientUserId === this._user?.id
+          ) {
+            this._totalUnread++;
+            return m.unread++;
+          } else return m;
+        });
+      } else {
+        this._unreadCount.map((m) => {
+          if (
+            m.roomId === message.roomId &&
+            message.currentUserId !== this._user?.id &&
+            message.readBy.findIndex((i) => i === this._user?.id) === -1
+          ) {
+            this._totalUnread++;
+            return m.unread++;
+          } else return m;
+        });
+      }
     }
   }
 
@@ -207,7 +185,7 @@ export default class AppStore {
         if (
           m.roomId === message.roomId &&
           message.status === IMessageStatus.READ &&
-          message.recipientUserId === this._user.id
+          message.recipientUserId === this._user?.id
         ) {
           this._totalUnread--;
           return m.unread--;
@@ -217,8 +195,8 @@ export default class AppStore {
       this._unreadCount.map((m) => {
         if (
           m.roomId === message.roomId &&
-          message.currentUserId !== this._user.id &&
-          message.readBy.findIndex((i) => i === this._user.id) !== -1
+          message.currentUserId !== this._user?.id &&
+          message.readBy.findIndex((i) => i === this._user?.id) !== -1
         ) {
           this._totalUnread--;
           return m.unread--;
@@ -228,74 +206,67 @@ export default class AppStore {
   }
 
   addMessage(message: IMessage) {
-    // console.log(toJS(message));
     this._prevMessages.push(message);
   }
 
   updateMessage(newMessage: IMessage) {
-    // console.log(newMessage);
     const oldMessage = this._prevMessages.findIndex((el) => el.id === newMessage.id);
     if (oldMessage !== -1) {
       this._prevMessages.splice(oldMessage, 1, newMessage);
     }
-    // this._prevMessages.splice(oldMessage, 1, newMessage);
   }
 
-  updateUserData(newUser: IContact) {
-    if (newUser.id !== this._user.id) {
+  updateCurrentRoomLastMsgId(id: string) {
+    if (this._currentRoom) {
+      this._currentRoom.lastMessageId = id;
+    }
+  }
+
+  updateUserData(newUser: IUser) {
+    if (newUser.id !== this._user?.id) {
       const oldUser = this._contacts.findIndex((el) => el.id === newUser.id);
-      // console.log("oldUser", this._contacts[oldUser]);
       this._contacts.splice(oldUser, 1, { ...newUser, chatId: this._contacts[oldUser].chatId });
-      // this._contacts = t;
-      //this._chatingWith = newUser;
       if (this._chatingWith?.id === newUser.id) {
         this._chatingWith = { ...newUser, chatId: this._contacts[oldUser].chatId };
       }
     } else this._user = newUser;
-    // }
   }
 
-  clearMessages() {
-    this._prevMessages = [];
-  }
+  updateGroup(newRoomData: IRoom) {
+    const oldRoom = this._roomAll.findIndex((room) => room.id === newRoomData.id);
 
-  updateRooms(roomId: string, lastMessageId: string) {
-    // const oldRoom = this._roomAll.findIndex((el) => el.id === roomId);
-    // this._contacts.splice(oldUser, 1, newUser);
-    this._roomAll.map((room: any) => {
-      if (room.id === roomId) {
-        return (room.lastMessageId = lastMessageId);
-      } else return room;
-    });
-  }
+    if (oldRoom !== -1) {
+      this._roomAll.splice(oldRoom, 1, newRoomData);
+      if (this._currentRoom && this._currentRoom.id === newRoomData.id) {
+        this._currentRoom = newRoomData;
+      }
 
-  clearContacts() {
-    this._contacts = [];
-    this._roomAll = [];
-  }
-  clearUnreadCount() {
-    this._unreadCount = [];
-    this._totalUnread = 0;
-  }
+      const contactIndex = this._contacts.findIndex((el) => {
+        if (el.chatId) {
+          return el.chatId === newRoomData.id;
+        }
+      });
+      const contact = this._contacts[contactIndex];
+      const contactUpdated = {
+        ...contact,
+        avatar: newRoomData.avatar,
+        userName: newRoomData.name,
+        id: newRoomData.usersId,
+      };
 
-  // clearTotalUnread() {
-  //   this._totalUnread = 0;
-  // }
-  setChatingWith(user: IContact) {
-    this._chatingWith = user;
-  }
-  // async setChat(userId: string, chatingWith: string) {
-  //   const chart = await connectToChart({ currentUserId: userId, recipientUserId: chatingWith });
-  //   runInAction(() => {
-  //     this._chat = chart;
-  //   });
-  // }
+      this._contacts.splice(contactIndex, 1, contactUpdated);
 
-  setAuth(auth: boolean) {
-    this._isAuth = auth;
+      if (this._chatingWith?.chatId === newRoomData.id) {
+        this._chatingWith = {
+          ...this._chatingWith,
+          avatar: newRoomData.avatar,
+          userName: newRoomData.name,
+          id: newRoomData.usersId,
+        };
+      }
+    }
   }
-
-  setMessageToForward(id: string) {
+  setMessageToForward(id: string | null) {
     const message = this._prevMessages.filter((el) => el.id === id);
     if (message.length) {
       this._messageToForward = message[0];
@@ -308,25 +279,48 @@ export default class AppStore {
       this._messageToEdit = message[0];
     } else this._messageToEdit = null;
   }
-  clearMessageToEdit() {
-    this._messageToEdit = null;
-  }
-  setParentMessage(message: IMessage) {
+
+  setParentMessage(message: IMessage | null) {
     this._parentMessage = message;
   }
 
-  setContactToForward(contact: IContact) {
+  setContactToForward(contact: IContact | null) {
     this._contactToForward = contact;
   }
+
   setSelectedUsers(id: string, checked: boolean) {
-    // console.log(checked);
     if (checked) {
       this._selectedUsers.push(id);
     } else {
       const ids = this._selectedUsers.filter((el) => el !== id);
       this._selectedUsers = ids;
     }
-    // this._forwardTo = arr;
+  }
+
+  setFilesCounter(filesNumber: number) {
+    this._filesCounter = filesNumber;
+  }
+
+  incrementFilesCounter() {
+    this._filesCounter++;
+  }
+
+  clearMessages() {
+    this._prevMessages = [];
+  }
+
+  clearContacts() {
+    this._contacts = [];
+    this._roomAll = [];
+  }
+
+  clearUnreadCount() {
+    this._unreadCount = [];
+    this._totalUnread = 0;
+  }
+
+  clearMessageToEdit() {
+    this._messageToEdit = null;
   }
 
   clearSelectedUsers() {
@@ -337,71 +331,6 @@ export default class AppStore {
     this._error = null;
   }
 
-  // setCurrentRoom(usersId: any) {
-  //   // console.log(usersId);
-  //   if (!usersId) {
-  //     this._currentRoom = null;
-  //   } else {
-  //     const room = this._roomAll.filter((room: any) => room.usersId === usersId && room.name !== "private")[0];
-  //     this._currentRoom = room;
-  //   }
-  // }
-
-  updateGroup(newRoomData: IRoom) {
-    // const { ...newRoom } = newRoomData;
-    // console.log(`newRoom`, newRoomData);
-    const oldRoom = this._roomAll.findIndex((room) => room.id === newRoomData.id);
-    // console.log(`oldRoom`, oldRoom);
-    if (oldRoom !== -1) {
-      this._roomAll.splice(oldRoom, 1, newRoomData);
-      if (this._currentRoom && this._currentRoom.id === newRoomData.id) {
-        this._currentRoom = newRoomData;
-      }
-      // if (this._currentRoom) {
-      //   this._currentRoom = newRoomData;
-      // }
-      // this._currentRoom = newRoom;
-      // console.log(
-      //   `newRoom.usersId
-      // `,
-      //   newRoom.usersId.split(","),
-      // );
-      const contactIndex = this._contacts.findIndex((el) => {
-        if (el.chatId) {
-          return el.chatId === newRoomData.id;
-        }
-      });
-      const contact = this._contacts[contactIndex];
-      const contactUpdated = {
-        ...contact,
-        avatar: newRoomData.avatar,
-        userName: newRoomData.name,
-        id: newRoomData.usersId,
-        // participants: newRoomData.participants,
-      };
-
-      this._contacts.splice(contactIndex, 1, contactUpdated);
-
-      if (this._chatingWith?.chatId === newRoomData.id) {
-        // this._chatingWith = newRoomData;
-        const usersId = newRoomData.usersId.split(",");
-        this._chatingWith = {
-          ...this._chatingWith,
-          avatar: newRoomData.avatar,
-          userName: newRoomData.name,
-          id: newRoomData.usersId,
-          // participants: newRoomData.participants,
-        };
-      }
-    }
-  }
-
-  incrementFilesCounter() {
-    this._filesCounter++;
-  }
-  setFilesCounter(filesNumber: number) {
-    this._filesCounter = filesNumber;
-  }
   get user() {
     // console.log("this._user", toJS(this._user));
     return this._user;
@@ -422,7 +351,7 @@ export default class AppStore {
   }
 
   get prevMessages() {
-    console.log("this._prevMessages", toJS(this._prevMessages.length));
+    // console.log("this._prevMessages", toJS(this._prevMessages));
     return this._prevMessages;
   }
 

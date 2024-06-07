@@ -1,7 +1,14 @@
-export interface TokenPair {}
+export interface UserResponse {
+  accessToken: string;
+  refreshToken: string;
+  id: string;
+  userName: string;
+  avatar: string | null;
+  email: string;
+  isOnline: boolean;
+}
 
-export interface IAvatar {
-  filename: string | null;
-  path: string;
-  mimetype: string;
+export interface ITokenPair {
+  accessToken: string;
+  refreshToken: string;
 }

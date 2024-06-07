@@ -1,23 +1,11 @@
 .button {
-  display: block;
-  /* width: 45px;
-  height: 45px;
-  padding: 3px; */
-  /* display: flex;
-  align-self: center;
-  align-items: center;
-  justify-content: center; */
   cursor: pointer;
   position: absolute;
-  /* top: calc(100% - 140px); */
+  z-index: 10;
   top: calc(var(--doc-height) - 180px);
   right: 15px;
-  z-index: 10;
-  /* background-color: var(--white);
-  border: none;
-  border-radius: 50%; */
-  /* box-shadow:  1px 1px 13px 4px rgb(102 105 82 / 20%) */
-  /* opacity: 0.7; */
+
+  display: block;
 }
 
 @media (max-width: 414px) {

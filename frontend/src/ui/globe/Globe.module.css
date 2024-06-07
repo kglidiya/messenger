@@ -2,11 +2,13 @@
 .content,
 .map,
 .sphere {
+  overflow: hidden;
   display: block;
+
   width: calc(var(--chat-width) * 0.85);
   height: calc(var(--chat-width) * 0.85);
+
   border-radius: 50%;
-  overflow: hidden;
 }
 
 .wrapper {
@@ -20,6 +22,7 @@
   position: relative;
   top: 0;
   left: 0;
+
   margin: 0;
   padding: 0;
 }
@@ -29,11 +32,14 @@
   margin: 0;
   background-color: #ddd6c7;
 }
+
 .sphere {
   position: absolute;
-  margin: 0;
   top: 0;
   left: 0;
+
+  margin: 0;
+
   background-repeat: no-repeat;
   background-position: 0 0;
 }
@@ -42,27 +48,34 @@
   position: absolute;
   top: 0;
   left: 0;
+
   display: block;
+
   width: 500%;
   height: 100%;
   margin: 0;
+
   background-image: url("../../images/mapfront.svg");
   background-repeat: repeat-x;
-  background-size: contain;
   background-position: 5% 50%;
+  background-size: contain;
+
   animation: textureSpinreverse 200s linear infinite;
 }
 
 .map_back {
   display: block;
+
   width: 500%;
   height: 100%;
   margin: 0;
+
   opacity: 0.3;
   background-image: url("../../images/mapback.svg");
   background-repeat: repeat-x;
   background-position: -50% 50%;
   background-size: contain;
+
   animation: textureSpin 200s linear infinite;
 }
 

@@ -1,7 +1,18 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 
 import { deleteCookie, getCookie, setCookie } from "./cookies";
-import { ICreateChatDto, ILoginDto, IMessage } from "./types";
+import {
+  IAllGroupsResponse,
+  ICreateChatDto,
+  ICreateChatResponse,
+  IGetMessagesRequest,
+  ILoginDto,
+  IMessage,
+  IResetPasswordDto,
+  IRoom,
+  IUser,
+  LoginResponse,
+} from "./types";
 
 export const BASE_URL = process.env.REACT_APP_BASE_URL;
 export const REFRESH_TOKEN = `${BASE_URL}refresh`;
@@ -66,7 +77,7 @@ export const registerUser = async (data: ILoginDto) => {
     localStorage.setItem("token", res.data.refreshToken);
     localStorage.setItem("expires_on", String(Date.now() + 600000 * 1000));
     setCookie("token", res.data.accessToken, { path: "/", expires: 6000 * 7200 });
-    return checkResponse<any>(res);
+    return checkResponse<LoginResponse | { error: string }>(res);
   } catch (error) {
     if (error instanceof AxiosError) {
       return { error: error.response?.data.message };
@@ -86,7 +97,7 @@ export const login = async (data: ILoginDto) => {
     localStorage.setItem("token", res.data.refreshToken);
     localStorage.setItem("expires_on", String(Date.now() + 600000 * 1000));
     setCookie("token", res.data.accessToken, { path: "/", expires: 6000 * 7200 });
-    return checkResponse<any>(res);
+    return checkResponse<LoginResponse | { error: string }>(res);
   } catch (error) {
     if (error instanceof AxiosError) {
       return { error: error.response?.data.message };
@@ -104,21 +115,7 @@ export const findUser = async (data: string) => {
     },
     data,
   });
-  return checkResponse<any>(res);
-};
-// getOneUserData
-export const findUserById = async (data: any) => {
-  // console.log(data);
-  await checkToken();
-  const res = await axios(`${USERS_URL}/getOneUserData`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getCookie("token")}`,
-    },
-    data,
-  });
-  return checkResponse<any>(res);
+  return checkResponse<IUser>(res);
 };
 
 export const createChat = async (data: ICreateChatDto) => {
@@ -132,7 +129,7 @@ export const createChat = async (data: ICreateChatDto) => {
     },
     data,
   });
-  return checkResponse<any>(res);
+  return checkResponse<ICreateChatResponse>(res);
 };
 
 export const getMyChats = async (data: { userId: string }) => {
@@ -145,25 +142,10 @@ export const getMyChats = async (data: { userId: string }) => {
     },
     data,
   });
-  return checkResponse<any>(res);
+  return checkResponse<IAllGroupsResponse>(res);
 };
 
 export const getOneRoom = async (data: { roomId: string }) => {
-  // console.log(data);
-  // const t = await checkToken();
-  // console.log(t);
-  // retry();
-  // if (t === 200) {
-  //   const res = await axios(`${ROOMS_URL}/getOneGroup`, {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: `Bearer ${getCookie("token")}`,
-  //     },
-  //     data,
-  //   });
-  //   return checkResponse<any>(res);
-  // }
   await checkToken();
   const res = await axios(`${ROOMS_URL}/getOneGroup`, {
     method: "POST",
@@ -173,23 +155,23 @@ export const getOneRoom = async (data: { roomId: string }) => {
     },
     data,
   });
-  return checkResponse<any>(res);
+  return checkResponse<IRoom>(res);
 };
 
-export const connectToChat = async (data: { currentUserId: string; recipientUserId: string }) => {
-  await checkToken();
-  const res = await axios(`${ROOMS_URL}/connectToRoom`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getCookie("token")}`,
-    },
-    data,
-  });
-  return checkResponse<any>(res);
-};
+// export const connectToChat = async (data: { currentUserId: string; recipientUserId: string }) => {
+//   await checkToken();
+//   const res = await axios(`${ROOMS_URL}/connectToRoom`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${getCookie("token")}`,
+//     },
+//     data,
+//   });
+//   return checkResponse<string>(res);
+// };
 
-export const getPrevMessage = async (param: { limit: number; offset: number; roomId: string }) => {
+export const getPrevMessage = async (param: IGetMessagesRequest) => {
   // console.log(param);
   await checkToken();
   const res = await axios(`${MESSAGES_URL}/getPrevMessage/${param.limit}/${param.offset}/${param.roomId}`, {
@@ -203,7 +185,7 @@ export const getPrevMessage = async (param: { limit: number; offset: number; roo
   return checkResponse<IMessage[]>(res);
 };
 
-export const findMessages = async (param: any) => {
+export const findMessages = async (param: { query: string; roomId: string }) => {
   // console.log(param);
   await checkToken();
   const res = await axios(`${MESSAGES_URL}/getAllMessages/${param.query}/${param.roomId}`, {
@@ -214,10 +196,10 @@ export const findMessages = async (param: any) => {
     },
     // data,
   });
-  return checkResponse<any>(res);
+  return checkResponse<IMessage[]>(res);
 };
 
-export const getMessageIndex = async (param: any) => {
+export const getMessageIndex = async (param: { id: string; roomId: string }) => {
   // console.log(param);
   await checkToken();
   const res = await axios(`${MESSAGES_URL}/getMessageIndex/${param.id}/${param.roomId}`, {
@@ -228,23 +210,23 @@ export const getMessageIndex = async (param: any) => {
     },
     // data,
   });
-  return checkResponse<any>(res);
+  return checkResponse<number>(res);
 };
 
-export const getOneUser = async (data: any) => {
-  await checkToken();
-  const res = await axios(`${USERS_URL}/getOneUserData`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getCookie("token")}`,
-    },
-    data,
-  });
-  return checkResponse<any>(res);
-};
+// export const getOneUser = async (data: any) => {
+//   await checkToken();
+//   const res = await axios(`${USERS_URL}/getOneUserData`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${getCookie("token")}`,
+//     },
+//     data,
+//   });
+//   return checkResponse<any>(res);
+// };
 
-export const sendFile = async (data: any) => {
+export const sendFile = async (data: FormData) => {
   await checkToken();
   // console.log(data);
   const res = await axios(`${MESSAGES_URL}/uploadFile`, {
@@ -255,10 +237,10 @@ export const sendFile = async (data: any) => {
     },
     data,
   });
-  return checkResponse<any>(res);
+  return checkResponse<IMessage>(res);
 };
 
-export const getRecoveryCode = async (data: any) => {
+export const getRecoveryCode = async (data: { email: string }) => {
   // console.log(data);
   await checkToken();
   const res = await axios(FORGOT_PASSWORD_URL, {
@@ -269,10 +251,10 @@ export const getRecoveryCode = async (data: any) => {
     },
     data,
   });
-  return checkResponse<any>(res);
+  return checkResponse<string>(res);
 };
 
-export const resetPassword = async (data: any) => {
+export const resetPassword = async (data: IResetPasswordDto) => {
   // console.log(data);
   await checkToken();
   const res = await axios(RESET_PASSWORD_URL, {
@@ -283,5 +265,5 @@ export const resetPassword = async (data: any) => {
     },
     data,
   });
-  return checkResponse<any>(res);
+  return checkResponse<string>(res);
 };

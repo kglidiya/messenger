@@ -1,5 +1,3 @@
-import React from "react";
-
 import styles from "./NoAvatar.module.css";
 
 interface INoAvatarProps {
@@ -18,11 +16,8 @@ export default function NoAvatar({ width, height }: INoAvatarProps) {
         xmlns='http://www.w3.org/2000/svg'
         viewBox='0 0 512 512'
       >
-        {/* <rect width='100%' height='100%' fill='white' /> */}
         <g id='SVGRepo_bgCarrier' strokeWidth='0' />
-
         <g id='SVGRepo_tracerCarrier' strokeLinecap='round' strokeLinejoin='round' />
-
         <g id='SVGRepo_iconCarrier'>
           {" "}
           <g>

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { FC, useEffect } from "react";
 
 import LoaderStyles from "./Loader.module.css";

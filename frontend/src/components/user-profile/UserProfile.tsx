@@ -1,15 +1,20 @@
+/* eslint-disable array-callback-return */
+/* eslint-disable react-hooks/exhaustive-deps */
 import { motion } from "framer-motion";
 import { findIndex } from "lodash";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useContext, useEffect, useRef, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
+
+import { Socket } from "socket.io-client";
 
 import styles from "./UserProfile.module.css";
 
 import { Context } from "../..";
 import { SocketContext } from "../../hoc/SocketProvider";
+import AppStore from "../../store/AppStore";
 import Avatar from "../../ui/avatar/Avatar";
 import EditIcon from "../../ui/icons/edit-icon/EditIcon";
 import ExitIcon from "../../ui/icons/exit-icon/ExitIcon";
@@ -18,31 +23,21 @@ import PlaneIcon from "../../ui/icons/plane/PlaneIcon";
 import InputCheckbox from "../../ui/input-checkbox/InputCheckbox";
 import { createChat } from "../../utils/api";
 import { deleteCookie } from "../../utils/cookies";
+import { IUser } from "../../utils/types";
 import ProfilePhoto from "../profile-photo/ProfilePhoto";
 
 const UserProfile = observer(
-  ({
-    isMenuOpen,
-    setMenuIsOpen,
-  }: //   avatar,
-  //   username,
-  {
-    isMenuOpen: boolean;
-    setMenuIsOpen: any;
-    //   avatar: string;
-    //   username: string;
-  }) => {
-    const store = useContext(Context).user;
-    const socket = useContext(SocketContext);
+  ({ isMenuOpen, setMenuIsOpen }: { isMenuOpen: boolean; setMenuIsOpen: Dispatch<SetStateAction<boolean>> }) => {
+    const store = useContext(Context)?.store as AppStore;
+    const socket = useContext(SocketContext) as Socket;
     const navigate = useNavigate();
     const [isProfileEditOpen, setIsProfileEditOpen] = useState(false);
     const [isGroupEditOpen, setIsGroupEditOpen] = useState(false);
-    const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
-    const [isDisabled, setIsDisabled] = useState(true);
-    const [usersCount, setUsersCount] = useState(0);
     const [errorMsg, setErrorMsg] = useState("");
-    const [values, setValues] = useState({ avatar: store.user.avatar, userName: store.user.userName });
+    const [values, setValues] = useState({ avatar: store.user?.avatar, userName: store.user?.userName });
     const [groupData, setGroupData] = useState({ usersId: "", name: "", admin: [] });
+    const refInput = useRef<HTMLInputElement | null>(null);
+
     const toggleProfileEdit = () => {
       if (isGroupEditOpen) {
         setIsGroupEditOpen(false);
@@ -50,26 +45,22 @@ const UserProfile = observer(
       }
       setIsProfileEditOpen(!isProfileEditOpen);
     };
+
     const toggleGroupEdit = () => {
       if (isProfileEditOpen) {
         setIsProfileEditOpen(false);
       }
       if (!isProfileEditOpen) {
-        // store.setContactToForward(null);
         store.clearSelectedUsers();
         setErrorMsg("");
       }
       setIsGroupEditOpen(!isGroupEditOpen);
     };
-    // useEffect(() => {
-    //   if (groupData.name && store.selectedUsers.length > 1) {
-    //     setIsDisabled(false);
-    //   } else setIsDisabled(true);
-    // }, [groupData.name, store.selectedUsers.length]);
+
     useEffect(() => {}, [store.selectedUsers.length]);
     const logOut = () => {
       const data = {
-        userId: store.user.id,
+        userId: store.user?.id,
         isOnline: false,
       };
       socket && socket.emit("update-userData", data);
@@ -90,15 +81,15 @@ const UserProfile = observer(
       }, 0);
     };
 
-    const handleChange = (e: any) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
       const target = e.target;
       setValues({ ...values, userName: target.value });
     };
-    const handleSubmit = (e: any) => {
+    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
       const data = {
-        userId: store.user.id,
+        userId: store.user?.id,
         userName: values.userName,
       };
       socket && socket.emit("update-userData", data);
@@ -109,9 +100,7 @@ const UserProfile = observer(
 
     useEffect(() => {
       socket &&
-        socket.on("receive-userData", (user: any) => {
-          // console.log("store.addMessage(message)");
-
+        socket.on("receive-userData", (user: IUser) => {
           if (
             findIndex(store.contacts, {
               id: user.id,
@@ -119,16 +108,12 @@ const UserProfile = observer(
           ) {
             store.updateUserData(user);
           }
-
-          //store.updateUserData(user);
-          // setValues({ ...values, avatar: user.avatar });
-          //store.setContacts();
         });
     }, []);
 
     useEffect(() => {
-      setValues({ ...values, avatar: store.user.avatar });
-    }, [store.user.avatar]);
+      setValues({ ...values, avatar: store.user?.avatar });
+    }, [store.user?.avatar]);
 
     useEffect(() => {
       if (!isMenuOpen) {
@@ -138,92 +123,51 @@ const UserProfile = observer(
         setErrorMsg("");
       }
     }, [isMenuOpen]);
-    const refInput = useRef<HTMLInputElement | null>(null);
-    const handleChangeInputCheckbox = (e: any) => {
+
+    const handleChangeInputCheckbox = (e: ChangeEvent<HTMLInputElement>) => {
       const target = e.target;
       store.setSelectedUsers(target.value, target.checked);
     };
-    const handleGropNameChange = (e: any) => {
+
+    const handleGropNameChange = (e: ChangeEvent<HTMLInputElement>) => {
       const target = e.target;
-      // setGroupData({ ...groupData, name: target.value });
       setGroupData({ ...groupData, name: target.value });
     };
-    const handleSubmitGroupData = async (e: any) => {
+
+    const handleSubmitGroupData = async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       if (!groupData.name) {
         setErrorMsg("Укажите название!");
       }
       if (groupData.name && store.selectedUsers.length > 1) {
-        // const usersId = [...store.selectedUsers, store.user.id];
-        const users = store.contacts.filter((user: any) => store.selectedUsers.includes(user.id));
-        const participants = users.map((user: any) => {
+        const users = store.contacts.filter((user) => store.selectedUsers.includes(user.id));
+        const participants = users.map((user) => {
           return { userId: user.id, addedOn: Date.now(), isDeleted: false };
         });
-        // console.log("store.user", store.user);
         try {
           const chat = await createChat({
-            usersId: [...store.selectedUsers, store.user.id],
+            usersId: [...(store.selectedUsers as string[]), store.user?.id as string],
             name: groupData.name,
-            admin: [store.user.id],
-            participants: [...participants, { userId: store.user.id, addedOn: Date.now(), isDeleted: false }],
+            admin: [store.user?.id as string],
+            participants: [
+              ...participants,
+              { userId: store.user?.id as string, addedOn: Date.now(), isDeleted: false },
+            ],
           });
 
           setTimeout(() => {
             if (chat) {
               socket && socket.emit("create-chat", chat);
-              // store.setContacts();
-              // store.setUnreadCount();
             }
-            store.setContacts();
+            store.setContacts(undefined);
             setMenuIsOpen(false);
-            // store.setUnreadCount();
-            // store.setChatingWith(searchResult[0]);
-            // store.clearMessages();
-            // setSearchResult([]);
-            // setValue("");
           }, 0);
         } catch (e: any) {
           console.log(e);
         }
       }
     };
-    // console.log("error", errorMsg);
-    //   e.preventDefault();
-    //   if (groupData.name) {
-    //     const usersId = [...store.selectedUsers, store.user.id];
-    //     const users = store.contacts.filter((user: any) => usersId.includes(user.id));
-    //     const participants = users.map((user: any) => {
-    //       return { ...user, addedOn: Date.now(), isDeleted: false };
-    //     });
-    //     // console.log("store.user", store.user);
-    //     try {
-    //       const chat = await createChat({
-    //         usersId: usersId,
-    //         name: groupData.name,
-    //         admin: [store.user.id],
-    //         participants: [...participants, { ...store.user, addedOn: Date.now(), isDeleted: false }],
-    //       });
 
-    //       setTimeout(() => {
-    //         if (chat) {
-    //           socket && socket.emit("create-chat", chat);
-    //           // store.setContacts();
-    //           // store.setUnreadCount();
-    //         }
-    //         store.setContacts();
-    //         setMenuIsOpen(false);
-    //         // store.setUnreadCount();
-    //         // store.setChatingWith(searchResult[0]);
-    //         // store.clearMessages();
-    //         // setSearchResult([]);
-    //         // setValue("");
-    //       }, 0);
-    //     } catch (e: any) {
-    //       console.log(e);
-    //     }
-    //   }
-    // };
-    // console.log(groupData);
     return (
       <motion.div
         className={styles.wrapper}
@@ -260,8 +204,7 @@ const UserProfile = observer(
                 transition={{ duration: 0.3 }}
               >
                 <ProfilePhoto
-                  // id={store.user.id}
-                  avatar={values.avatar}
+                  avatar={values.avatar as string | null}
                   setValue={setValues}
                   isProfileEditOpen={isProfileEditOpen}
                   values={values}
@@ -297,7 +240,6 @@ const UserProfile = observer(
               className={styles.list__item}
             >
               <form onSubmit={handleSubmitGroupData} className={styles.form}>
-                {/* {store.selectedUsers.length < 2 && <p className={styles.warning}>Выберите не менее 2 участников</p>} */}
                 <p className={styles.warning}>Выберите не менее 2 участников</p>
                 <motion.ul
                   className={styles.contacts}
@@ -308,8 +250,8 @@ const UserProfile = observer(
                   }}
                   transition={{ duration: 0.3 }}
                 >
-                  {store.contacts.map((user: any) => {
-                    if (user.id !== store.user.id && user.email) {
+                  {store.contacts.map((user) => {
+                    if (user.id !== store.user?.id && user.email) {
                       return (
                         <li key={user.id} className={styles.contacts__item}>
                           <InputCheckbox

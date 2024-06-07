@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import styles from "./Globe.module.css";
 
@@ -7,17 +7,15 @@ export default function Globe() {
   useEffect(() => {
     const setGlobeWidth = () => {
       const doc = document.documentElement;
-      // console.log(refChart.current?.clientWidth);
       doc.style.setProperty("--globe-width", `${ref.current?.clientWidth}px`);
     };
     setGlobeWidth();
     window.addEventListener("resize", setGlobeWidth);
-    // window.addEventListener("load", setGlobeWidth);
+
     return () => {
       window.removeEventListener("resize", setGlobeWidth);
-      // window.removeEventListener("load", setGlobeWidth);
     };
-  }, [ref.current]);
+  }, [ref.current?.clientWidth]);
   return (
     <div className={styles.wrapper}>
       <div className={styles.content} ref={ref}>

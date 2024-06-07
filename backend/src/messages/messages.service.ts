@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Between, ILike, Like, Not, Raw, Repository } from 'typeorm';
+import { Between, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { MessagesEntity } from './messages.entity';
@@ -8,6 +8,7 @@ import LocalFilesService from 'src/localFile/localFiles.service';
 import { v4 as uuidv4 } from 'uuid';
 import { AuthorizationEntity } from 'src/authorization/authorization.entity';
 import { RoomsEntity } from 'src/rooms/rooms.entity';
+import { decrypt } from 'src/helpers/crypto';
 
 @Injectable()
 export class MessagesService {
@@ -22,14 +23,11 @@ export class MessagesService {
   ) {}
 
   async getMessageIndex(id: string, roomId: string) {
-    // console.log('id', id);
     const messages = await this.messageRepository.find({
       where: { roomId: roomId },
       order: { createdAt: 'DESC' },
     });
-    // console.log('messages', messages);
     const index = messages.findIndex((msg: any) => msg.id === id);
-    // console.log('roomId', roomId);
     if (index >= 0) {
       return index;
     } else return 0;
@@ -40,22 +38,7 @@ export class MessagesService {
     query: string,
     userId: string,
   ): Promise<MessagesEntity[]> {
-    // console.log(roomId);
     try {
-      // const messagesAll = await this.messageRepository.find({
-      //   where: { roomId: roomId },
-      //   // relations: ['contact', 'parentMessage', 'parentMessage.contact'],
-      //   // order: { createdAt: 'ASC' },
-      // });
-      // if (query) {
-      //   const res = [];
-      //   messagesAll.forEach((el, i: number) => {
-      //     if (el.message.includes(query)) {
-      //       res.push({ message: el, messageIndex: i });
-      //     }
-      //   });
-      //   return res;
-      // } else return messagesAll;
       if (query) {
         const msgToGroupChart = await this.messageRepository
           .findOne({
@@ -75,35 +58,35 @@ export class MessagesService {
           })[0].addedOn;
         }
 
-        return await this.messageRepository.find({
-          relations: ['contact', 'parentMessage', 'parentMessage.contact'],
+        const msg = await this.messageRepository.find({
+          relations: ['contact'],
           where: [
             {
               roomId: roomId,
-              message: ILike(`%${query}%`),
               isDeleted: Not('true'),
               createdAt: addedToGroupChartOn
                 ? Between(new Date(addedToGroupChartOn), new Date())
-                : '',
-            },
-            {
-              roomId: roomId,
-              isDeleted: Not('true'),
-              contact: { email: ILike(`%${query}%`) },
-            },
-            {
-              roomId: roomId,
-              isDeleted: Not('true'),
-              contact: { userName: ILike(`%${query}%`) },
+                : Between(new Date('03-06-2024'), new Date()),
             },
           ],
           order: { createdAt: 'DESC' },
         });
+        return msg.filter((m) => {
+          if (
+            (m.message &&
+              decrypt(m.message).toLowerCase().includes(query.toLowerCase())) ||
+            (m.contact &&
+              m.contact.email.toLowerCase().includes(query.toLowerCase())) ||
+            (m.contact &&
+              m.contact.userName &&
+              m.contact.userName.toLowerCase().includes(query.toLowerCase()))
+          ) {
+            return m;
+          }
+        });
       } else {
         return await this.messageRepository.find({
           where: { roomId: roomId },
-          // relations: ['contact', 'parentMessage', 'parentMessage.contact'],
-          // order: { createdAt: 'ASC' },
         });
       }
     } catch (e) {
@@ -118,9 +101,6 @@ export class MessagesService {
     roomId: RoomId,
     userId: string,
   ): Promise<MessagesEntity[]> {
-    // console.log('limit', limit);
-    // console.log('offset', offset);
-    // console.log('limit', limit);
     try {
       const msgToGroupChart = await this.messageRepository
         .findOne({
@@ -150,7 +130,7 @@ export class MessagesService {
           order: { createdAt: 'DESC' },
           skip: offset,
           take: limit,
-          // cache: true,
+          cache: true,
         });
       } else {
         return await this.messageRepository.find({
@@ -161,7 +141,7 @@ export class MessagesService {
           order: { createdAt: 'DESC' },
           skip: offset,
           take: limit,
-          // cache: true,
+          cache: true,
         });
       }
     } catch (e) {
@@ -170,44 +150,16 @@ export class MessagesService {
     }
   }
 
-  async findOneById(id: RoomId): Promise<MessagesEntity[]> {
-    // console.log(roomId);
-    try {
-      return await this.messageRepository.find({
-        where: { id },
-      });
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
+  async delete(id: string) {
+    const messageToDelete = await this.messageRepository.delete(id);
+    return messageToDelete;
   }
 
-  async createFileMessage(id: string): Promise<any> {
-    // console.log(roomId);
-    try {
-      await this.messageRepository.delete(id);
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
-  }
-
-  async delete(id: string): Promise<any> {
-    // console.log(roomId);
-    try {
-      await this.messageRepository.delete(id);
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
-  }
-
-  async uploadFile(file: any, data: any): Promise<any> {
-    // console.log('data:', data);
-    // console.log(process.env.REACT_APP_WS_URL);
-    // console.log('file:', file);
+  async uploadFile(
+    file: Express.Multer.File,
+    data: any,
+  ): Promise<MessagesEntity> {
     const uploadedFile = await this.localFilesService.saveLocalFileData(file);
-    // console.log(uploadedFile);
     const id = uuidv4();
     const user = await this.usersRepository.findOne({
       where: { id: data.recipientUserId },
@@ -227,16 +179,10 @@ export class MessagesService {
         name: uploadedFile.originalname,
       },
       readBy: [data.readBy],
-      // contact: data.contact,
-      // parentMessage: data.parentMessage,
-      // isForwarded: data.isForwarded ? data.isForwarded : false,
     };
-    // console.log('message,', message);
+
     const createNewMsg = this.messageRepository.create(message);
-    // console.log('createNewMsg,', createNewMsg);
-    // createNewMsg.id = id;
     const result = await this.messageRepository.save(createNewMsg);
-    // console.log('result', result);
     return result;
   }
 }

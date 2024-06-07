@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import imageCompression from "browser-image-compression";
 import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
-import React, { Dispatch, MouseEventHandler, SetStateAction, useContext, useEffect } from "react";
+import { ChangeEvent, MouseEventHandler, useContext, useEffect } from "react";
 import { FC, useState, useCallback, useMemo } from "react";
 
 import styles from "./ProfilePhoto.module.css";
@@ -11,26 +12,23 @@ import { SocketContext } from "../../hoc/SocketProvider";
 import useMediaQuery from "../../hooks/useMediaQuery";
 import EditIcon from "../../ui/icons/edit-icon/EditIcon";
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
-import Loader from "../../ui/loader/Loader";
-
-// import { Camera } from "../../icons/Camera/Camera";
-// import { TForm } from "../../utils/types";
+import Loader from "../../ui/loaders/loader/Loader";
+import { readFiles } from "../../utils/helpers";
 
 interface IProfilePhoto {
-  // id: string | string[];
   setValue: any;
   values: any;
-  avatar: any;
+  avatar: string | null;
   isProfileEditOpen?: boolean;
   isGroupEditOpen?: boolean;
 }
 
 const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileEditOpen, isGroupEditOpen, values }) => {
-  const store = useContext(Context).user;
+  const store = useContext(Context)?.store;
   const socket = useContext(SocketContext);
   const [hover, setHover] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [img, setImg] = useState<any>("");
+  const [img, setImg] = useState<string>("");
   const [loaded, setLoaded] = useState(true);
   const matchesMobile = useMediaQuery("(max-width: 576px)");
   const handleInputHover: MouseEventHandler<HTMLLabelElement> = (e) => {
@@ -38,46 +36,40 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
       setHover(true);
     } else setHover(false);
   };
-  const readFiles = (file: any) => {
-    return new Promise((res, rej) => {
-      const reader = new FileReader();
-      reader.onload = (e) => res(e.target?.result);
-      reader.onerror = (e) => rej(e);
-      reader.readAsDataURL(file);
-    });
-  };
-  // console.log(isProfileEditOpen);
-  // console.log(isGroupEditOpen);
-  const handleImageChange = async (e: any) => {
-    // console.log("handleImageChange");
+
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement;
+    const files = target.files as FileList;
     setLoaded(false);
-    let imageFile = e.target.files[0];
+    let imageFile = files[0];
     const options = {
-      maxSizeMB: 0.2,
-      maxWidthOrHeight: 450,
+      maxSizeMB: 0.1,
+      maxWidthOrHeight: 350,
       useWebWorker: true,
     };
+    console.log("imageFile", imageFile);
     try {
       const compressedFile = await imageCompression(imageFile, options);
+      console.log("compressedFile", compressedFile);
       setImg(await readFiles(compressedFile));
     } catch (error) {
       console.log(error);
     }
   };
-  // console.log(values);
+
   useEffect(() => {
     if (img) {
       setValue({ ...values, avatar: img });
       if (isProfileEditOpen) {
         const data = {
-          userId: store.user.id,
+          userId: store?.user?.id,
           avatar: img,
         };
         socket && socket.emit("update-userData", data);
       }
       if (isGroupEditOpen) {
         const data = {
-          roomId: store.currentRoom.id,
+          roomId: store?.currentRoom?.id,
           avatar: img,
         };
         socket && socket.emit("edit-group", data);
@@ -97,7 +89,7 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
   useMemo(() => {
     handleButtonVisibility();
   }, [handleButtonVisibility]);
-  // console.log("loaded", loaded);
+
   return (
     <motion.div
       className={styles.avatar}

@@ -1,29 +1,19 @@
 import { motion } from "framer-motion";
-import React from "react";
 
 import styles from "./ContactDetails.module.css";
 
 import useMediaQuery from "../../hooks/useMediaQuery";
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
 import ShareIcon from "../../ui/icons/share-icon/ShareIcon";
-import TrashIcon from "../../ui/icons/trash-icon/TrashIcon";
 
 interface IContactDetailsProps {
-  // id: string;
-  avatar: string;
-  email: string;
+  avatar: string | null;
+  email?: string;
   userName: string;
   onClick: VoidFunction;
   isPopupDetailsOpen: boolean;
 }
-export default function ContactDetails({
-  // id,
-  avatar,
-  email,
-  userName,
-  onClick,
-  isPopupDetailsOpen,
-}: IContactDetailsProps) {
+export default function ContactDetails({ avatar, email, userName, onClick, isPopupDetailsOpen }: IContactDetailsProps) {
   const matchesMobile = useMediaQuery("(max-width: 576px)");
   return (
     <motion.aside
@@ -44,15 +34,11 @@ export default function ContactDetails({
           <p className={styles.userName}>{userName}</p>
           <p className={styles.email}>{email}</p>
         </div>
-
-        {/* <TrashIcon onClick={() => {}} bottom={22} right={90} width={38} height={38} /> */}
         <button className={styles.shareContactBtn} onClick={onClick}>
           Поделиться контактом
           <ShareIcon bottom={4} right={5} width={35} height={35} />
         </button>
       </div>
-
-      {/* <ShareIcon onClick={onClick} bottom={20} right={30} width={38} height={38} /> */}
     </motion.aside>
   );
 }

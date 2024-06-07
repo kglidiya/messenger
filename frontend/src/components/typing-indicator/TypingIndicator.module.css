@@ -1,32 +1,40 @@
 .wrapper {
   position: absolute;
+  z-index: 8;
   top: -40px;
   left: 0;
+
+  padding: 2px;
+
   background-color: white;
   border-radius: var(--border-radius);
-  padding: 2px;
-  box-shadow: 4px -1px 14px 0px rgb(102 105 82 / 20%);
-  z-index: 8;
+  box-shadow: 4px -1px 14px 0 rgb(102 105 82 / 20%);
 }
+
 .avatar {
   width: 30px;
   height: 30px;
-  border-radius: 50%;
   object-fit: cover;
+  border-radius: 50%;
 }
+
 .rows {
   display: flex;
   flex-direction: row;
-  align-items: center;
   gap: 10px;
+  align-items: center;
+
   padding-right: 5px;
 }
+
 .text {
+  overflow: hidden;
+
   max-width: 150px;
+
   font-size: var(--font-size-small);
   font-weight: bold;
   color: #b9ac91;
-  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

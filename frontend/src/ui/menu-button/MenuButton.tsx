@@ -1,5 +1,3 @@
-import React from "react";
-
 import styles from "./MenuButton.module.css";
 
 export default function MenuButton({ onClick, open }: { onClick: VoidFunction; open: boolean }) {

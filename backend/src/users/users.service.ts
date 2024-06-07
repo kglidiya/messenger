@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -5,9 +6,6 @@ import { Repository } from 'typeorm';
 import { AuthorizationEntity } from '../authorization/authorization.entity';
 import { UserData } from '../interfaces';
 import { SearchedData } from './interfaces';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { Express } from 'express';
-import LocalFile from 'src/localFile/localFile.entity';
 import LocalFilesService from 'src/localFile/localFiles.service';
 
 @Injectable()
@@ -15,7 +13,6 @@ export class UsersService {
   constructor(
     @InjectRepository(AuthorizationEntity)
     private readonly usersRepository: Repository<AuthorizationEntity>,
-    private localFilesService: LocalFilesService,
   ) {}
 
   async getAllUsers(id: string): Promise<UserData[]> {
@@ -31,23 +28,21 @@ export class UsersService {
     const userData = await this.usersRepository.findOne({
       where: { id: userId },
     });
-    // console.log(userData);
-    // console.log(userId);
     return userData;
   }
 
-  async searchedUser(
-    searchedData: SearchedData,
-    id: string,
-  ): Promise<AuthorizationEntity[]> {
+  async searchedUser(searchedData: SearchedData, id: string): Promise<any> {
     const searchedUser = await this.usersRepository
       .createQueryBuilder('users')
       .where({ email: searchedData.email })
       .andWhere('users.id != :currentUserId', {
         currentUserId: id,
       })
-      .getMany();
-    return searchedUser;
+      .getOne();
+    if (searchedUser) {
+      const { password, recoveryCode, createdAt, ...rest } = searchedUser;
+      return rest;
+    }
   }
 
   async getUserById(userId: string): Promise<any> {
@@ -56,53 +51,9 @@ export class UsersService {
       .select(['*'])
       .where('users.id = :verifyId', { verifyId: userId })
       .getOne();
-    return user;
+    if (user) {
+      const { password, recoveryCode, createdAt, ...rest } = user;
+      return rest;
+    } else return null;
   }
-
-  async updateAvatar(userId: string, file: any): Promise<any> {
-    const avatar = await this.localFilesService.saveLocalFileData(file);
-    // console.log(avatar);
-    await this.usersRepository.update(userId, {
-      avatar: `http://localhost:3001/files/avatar/${avatar.id}`,
-    });
-    const user = await this.usersRepository.find({ where: { id: userId } });
-    // console.log(user);
-    return user;
-  }
-
-  // const user = await this.getUserById(userId);
-  // if (avatar) {
-  //   const userUpdated = await this.usersRepository
-  //     .createQueryBuilder('users')
-  //     .update<AuthorizationEntity>(AuthorizationEntity, {
-  //       ...user,
-  //       avatar,
-  //     })
-  //     .where({ id: userId })
-  //     .execute();
-  //   return userUpdated;
-  // }
-
-  // if (avatar) {
-  //   const userUpdated = await this.usersRepository
-  //     .createQueryBuilder('users')
-  //     .update<AuthorizationEntity>(AuthorizationEntity, {
-  //       ...user,
-  //       userName,
-  //     })
-  //     .where({ id: userId })
-  //     .execute();
-  //   return userUpdated;
-  // }
-  // }
-
-  // async findOneByEmail(email: string): Promise<any> {
-  //   return await this.usersRepository.findOne({ where: { email } });
-  // }
-
-  // async findOneByRecoveryCode(code: number): Promise<any> {
-  //   return await this.usersRepository.findOne({
-  //     where: { recoveryCode: code },
-  //   });
-  // }
 }

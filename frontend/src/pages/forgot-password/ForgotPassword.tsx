@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -9,7 +8,6 @@ import Button from "../../ui/button/Button";
 import Logo from "../../ui/icons/Logo/Logo";
 import Input from "../../ui/input/Input";
 import { getRecoveryCode } from "../../utils/api";
-// import { setCookie } from "../../utils/cookies";
 
 const ForgotPassword = () => {
   const {
@@ -21,27 +19,11 @@ const ForgotPassword = () => {
 
   const navigate = useNavigate();
   const matchesMobile = useMediaQuery("(max-width: 576px)");
-  //   const [status, setStatus] = useState<IStatus<any>>({
-  //     isloading: false,
-  //     data: undefined,
-  //     error: "",
-  //   });
 
-  const onSubmit = (values: any) => {
-    //navigate("/reset-password");
+  const onSubmit = (values: { email: string }) => {
     getRecoveryCode(values);
     navigate("/reset-password");
-    // handleRequest(status, setStatus, `${FORGOT_PASSWORD_URL}`, "POST", values);
   };
-  //   useEffect(() => {
-  //     if (status.data) {
-  //       setCookie("recoveryCode", String(status.data), {
-  //         path: "/",
-  //         expires: 60000,
-  //       });
-  //       navigate("/reset-password");
-  //     }
-  //   }, [status.data]);
 
   return (
     <main className={styles.container}>

@@ -1,23 +1,44 @@
+import { AuthorizationEntity } from './authorization/authorization.entity';
+import { MessagesEntity } from './messages/messages.entity';
+
 export enum IMessageStatus {
   SENT = 'isSent',
   DELIVERED = 'isDelivered',
   READ = 'isRead',
 }
+export interface IContact extends AuthorizationEntity {
+  chatId: string;
+}
 
-export interface Message {
-  id: string;
-  dialog: string;
-  currentUserName: string;
-  currentUserId: string;
-  recipientUserName: string;
-  recipientUserId: string;
-  message: string;
-  file: any;
-  status: IMessageStatus;
-  date: Date;
+export interface IMessageFile {
+  path: string;
+  type: string;
+  name: string;
+}
+export interface IReactions {
+  reaction: string;
+  from: string;
+}
+export interface ReactionsData extends IReactions {
+  messageId: string;
   roomId: string;
-  token?: string;
+}
+export interface IMessage {
+  id: string;
+  message: string;
+  parentMessage: MessagesEntity | null;
+  currentUserId: string;
+  recipientUserId: string;
+  reactions: IReactions[];
+  createdAt: string;
+  status: IMessageStatus;
+  file: IMessageFile | null;
+  contact: AuthorizationEntity | null;
+  roomId: string;
+  readBy: string;
   modified: boolean;
+  isDeleted: boolean;
+  isForwarded: boolean;
 }
 
 export interface RoomId {

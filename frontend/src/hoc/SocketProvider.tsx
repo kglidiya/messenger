@@ -1,33 +1,19 @@
-import { FC, PropsWithChildren, createContext, useContext, useEffect, useState } from "react";
+import { FC, PropsWithChildren, createContext, useContext, useState } from "react";
 
-import { io } from "socket.io-client";
+import { Socket, io } from "socket.io-client";
 
 import { Context } from "..";
 
-export const SocketContext = createContext<any | null>(null);
+export const SocketContext = createContext<Socket | null>(null);
 
 export const SocketProvider: FC<PropsWithChildren> = ({ children }) => {
-  const store = useContext(Context).user;
-  // const [socket, setSocket] = useState<any>(null);
-  const [socket] = useState<any>(
+  const store = useContext(Context)?.store;
+  const [socket] = useState<Socket>(
     io(process.env.REACT_APP_WS_URL as string, {
       transports: ["websocket", "polling", "flashsocket"],
-      query: { userId: store.user.id },
+      query: { userId: store?.user?.id },
     }),
   );
-
-  // useEffect(() => {
-  //   setSocket(
-  //     io(process.env.REACT_APP_BASE_URL as string, {
-  //       transports: ["websocket", "polling", "flashsocket"],
-  //       query: { userId: store.user.id },
-  //     }),
-  //   );
-
-  //   return () => {
-  //     setSocket(null);
-  //   };
-  // }, []);
 
   return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
 };

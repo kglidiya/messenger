@@ -1,5 +1,3 @@
-import React from "react";
-
 import styles from "./ButtonSend.module.css";
 
 import PlaneIcon from "../icons/plane/PlaneIcon";
@@ -10,7 +8,7 @@ export default function ButtonSend({
   bottom,
   top,
 }: {
-  onClick?: any;
+  onClick?: VoidFunction;
   right: number;
   bottom?: number;
   top?: number;

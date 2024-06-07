@@ -1,23 +1,24 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 
 import { Document, Page, pdfjs } from "react-pdf";
 
 import styles from "./ReplyToElement.module.css";
 
 import { Context } from "../..";
-import CloseIcon from "../../ui/icons/closeIcon/CloseIcon";
+import AppStore from "../../store/AppStore";
+import { IContact, IMessageFile } from "../../utils/types";
 import MessageContactElement from "../messageContactElement/MessageContactElement";
 
 interface IReplyToElementProps {
   message: string;
-  file: any;
-  contact: any;
+  file: IMessageFile | null;
+  contact: IContact | null;
 }
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 export default function ReplyToElement({ message, file, contact }: IReplyToElementProps) {
-  // console.log(contact);
-  const store = useContext(Context).user;
+
+  const store = useContext(Context)?.store as AppStore;
   return (
     <div className={styles.wrapper}>
       {message && <p className={styles.message}>{message}</p>}

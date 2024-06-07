@@ -1,30 +1,26 @@
-import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import React, { useContext } from "react";
+
 import { Document, Page, pdfjs } from "react-pdf";
 
 import styles from "./ParentElement.module.css";
 
-import { Context } from "../..";
-import { IMessage } from "../../utils/types";
+import { IContact, IMessageFile } from "../../utils/types";
 import MessageContactElement from "../messageContactElement/MessageContactElement";
 
 interface IParentElementProps {
   id: string;
   message: string;
-  file: any;
-  contact: any;
-  // parentMessage: IMessage;
-  onClick: any;
+  file: IMessageFile | null;
+  contact: IContact | null;
+
+  onClick: (id: string) => void;
 }
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const ParentElement = observer(({ id, message, file, contact, onClick }: IParentElementProps) => {
-  const store = useContext(Context).user;
-  console.log(toJS(contact));
   return (
     <div className={styles.wrapper} onClick={() => onClick(id)}>
-      {message && <p className={styles.reply}>{message}</p>}
+      {message && <p className={styles.message}>{message}</p>}
       {file && (
         <>
           {file.type.includes("image") && <img src={file.path} alt='Картинка' className={styles.image} />}

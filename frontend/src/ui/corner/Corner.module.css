@@ -1,8 +1,6 @@
 .shape {
   position: absolute;
   top: 0;
-
-  /* border-width: 10px 15px 10px 0; */
   border-color: transparent var(--white) transparent transparent;
   border-style: solid;
 }

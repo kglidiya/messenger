@@ -1,34 +1,9 @@
 import styles from "./NavBackIcon.module.css";
 
-export default function NavBackIcon({
-  onClick,
-}: // bottom,
-// top,
-// left,
-// right,
-{
-  // width: number;
-  // height: number;
-  onClick: VoidFunction;
-  // bottom?: number;
-  // top?: number;
-  // left?: number;
-  // right?: number;
-}) {
+export default function NavBackIcon({ onClick }: { onClick: VoidFunction }) {
   return (
-    <div
-      className={styles.icon}
-      onClick={onClick}
-      // style={{
-      //   bottom: `${bottom}px`,
-      //   top: `${top}px`,
-      //   left: `${left}px`,
-      //   right: `${right}px`,
-      // }}
-    >
+    <div className={styles.icon} onClick={onClick}>
       <svg
-        // width={`${width}px`}
-        // height={`${height}px`}
         width='40px'
         height='40px'
         viewBox='-1.2 -1.2 26.40 26.40'

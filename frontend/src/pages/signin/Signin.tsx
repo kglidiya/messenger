@@ -1,13 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 
 import styles from "./Signin.module.css";
 
 import { Context } from "../..";
-import { SocketContext } from "../../hoc/SocketProvider";
 import useMediaQuery from "../../hooks/useMediaQuery";
 import Button from "../../ui/button/Button";
 
@@ -23,58 +23,25 @@ const Signin = observer(() => {
     formState: { errors },
   } = useForm({ values: { email: "", password: "" } });
   const matchesMobile = useMediaQuery("(max-width: 576px)");
-  const store = useContext(Context)?.user;
+  const store = useContext(Context)?.store;
   const navigate = useNavigate();
-  //   const [status, setStatus] = useState<IStatus<undefined | IUser>>({
-  //     isloading: false,
-  //     data: undefined,
-  //     error: "",
-  //   });
 
-  const onSubmit = (values: any) => {
-    // console.log(values);
-    store.login({
+  const onSubmit = (values: { email: string; password: string }) => {
+    store?.login({
       email: values.email.toLowerCase(),
       password: values.password,
       isOnline: true,
     });
-
-    // setIsLoading(true)
-    // setTimeout(() => {
-    //   console.log(toJS(store.user));
-    //   store.setAuth(true);
-    //   // store.setContacts();
-    //   // const data = {
-    //   //   userId: store.user.id,
-    //   //   isOnline: true,
-    //   // };
-    //   // socket && socket.emit("update-userData", data);
-    //   navigate("/");
-    // }, 0);
   };
   useEffect(() => {
-    if (store.user && store.user.id) {
-      // console.log(toJS(store.user));
+    if (store?.user && store.user.id) {
       store.setAuth(true);
       store.clearError();
-      // store.setContacts();
-      // const data = {
-      //   userId: store.user.id,
-      //   isOnline: true,
-      // };
-      // socket && socket.emit("update-userData", data);
       setTimeout(() => {
         navigate("/");
       }, 0);
     }
-  }, [store.user]);
-  //   useEffect(() => {
-  //     if (status.data) {
-  //       user.setUser(status.data);
-  //       user.setIsAuth(true);
-  //       navigate("/");
-  //     }
-  //   }, [navigate, status.data, user]);
+  }, [store?.user]);
 
   return (
     <section className={styles.container}>
@@ -85,7 +52,7 @@ const Signin = observer(() => {
           type='text'
           placeholder='Email'
           name='email'
-          // pattern={emailRegex}
+          pattern={emailRegex}
           required={true}
           register={register}
           error={errors}
@@ -98,7 +65,6 @@ const Signin = observer(() => {
           placeholder='Пароль'
           name='password'
           required={false}
-          // pattern={/.{4,}/}
           register={register}
           error={errors}
           errorMessage={
@@ -114,8 +80,7 @@ const Signin = observer(() => {
           width={!matchesMobile ? "300px" : "95%"}
           fontSize={!matchesMobile ? "24px" : "18px"}
         />
-        {store.error && <p className={styles.error}>{store.error}</p>}
-        {/* <p className={styles.error}>Вы - новый пользователь</p> */}
+        {store?.error && <p className={styles.error}>{store?.error}</p>}
       </form>
       <div className={styles.singupGroup}>
         <p className={styles.text}>Вы - новый пользователь?</p>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   SubscribeMessage,
   WebSocketGateway,
@@ -9,21 +10,24 @@ import {
   WsResponse,
   MessageBody,
 } from '@nestjs/websockets';
-import { Logger, UnauthorizedException } from '@nestjs/common';
+import { Logger, NotFoundException } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { from, map, Observable } from 'rxjs';
 
 import { MessagesEntity } from './messages/messages.entity';
-import { IMessageStatus, Message, RoomId } from './interfaces';
-import { read } from 'fs';
+import {
+  IMessage,
+  IMessageStatus,
+  IReactions,
+  ReactionsData,
+  RoomId,
+} from './interfaces';
 import { AuthorizationEntity } from './authorization/authorization.entity';
 import { RoomsEntity } from './rooms/rooms.entity';
-import LocalFilesService from './localFile/localFiles.service';
-import LocalFile from './localFile/localFile.entity';
-// let prevMessage: string;
-// let chunk = '';
+import { IRoom } from './rooms/interfaces';
+
 @WebSocketGateway()
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -47,9 +51,7 @@ export class AppGateway
     @MessageBody() data: RoomId,
     @ConnectedSocket() client: Socket,
   ): Observable<WsResponse<any>> {
-    // console.log(data);
     client.join(data.roomId);
-    // this.server.to(data.roomId).emit('meeting', `in a room ${data.roomId}`);
     this.server.emit('meeting', `in a room ${data.roomId}`);
     return from([data.roomId]).pipe(
       map(() => {
@@ -62,7 +64,7 @@ export class AppGateway
   }
 
   @SubscribeMessage('send-message')
-  async handleMessage(client: Socket, payload: any): Promise<void> {
+  async handleMessage(client: Socket, payload: IMessage): Promise<void> {
     const recipientsCount = payload.recipientUserId.split(',').length;
 
     const user =
@@ -71,9 +73,7 @@ export class AppGateway
             where: { id: payload.recipientUserId },
           })
         : null;
-    // console.log(payload);
-    // const recipientsCount = payload.recipientUserId.split(',').length;
-    // console.log(recipientsCount);
+
     const newMessage = {
       id: payload.id,
       createdAt: new Date(),
@@ -86,24 +86,14 @@ export class AppGateway
         user && !user.isOnline ? IMessageStatus.SENT : IMessageStatus.DELIVERED,
       file: payload.file,
       contact: payload.contact,
-      parentMessage: { ...payload.parentMessage },
+      parentMessage: payload.parentMessage,
       isForwarded: payload.isForwarded,
       readBy: [payload.readBy],
     };
     const createNewMsg = this.msgRepository.create(newMessage);
-    // if (createNewMsg.status !== IMessageStatus.READ) {
-    //   await this.msgRepository.increment(
-    //     { id: payload.messageId },
-    //     'unreadCount',
-    //     1,
-    //   );
-    // }
+
     const result = await this.msgRepository.save(createNewMsg);
-    this.server.emit(
-      // result.isForwarded ? 'forward-message' : 'receive-message',
-      'receive-message',
-      result,
-    );
+    this.server.emit('receive-message', result);
   }
 
   @SubscribeMessage('send-file')
@@ -111,11 +101,14 @@ export class AppGateway
     const result = await this.msgRepository.findOne({
       where: { id: payload.id },
     });
+    if (!result) {
+      throw new NotFoundException('Сообщение не найдено');
+    }
     this.server.emit('receive-message', result);
   }
 
   @SubscribeMessage('react-to-message')
-  async handleReactions(client: Socket, payload: any): Promise<void> {
+  async handleReactions(client: Socket, payload: ReactionsData): Promise<void> {
     const message = await this.msgRepository.findOne({
       where: { id: payload.messageId },
     });
@@ -123,7 +116,7 @@ export class AppGateway
       reaction: payload.reaction,
       from: payload.from,
     };
-    // console.log(payload);
+
     const findDuplicateReaction = message.reactions.filter((reaction: any) => {
       return reaction.from === payload.from;
     });
@@ -154,16 +147,18 @@ export class AppGateway
       where: { id: payload.messageId },
       relations: ['contact', 'parentMessage', 'parentMessage.contact'],
     });
-    // console.log(res);
+
     this.server.to(payload.roomId).emit('receive-reaction', res);
   }
 
   @SubscribeMessage('edit-message')
-  async handleMessageEdit(client: Socket, payload: any): Promise<void> {
+  async handleMessageEdit(client: Socket, payload: IMessage): Promise<void> {
     const messageToEdit = await this.msgRepository.findOne({
       where: { id: payload.id },
     });
-    // console.log(payload);
+    if (!messageToEdit) {
+      throw new NotFoundException('Сообщение не найдено');
+    }
     await this.msgRepository
       .createQueryBuilder('messages')
       .update<MessagesEntity>(MessagesEntity, {
@@ -178,19 +173,14 @@ export class AppGateway
       where: { id: payload.id },
       relations: ['contact', 'parentMessage', 'parentMessage.contact'],
     });
-    // console.log(res);
     this.server.to(payload.roomId).emit('receive-updatedMessage', res);
   }
 
   @SubscribeMessage('delete-reaction')
-  async deleteReaction(client: Socket, payload: any): Promise<void> {
+  async deleteReaction(client: Socket, payload: ReactionsData): Promise<void> {
     const message = await this.msgRepository.findOne({
       where: { id: payload.messageId },
     });
-    // const reaction = {
-    //   reaction: payload.reaction,
-    //   from: payload.from,
-    // };
     const reactionsUpdated = message.reactions.filter((reaction: any) => {
       return reaction.from !== payload.from;
     });
@@ -207,43 +197,36 @@ export class AppGateway
       where: { id: payload.messageId },
       relations: ['contact', 'parentMessage', 'parentMessage.contact'],
     });
-    // console.log(res);
     this.server.to(payload.roomId).emit('receive-reaction', res);
   }
 
   @SubscribeMessage('update-message-status')
-  async handleMessageStatusChange(client: Socket, payload: any): Promise<void> {
+  async handleMessageStatusChange(
+    client: Socket,
+    payload: { messageId: string; roomId: string; readBy: string },
+  ): Promise<void> {
     const message = await this.msgRepository.findOne({
       where: { id: payload.messageId },
     });
-
+    if (!message) {
+      throw new NotFoundException('Сообщение не найдено');
+    }
     const room = await this.roomsRepository.findOne({
       where: { id: payload.roomId },
     });
-    // console.log('payload', payload);
-    // console.log('room.usersId', room.usersId);
-    // console.log('message.readBy', message.readBy);
+
     await this.msgRepository
       .createQueryBuilder('messages')
       .update<MessagesEntity>(MessagesEntity, {
         ...message,
         status:
           message.readBy.length < room.usersId.split(',').length - 1
-            ? // room.usersId
-              //   .split(',')
-              //   .filter((userId) => message.readBy.includes(userId)).length ===
-              // room.usersId.split(',').length - 2
-              IMessageStatus.DELIVERED
+            ? IMessageStatus.DELIVERED
             : IMessageStatus.READ,
         readBy: [...message.readBy, payload.readBy],
       })
       .where({ id: payload.messageId })
       .execute();
-    // await this.msgRepository.decrement(
-    //   { id: payload.messageId },
-    //   'unreadCount',
-    //   1,
-    // );
     const res = await this.msgRepository.findOne({
       where: { id: payload.messageId },
       relations: ['contact', 'parentMessage', 'parentMessage.contact'],
@@ -252,11 +235,16 @@ export class AppGateway
   }
 
   @SubscribeMessage('delete-message')
-  async deleteMessage(client: Socket, payload: any): Promise<void> {
+  async deleteMessage(
+    client: Socket,
+    payload: { messageId: string; roomId: string },
+  ): Promise<void> {
     const message = await this.msgRepository.findOne({
       where: { id: payload.messageId },
     });
-
+    if (!message) {
+      throw new NotFoundException('Сообщение не найдено');
+    }
     await this.msgRepository
       .createQueryBuilder('messages')
       .update<MessagesEntity>(MessagesEntity, {
@@ -269,68 +257,59 @@ export class AppGateway
     const res = await this.msgRepository.findOne({
       where: { id: payload.messageId },
     });
-    // console.log(res);
     this.server.to(payload.roomId).emit('receive-message-deleted', res);
   }
 
   @SubscribeMessage('update-userData')
-  async handleUserState(client: Socket, payload: any): Promise<void> {
+  async handleUserState(
+    client: Socket,
+    payload: {
+      userId: string;
+      isOnline: boolean;
+      avatar: string;
+      userName: string;
+    },
+  ): Promise<void> {
     const user = await this.usersRepository.findOne({
       where: { id: payload.userId },
     });
-    if (payload.isOnline !== undefined) {
-      await this.usersRepository
-        .createQueryBuilder('users')
-        .update<AuthorizationEntity>(AuthorizationEntity, {
-          ...user,
-          isOnline: payload.isOnline,
-        })
-        .where({ id: payload.userId })
-        .execute();
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
     }
 
-    if (payload.userName) {
-      await this.usersRepository
-        .createQueryBuilder('users')
-        .update<AuthorizationEntity>(AuthorizationEntity, {
-          ...user,
-          userName: payload.userName,
-        })
-        .where({ id: payload.userId })
-        .execute();
-    }
-    if (payload.avatar) {
-      await this.usersRepository
-        .createQueryBuilder('users')
-        .update<AuthorizationEntity>(AuthorizationEntity, {
-          ...user,
-          avatar: payload.avatar,
-        })
-        .where({ id: payload.userId })
-        .execute();
-    }
+    await this.usersRepository
+      .createQueryBuilder('users')
+      .update<AuthorizationEntity>(AuthorizationEntity, {
+        ...user,
+        isOnline:
+          payload.isOnline !== undefined ? payload.isOnline : user.isOnline,
+        avatar: payload.avatar ? payload.avatar : user.avatar,
+        userName: payload.userName ? payload.userName : user.userName,
+      })
+      .where({ id: payload.userId })
+      .execute();
+
     const res = await this.usersRepository.findOne({
       where: { id: payload.userId },
     });
     const { password, recoveryCode, createdAt, ...rest } = res;
-    // console.log(res);
+
     this.server.emit('receive-userData', rest);
   }
 
   @SubscribeMessage('update-typingState')
-  async handleTyping(client: Socket, payload: any): Promise<void> {
-    // console.log(payload);
+  async handleTyping(
+    client: Socket,
+    payload: { roomId: string; userId: string; isTyping: boolean },
+  ): Promise<void> {
     this.server.to(payload.roomId).emit('receive-typingState', payload);
   }
 
   @SubscribeMessage('create-chat')
-  async createChat(client: Socket, payload: any): Promise<void> {
-    // const currentUserId = client.handshake.query.userId;
-    // if (payload.usersId.includes(currentUserId)) {
-    //   console.log(payload.usersId.includes(currentUserId));
-    //   this.server.emit('receive-newChatData', payload.usersId);
-    // }
-    // console.log(payload);
+  async createChat(
+    client: Socket,
+    payload: { usersId: string },
+  ): Promise<void> {
     this.server.emit('receive-newChatData', payload.usersId);
   }
 
@@ -339,7 +318,9 @@ export class AppGateway
     const room = await this.roomsRepository.findOne({
       where: { id: payload.roomId },
     });
-    // console.log(payload);
+    if (!room) {
+      throw new NotFoundException('Чат не найден');
+    }
     await this.roomsRepository
       .createQueryBuilder('rooms')
       .update<RoomsEntity>(RoomsEntity, {
@@ -379,7 +360,6 @@ export class AppGateway
 
   async handleDisconnect(client: Socket) {
     const userId = client.handshake.query.userId;
-    // console.log(client.handshake.query);
     const user = await this.usersRepository.findOne({
       where: { id: userId },
     });
@@ -394,7 +374,6 @@ export class AppGateway
     const res = await this.usersRepository.findOne({
       where: { id: userId },
     });
-    // console.log(res);
     this.server.emit('receive-userData', res);
     this.logger.log(`Client disconnected: ${client.id}`);
   }

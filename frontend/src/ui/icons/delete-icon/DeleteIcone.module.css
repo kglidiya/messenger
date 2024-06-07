@@ -1,16 +1,8 @@
 .icon {
   cursor: pointer;
+
   position: absolute;
+  z-index: 5;
   top: -20px;
   right: -20px;
-  z-index: 5;
-  /* width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background-color: var(--white);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2px;
-  opacity: 0.5; */
 }

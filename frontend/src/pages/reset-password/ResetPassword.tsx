@@ -1,4 +1,3 @@
-import { useEffect, useState, ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -37,10 +36,6 @@ const ResetPassword = () => {
       recoveryCode: Number(values.code),
       password: values.password,
     });
-    // handleRequest(status, setStatus, `${RESET_PASSWORD_URL}`, "POST", {
-    //   recoveryCode: Number(values.code),
-    //   password: values.password,
-    // });
     navigate("/signin");
   };
 
@@ -49,8 +44,6 @@ const ResetPassword = () => {
       <h3 className={styles.title}>Восстановление пароля</h3>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
         <Logo width={100} height={100} top={matchesMobile ? -180 : -115} right={0} color='#eae2cc' />
-        {/* <h3 className={styles.title}>Восстановление пароля</h3> */}
-
         <Input
           type='password'
           placeholder='Введите новый пароль'
@@ -65,7 +58,6 @@ const ResetPassword = () => {
           clearButton
           setValue={setValue}
         />
-
         <Input
           type='password'
           placeholder='Повторите пароль'
@@ -78,7 +70,6 @@ const ResetPassword = () => {
           clearButton
           setValue={setValue}
         />
-
         <p className={styles.subtitle}>Введите код восстановления</p>
         <Input
           type='number'
@@ -97,7 +88,6 @@ const ResetPassword = () => {
           width={!matchesMobile ? "300px" : "95%"}
           fontSize={!matchesMobile ? "24px" : "18px"}
         />
-        {/* {status.error && <p className={styles.error}>{status.error}</p>} */}
       </form>
     </main>
   );

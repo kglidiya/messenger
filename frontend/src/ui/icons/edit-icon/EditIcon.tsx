@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function EditIcon({ color }: { color: string }) {
   return (
     <svg width='38px' height='38px' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg' fill='none'>

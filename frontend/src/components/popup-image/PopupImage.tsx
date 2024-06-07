@@ -1,5 +1,3 @@
-import React from "react";
-
 import styles from "./PopupImage.module.css";
 
 export default function PopupImage({ image }: { image: string }) {

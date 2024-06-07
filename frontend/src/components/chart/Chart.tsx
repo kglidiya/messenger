@@ -1,17 +1,31 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import { findIndex } from "lodash";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  MouseEvent,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
-import { useSwipeable } from "react-swipeable";
+import { SwipeEventData, useSwipeable } from "react-swipeable";
+
+import { Socket } from "socket.io-client";
 
 import styles from "./Chart.module.css";
 
 import { Context } from "../..";
 import { SocketContext } from "../../hoc/SocketProvider";
+import useDebounce from "../../hooks/useDebounce";
 import { useIsFirstRender } from "../../hooks/useIsFirstRender";
 import useMediaQuery from "../../hooks/useMediaQuery";
+import AppStore from "../../store/AppStore";
 import ButtonScrollToBottom from "../../ui/button-scroll-to-bottom/ButtonScrollToBottom";
 import ButtonSend from "../../ui/button-send/ButtonSend";
 import DetailsButton from "../../ui/details-button/DetaillsButton";
@@ -21,12 +35,19 @@ import NavBackIcon from "../../ui/icons/nav-back-icon/NavBackIcon";
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
 import SearchIcon from "../../ui/icons/search-icon/SearchIcon";
 import InputFile from "../../ui/input-file/InputFile";
-import Loader from "../../ui/loader/Loader";
-import SendingFilesLoader from "../../ui/loaders/sending-files-loader/SendingFilesLoader";
+import HourGlassLoader from "../../ui/loaders/hour-glass-loader/HourGlassLoader";
+import Loader from "../../ui/loaders/loader/Loader";
 import Textarea from "../../ui/textarea/Textarea";
-import { getMessageIndex, getOneUser, getPrevMessage, sendFile } from "../../utils/api";
-import { countLines, creactFileToSend, findItemById, getDate } from "../../utils/helpers";
-import { IContact, IGroupParticipant, IMessage, IMessageStatus } from "../../utils/types";
+import { getMessageIndex, getPrevMessage, sendFile } from "../../utils/api";
+import {
+  countLines,
+  creactFileToSend,
+  decryptAllMessages,
+  decryptOneMessage,
+  encrypt,
+  getDate,
+} from "../../utils/helpers";
+import { IMessage, IRoom, IUser, IWhoIsTyping } from "../../utils/types";
 import Message from "../message/Message";
 import OverLay from "../overlay/Overlay";
 import ContactDetails from "../popup-contact-details/ContactDetails";
@@ -47,24 +68,16 @@ const Chart = observer(
     setIsContactsVisible,
     setIsLoadingContacts,
   }: {
-    setIsLoadingMessages: any;
+    setIsLoadingMessages: Dispatch<SetStateAction<boolean>>;
     isLoadingMessages: boolean;
     isContactsVisible: boolean;
-    setIsContactsVisible: any;
-    setIsLoadingContacts: any;
+    setIsContactsVisible: Dispatch<SetStateAction<boolean>>;
+    setIsLoadingContacts: Dispatch<SetStateAction<boolean>>;
   }) => {
-    // const socket = io("http://localhost:3001", { transports: ["websocket", "polling", "flashsocket"] });
-    // const socket = io("http://localhost:3001", { transports: ["websocket", "polling", "flashsocket"] });
-    const store = useContext(Context).user;
-    const socket = useContext(SocketContext);
-    // const [socket, setSocket] = useState<Socket<any> | null>(store.socket);
-    const [roomId, setRoomId] = useState<string>("");
-    // const [roomData, setRoomData] = useState<any>(null); //ANY
-    const [messageIndexToSearch, setMessagesIndexToSearch] = useState<any>(null);
+    const store = useContext(Context)?.store as AppStore;
+    const socket = useContext(SocketContext) as Socket;
     const [isEmojiOpen, setIsEmojiOpen] = useState(false);
-    // const [addedToGroupOn, setAddedToGroupOn] = useState(0);
     const [value, setValue] = useState("");
-    // const [isLoading, setIsLoadingMessages] = useState(true);
     const [caretPos, setCaretPos] = useState(0);
     const [rows, setRows] = useState(2);
     const [imageSrc, setImageSrc] = useState("");
@@ -73,8 +86,9 @@ const Chart = observer(
     const [isPopupFileOpen, setIsPopupFileOpen] = useState(false);
     const [messageClicked, setMessageClicked] = useState("");
     const [isPopupAttachFileOpen, setIsPopupAttachFileOpen] = useState(false);
-    const [filesToSend, setFilesToSend] = useState<any>([]);
-    const [filesToRemove, setFilesToRemove] = useState<any>([]);
+    const [filesToSend, setFilesToSend] = useState<FileList | []>([]);
+    const [filesToRemove, setFilesToRemove] = useState<string[]>([]);
+    const [fileFromClipboard, setFileFromClipboard] = useState<File | null>(null);
     const [isSendingFiles, setSendingFiles] = useState(false);
     const [isPopupReactionOpen, setIsPopupReactionOpen] = useState(false);
     const [isPopupMessageActionsOpen, setIsPopupMessageActionsOpen] = useState(false);
@@ -84,9 +98,9 @@ const Chart = observer(
     const [isPopupSearchMessageOpen, setIsPopupSearchMessageOpen] = useState(false);
     const [isPopupEditMessage, setIsPopupEditMessage] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
-    const [typingUserData, setTypingUserData] = useState<any | null>(null);
+    const [typingUserData, setTypingUserData] = useState<IWhoIsTyping | null>(null);
     const [newMessagesNotification, setNewMessagesNotification] = useState(false);
-    const [limit, setLimit] = useState<any>(15);
+    const [limit, setLimit] = useState(15);
     const [offsetNext, setOffsetNext] = useState<number>(0);
     const [offsetPrev, setOffsetPrev] = useState<number>(0);
     const [fetching, setFetching] = useState(false);
@@ -96,12 +110,16 @@ const Chart = observer(
     const refChart = useRef<HTMLDivElement | null>(null);
     const refMessages = useRef<HTMLDivElement | null>(null);
     const refTextArea = React.useRef<HTMLTextAreaElement>(null);
-    const itemsRef = useRef<any[]>([]);
+    const itemsRef = useRef<HTMLDivElement[] | null>([]);
     const [scroll, setScroll] = useState<number | undefined>();
     const [focused, setFocused] = React.useState(false);
     const matchesMobile = useMediaQuery("(max-width: 576px)");
-    const matchesTablet = useMediaQuery("(max-width: 768px)");
+    // const matchesTablet = useMediaQuery("(max-width: 768px)");
     const isFirstRender = useIsFirstRender();
+    const refPassthrough = (el: any) => {
+      handlers.ref(el);
+      refMessages.current = el;
+    };
     const resetFetchParams = () => {
       setFetching(true);
       setFetchPrev(true);
@@ -111,15 +129,47 @@ const Chart = observer(
     };
 
     useEffect(() => {
-      itemsRef.current = itemsRef.current.slice(0, store.prevMessages.length);
+      if (itemsRef.current) {
+        itemsRef.current = itemsRef.current.slice(0, store.prevMessages.length);
+      }
     }, [store.prevMessages.length]);
 
+    const fetchMessages = async () => {
+      if (offsetNext === 0 && offsetPrev === 0) {
+        setIsLoadingMessages(true);
+      }
+      try {
+        const res = await getPrevMessage({
+          limit,
+          offset: fetchNext ? offsetNext : offsetPrev,
+          roomId: store.roomId as string,
+        });
+
+        const messages = res.reverse();
+        const decryptedMessages = decryptAllMessages(messages);
+        if (offsetNext === 0 && offsetPrev === 0) {
+          setIsLoadingMessages(false);
+        }
+        if (fetchPrev) {
+          store.setMessages([...decryptedMessages, ...store.prevMessages]);
+        }
+        if (fetchNext) {
+          store.setMessages([...store.prevMessages, ...decryptedMessages]);
+        }
+        setTimeout(() => {
+          setFetching(false);
+          setFetchNext(false);
+          setFetchPrev(false);
+        }, 0);
+      } catch (e: any) {
+        console.log(e);
+      }
+    };
     useEffect(() => {
       const setChatWidth = () => {
         const doc = document.documentElement;
         const width = refChart.current?.clientWidth;
         const height = refChart.current?.clientHeight;
-        // console.log(refChart.current?.clientWidth);
         if (height && width) {
           doc.style.setProperty("--chat-width", `${height > width ? width : height}px`);
         }
@@ -129,25 +179,16 @@ const Chart = observer(
       }
       setChatWidth();
       window.addEventListener("resize", setChatWidth);
-      // window.addEventListener("load", setChatWidth);
+
       return () => {
         window.removeEventListener("resize", setChatWidth);
-        // window.removeEventListener("load", setChatWidth);
       };
     }, [isContactsVisible]);
-    // console.log(refChart);
+
     const scrollToBottom = () => {
-      // if (itemsRef.current && store.prevMessages.length) {
-      //   itemsRef.current[store.prevMessages.length - 1].scrollIntoView({
-      //     behavior: "smooth",
-      //   });
-      // }
-      console.log("scrollToBottom");
-      // console.log("offsetNext", offsetNext);
-      // console.log("offsetPrev", offsetPrev);
       if (itemsRef.current && store.prevMessages.length) {
         const lastMessage = store.prevMessages[store.prevMessages.length - 1].id;
-        if (store.currentRoom.lastMessageId === lastMessage) {
+        if (store.currentRoom?.lastMessageId === lastMessage) {
           itemsRef.current[store.prevMessages.length - 1].scrollIntoView({
             behavior: "auto",
           });
@@ -159,20 +200,15 @@ const Chart = observer(
 
       setScroll(document.documentElement.clientHeight);
     };
-    // console.log(store.chat.length);
-    // console.log("fetching", fetching);
 
-    const scrollIntoView = async (messageId: string) => {
-      // console.log(parent);
-      // const targetMessage = store.prevMessages.indexOf(messageClicked);
-      // const targetMessage = findIndex(store.prevMessages, { id: parent });
-      const targetMessage = store.prevMessages.findIndex((el: any) => el.id === messageId);
-      // console.log(targetMessage);
+    const scrollMessageIntoView = async (messageId: string) => {
+      const targetMessage = store.prevMessages.findIndex((el) => el.id === messageId);
+
       if (itemsRef.current && targetMessage !== -1) {
         itemsRef.current[targetMessage].scrollIntoView({ behavior: "smooth" });
       } else {
-        const index = await getMessageIndex({ id: messageId, roomId: store.roomId });
-        // console.log("index", index);
+        const index = await getMessageIndex({ id: messageId, roomId: store.roomId as string });
+
         if (index >= 0) {
           store.clearMessages();
 
@@ -194,16 +230,13 @@ const Chart = observer(
           setFetchPrev(true);
         }
       }
-      // console.log(targetMessage);
     };
 
     useEffect(() => {
       if (store.isAuth) {
-        // setIsLoadingMessages(false);
-
         store.setContacts(setIsLoadingContacts);
         const data = {
-          userId: store.user.id,
+          userId: store.user?.id,
           isOnline: true,
         };
 
@@ -213,20 +246,14 @@ const Chart = observer(
 
     useEffect(() => {
       if (store.contacts.length) {
-        // store.setChatingWith(store.contacts[0]);
-        // console.log("isFirstRender", isFirstRender);
-        // console.log("store.contacts.length", store.contacts.length);
         if (store.chatingWith) {
           store.setChatingWith(store.contacts[store.contacts.length - 1]);
         } else store.setChatingWith(store.contacts[0]);
       }
     }, [store.contacts.length]);
 
-    // console.log(toJS(store.chatingWith));
     useEffect(() => {
-      // console.log(toJS(store.chatingWith));
       if (store.chatingWith) {
-        // console.log("store.setCurrentRoom");
         setValue("");
         store.setCurrentRoom(store.chatingWith.chatId);
         if (!matchesMobile) {
@@ -237,32 +264,26 @@ const Chart = observer(
 
     useEffect(() => {
       if (store.currentRoom) {
-        // !!!
-        // setIsLoadingMessages(true);
         store.setRoomId(store.currentRoom?.id);
       }
     }, [store.currentRoom]);
-    // console.log("store.currentRoom", toJS(store.currentRoom));
-    // console.log("store.chatingWith", toJS(store.chatingWith));
-    // console.log(addedToGroupOn);
+
     useEffect(() => {
       if (store.roomId) {
-        // setIsLoadingMessages(false);
-        // console.log("fetch", store.roomId);
-        // store.getOneRoom({ roomId: store.currentRoom?.id });
-        // store.setContacts();
-        // store.setCurrentRoom(store.chatingWith.id);
-        // console.log("currentRoom.firstUnreadMessage", toJS(store.currentRoom));
         if (store.currentRoom && store.currentRoom.firstUnreadMessage) {
-          // console.log("fetch unread");
-          scrollIntoView(store.currentRoom.firstUnreadMessage);
+          scrollMessageIntoView(store.currentRoom.firstUnreadMessage);
           setNewMessagesNotification(true);
         } else {
-          // console.log("fetch allread");
           resetFetchParams();
         }
 
         socket && socket.emit("meeting", { roomId: store.roomId });
+        if (isPopupDetailsOpen) {
+          closeDetailsPopup();
+        }
+        if (isPopupSearchMessageOpen) {
+          closeSearchMessagePopup();
+        }
       }
     }, [store.roomId]);
 
@@ -275,27 +296,23 @@ const Chart = observer(
     }, [store.prevMessages.length, offsetNext]);
 
     useEffect(() => {
-      socket.on("meeting", (data: IMessage) => {
-        // scrollToBottom();
-        // console.log(data);
-        // store.setContacts();
-      });
+      socket.on("meeting", () => {});
 
       socket.on("receive-message", (message: IMessage) => {
         console.log("receive-message");
         if (message.roomId === store.roomId) {
           if (store.prevMessages.length) {
             const lastMessage = store.prevMessages[store.prevMessages.length - 1].id;
-            if (store.currentRoom.lastMessageId !== lastMessage) {
+            if (store.currentRoom?.lastMessageId !== lastMessage) {
               store.clearMessages();
               resetFetchParams();
             } else {
-              store.addMessage(message);
-              setOffsetPrev((prev: any) => prev + 1);
+              store.addMessage(decryptOneMessage(message));
+              setOffsetPrev((prev) => prev + 1);
             }
           } else {
-            store.addMessage(message);
-            setOffsetPrev((prev: any) => prev + 1);
+            store.addMessage(decryptOneMessage(message));
+            setOffsetPrev((prev) => prev + 1);
           }
 
           store.updateCurrentRoomLastMsgId(message.id);
@@ -304,137 +321,24 @@ const Chart = observer(
           }, 20);
         }
         store.incrementUnreadCount(message);
-        // scrollToBottom();
-        // if (message.roomId === store.roomId) {
-        //   store.incrementRoomUndeadIndex(message.roomId);
-        // }
-      });
-
-      socket.on("forward-message", (message: IMessage) => {
-        console.log("forward-message");
-        // console.log(`store.roomId  ${store.roomId}`);
-        // console.log(`message ${message.roomId}`);
-        // console.log(typeof store.roomId);
-        // console.log(typeof message.roomId);
-        // console.log("message.roomId", message.roomId);
-        // console.log(`store.roomId  ${store.roomId}`);
-
-        if (message.roomId === store.roomId) {
-          if (store.prevMessages.length) {
-            const lastMessage = store.prevMessages[store.prevMessages.length - 1].id;
-            if (store.currentRoom.lastMessageId !== lastMessage) {
-              store.clearMessages();
-              resetFetchParams();
-            } else {
-              store.addMessage(message);
-              setOffsetPrev((prev: any) => prev + 1);
-            }
-          } else {
-            store.addMessage(message);
-            setOffsetPrev((prev: any) => prev + 1);
-          }
-
-          store.updateCurrentRoomLastMsgId(message.id);
-          setTimeout(() => {
-            scrollToBottom();
-          }, 20);
-        }
-
-        // if (message.roomId === store.roomId) {
-        //   if (message.currentUserId !== store.user.id) {
-        //     if (store.prevMessages.length) {
-        //       const lastMessage = store.prevMessages[store.prevMessages.length - 1].id;
-        //       if (store.currentRoom.lastMessageId !== lastMessage) {
-        //         store.clearMessages();
-        //         resetFetchParams();
-        //       } else {
-        //         store.addMessage(message);
-        //         setOffsetPrev((prev: any) => prev + 1);
-        //       }
-        //     } else {
-        //       store.addMessage(message);
-        //       setOffsetPrev((prev: any) => prev + 1);
-        //     }
-        //   }
-        //   store.updateCurrentRoomLastMsgId(message.id);
-        //   setTimeout(() => {
-        //     scrollToBottom();
-        //   }, 20);
-        // }
-
-        store.incrementUnreadCount(message);
-        // if (message.roomId === store.roomId) {
-        //   store.incrementRoomUndeadIndex(message.roomId);
-        // }
-      });
-
-      socket.on("receive-file", (message: IMessage) => {
-        if (message.roomId === store.roomId) {
-          if (store.prevMessages.length) {
-            const lastMessage = store.prevMessages[store.prevMessages.length - 1].id;
-            if (store.currentRoom.lastMessageId !== lastMessage) {
-              store.clearMessages();
-              resetFetchParams();
-            } else {
-              store.addMessage(message);
-              setOffsetPrev((prev: any) => prev + 1);
-            }
-          } else {
-            store.addMessage(message);
-            setOffsetPrev((prev: any) => prev + 1);
-          }
-
-          store.updateCurrentRoomLastMsgId(message.id);
-          setTimeout(() => {
-            scrollToBottom();
-          }, 20);
-        }
-        store.incrementUnreadCount(message);
-        // if (message.roomId === store.roomId) {
-        //   if (store.prevMessages.length) {
-        //     const lastMessage = store.prevMessages[store.prevMessages.length - 1].id;
-        //     if (store.currentRoom.lastMessageId !== lastMessage && store.filesCounter === 1) {
-        //       store.clearMessages();
-        //       resetFetchParams();
-        //     } else {
-        //       store.addMessage(message);
-        //       setOffsetPrev((prev: any) => prev + 1);
-        //       setTimeout(() => {
-        //         scrollToBottom();
-        //       }, 20);
-        //     }
-        //   } else {
-        //     store.addMessage(message);
-        //     setOffsetPrev((prev: any) => prev + 1);
-        //     setTimeout(() => {
-        //       scrollToBottom();
-        //     }, 20);
-        //   }
-
-        //   store.updateCurrentRoomLastMsgId(message.id);
-        // }
-        // store.incrementUnreadCount(message);
       });
 
       socket.on("receive-reaction", (message: IMessage) => {
-        console.log("receive-reaction");
         if (message.roomId === store.roomId) {
-          store.updateMessage(message);
+          store.updateMessage(decryptOneMessage(message));
         }
       });
 
       socket.on("receive-message-status", (message: IMessage) => {
         if (message.roomId === store.roomId) {
-          store.updateMessage(message);
+          store.updateMessage(decryptOneMessage(message));
         }
-
         store.decrementUnreadCount(message);
       });
 
       socket.on("receive-updatedMessage", (message: IMessage) => {
-        console.log("receive-updatedMessage", message);
         if (message.roomId === store.roomId) {
-          store.updateMessage(message);
+          store.updateMessage(decryptOneMessage(message));
         }
       });
 
@@ -443,38 +347,35 @@ const Chart = observer(
           store.updateMessage(message);
         }
       });
-      socket.on("receive-typingState", (typingState: any) => {
-        if (store.roomId === typingState.roomId && typingState.userId !== store.user.id) {
+
+      socket.on("receive-typingState", (typingState: IWhoIsTyping) => {
+        if (store.roomId === typingState.roomId && typingState.userId !== store.user?.id) {
           setTypingUserData(typingState);
         } else setTypingUserData(null);
-        // setTypingUserData(typingState);
       });
 
-      socket.on("receive-userData", (user: any) => {
+      socket.on("receive-userData", (user: IUser) => {
         if (
           store.isAuth &&
           (findIndex(store.contacts, {
             id: user.id,
           }) !== -1 ||
-            user.id === store.user.id)
+            user.id === store.user?.id)
         ) {
           store.updateUserData(user);
         }
       });
 
-      socket.on("receive-newChatData", (res: any) => {
-        if (res.includes(store.user.id)) {
-          console.log("receive-newChatData", res);
+      socket.on("receive-newChatData", (res: string) => {
+        if (res.includes(store.user?.id as string)) {
           store.setContacts();
           store.clearMessages();
         }
       });
 
-      socket.on("receive-groupData", (groupData: any) => {
-        // console.log("receive-groupData", groupData);
-        const participant = groupData.participants.filter((el: IGroupParticipant) => el.userId === store.user.id)[0];
-        // console.log("participant", participant);
-        const isGroupInContacts = store.contacts.findIndex((el: any) => el.chatId === groupData.id) !== -1;
+      socket.on("receive-groupData", (groupData: IRoom) => {
+        const participant = groupData.participants.filter((el) => el.userId === store.user?.id)[0];
+        const isGroupInContacts = store.contacts.findIndex((el) => el.chatId === groupData.id) !== -1;
         if (participant && !participant.isDeleted && isGroupInContacts) {
           console.log("1");
           store.updateGroup(groupData);
@@ -494,28 +395,22 @@ const Chart = observer(
       });
     }, []);
 
-    // console.log(socket);
-    // console.log("roomDataddddd", roomData && roomData.lastMessageId);
     const sendMessage = () => {
-      // e.preventDefault();
-      // moment.locale();
-      // console.log(value);
       if (value) {
         const message = {
           id: uuidv4(),
-          currentUserId: store.user.id,
-          // recipientUserId: store.chatingWith.id,
-          recipientUserId: store.chatingWith.email ? store.chatingWith.id : store.roomId,
-          message: value,
-          // contact:
-          // status: IMessageStatus.SENT,
-          parentMessage: store.parentMessage || null,
+          currentUserId: store.user?.id,
+          recipientUserId: store.chatingWith?.email ? store.chatingWith?.id : store.roomId,
+          message: encrypt(value),
+          parentMessage:
+            (store.parentMessage && store.parentMessage.message
+              ? { ...store.parentMessage, message: encrypt(store.parentMessage.message) }
+              : store.parentMessage) || null,
           roomId: store.roomId,
-          readBy: store.user.id,
+          readBy: store.user?.id,
         };
 
         socket && socket.emit("send-message", message);
-        // store.updateRooms(store.roomId, message.id);
 
         setTimeout(() => {
           setValue("");
@@ -532,29 +427,23 @@ const Chart = observer(
       }
     };
     const editMessage = () => {
-      // e.preventDefault();
-      // moment.locale();
-      // console.log("messageToEdit", toJS(store.messageToEdit));
-      // console.log(value);
       if (value) {
         const message = {
           ...store.messageToEdit,
-          message: value,
+          message: encrypt(value),
         };
-        // console.log("edit-message", message);
+
         socket && socket.emit("edit-message", message);
-        // store.updateRooms(store.roomId, message.id);
 
         setTimeout(() => {
           setValue("");
           setRows(2);
-          // refTextArea.current?.focus();
           store.clearMessageToEdit();
           closePopupEditMessage();
         }, 0);
       }
     };
-    // console.log("messageToEdit", toJS(store.messageToEdit));
+
     useEffect(() => {
       if (store.messageToEdit) {
         setValue(store.messageToEdit.message);
@@ -599,12 +488,11 @@ const Chart = observer(
     const closeForwardContactPopup = () => {
       setIsPopupForwardContact(false);
     };
-
-    const closeSearchMessagePopup = () => {
-      setIsPopupSearchMessageOpen(false);
-    };
     const openSearchMessagePopup = () => {
       setIsPopupSearchMessageOpen(true);
+    };
+    const closeSearchMessagePopup = () => {
+      setIsPopupSearchMessageOpen(false);
     };
 
     const openPopupEditMessage = () => {
@@ -614,10 +502,15 @@ const Chart = observer(
       setIsPopupEditMessage(false);
     };
 
-    const handleChange = (e: any) => {
-      setCaretPos(e.target.selectionStart);
-      setValue(e.target.value);
-      const newLines = countLines(e.target);
+    const closePopupFile = () => {
+      setIsPopupFileOpen(false);
+    };
+
+    const handleTextAreaChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+      const target = e.target as HTMLTextAreaElement;
+      setCaretPos(target.selectionStart as number);
+      setValue(target.value);
+      const newLines = countLines(target);
       if (!newLines) setRows(2);
       if (newLines < 10) setRows(newLines + 1);
       else setRows(10);
@@ -628,14 +521,12 @@ const Chart = observer(
         setIsTyping(true);
       } else setIsTyping(false);
     }, [value, focused]);
-    // console.log("focused", focused);
+
     useEffect(() => {
-      socket.emit("update-typingState", { roomId: store.roomId, userId: store.user.id, isTyping: isTyping });
+      socket.emit("update-typingState", { roomId: store.roomId, userId: store.user?.id, isTyping: isTyping });
     }, [isTyping]);
 
-    // console.log("isTyping", isTyping);
-
-    const onEmojiClick = (emoji: any) => {
+    const onEmojiClick = (emoji: string) => {
       setValue(value.slice(0, caretPos) + emoji + value.slice(caretPos));
     };
 
@@ -643,43 +534,23 @@ const Chart = observer(
       setIsEmojiOpen(!isEmojiOpen);
     };
 
-    const closeAllPopups = (e: any) => {
-      if (e.target.nodeName === "DIV") {
-        setIsEmojiOpen(false);
-        closeReactionPopup();
-        closeMessageActionsPopup();
-        store.setMessageToForward(null);
-        store.setContactToForward(null);
-        store.clearSelectedUsers();
-        // store.setCurrentRoom(null);
-        closeEmojiReactionsPopup();
-        closeDetailsPopup();
-        closeForwardContactPopup();
-        closeSearchMessagePopup();
-      }
-    };
-
-    const closePopupFile = () => {
-      setIsPopupFileOpen(false);
-    };
-
-    const sendMessageFile = async (files: FileList) => {
-      setSendingFiles(true);
-      // console.log("sendMessageFile");
-      // e.preventDefault();
+    const sendMessageFromInputFile = async (files: FileList) => {
       for (let index = 0; index < files.length; index++) {
         const form = new FormData();
-        // console.log(files[index]);
+        console.log("files[index]", files[index].size, files[index].size < 104857600);
         // console.log(value);
-        if (!(filesToRemove.indexOf(files[index].name) !== -1) || filesToRemove.length === 0) {
+        if (
+          (!(filesToRemove.indexOf(files[index].name) !== -1) || filesToRemove.length === 0) &&
+          files[index].size < 104857600
+        ) {
+          setSendingFiles(true);
           form.append("file", files[index]);
           const data = {
-            currentUserId: store.user.id,
-            recipientUserId: store.chatingWith.email ? store.chatingWith.id : store.roomId,
-            message: index === 0 && value ? value : "",
-            parentMessage: store.parentMessage,
-            roomId: store.roomId,
-            readBy: store.user.id,
+            currentUserId: store.user?.id as string,
+            recipientUserId: store.chatingWith?.email ? (store.chatingWith?.id as string) : (store.roomId as string),
+            message: index === 0 && value ? encrypt(value) : "",
+            roomId: store.roomId as string,
+            readBy: store.user?.id as string,
           };
           for (let key in data) {
             form.append(key, data[key as keyof typeof data]);
@@ -706,23 +577,18 @@ const Chart = observer(
       setIsPopupAttachFileOpen(false);
       //setFilesCounter(0);
     };
-    const [fileFromClipboard, setFileFromClipboard] = useState<any>(null);
-    const handleImagePaste = async (event: any) => {
+
+    const handleImagePaste = async () => {
       try {
         if (!navigator.clipboard) {
           console.error("Копирование и вставка не работает в данном браузере");
           return;
         }
-
         const clipboardItems = await navigator.clipboard.read();
         for (const clipboardItem of clipboardItems) {
           const imageTypes = clipboardItem.types.find((type) => type.startsWith("image/"));
-          // console.log("clipboardItem", clipboardItem);
           if (imageTypes) {
             const blob = await clipboardItem.getType(imageTypes);
-            // console.log(blob);
-            // console.log(`imageTypes ${imageTypes}`);
-            // creactFileToSend(blob, "image/png");
             setFileFromClipboard(creactFileToSend(blob, "image/png"));
             const url = URL.createObjectURL(blob);
             setImageSrc(url);
@@ -735,49 +601,39 @@ const Chart = observer(
         console.error("Произошла ошибка", err);
       }
     };
+
     const sendFileFromClipboard = async () => {
-      // e.preventDefault();
       setSendingFiles(true);
       const file = creactFileToSend(fileFromClipboard, "image/png");
       const form = new FormData();
       form.append("file", file);
       const data = {
-        currentUserId: store.user.id,
-        // recipientUserId: store.chatingWith.id,
-        recipientUserId: store.chatingWith.email ? store.chatingWith.id : store.roomId,
-        message: value ? value : "",
-        parentMessage: store.parentMessage,
-        roomId: store.roomId,
-        readBy: store.user.id,
-        form,
+        currentUserId: store.user?.id as string,
+        recipientUserId: store.chatingWith?.email ? (store.chatingWith?.id as string) : (store.roomId as string),
+        message: value ? encrypt(value) : "",
+        roomId: store.roomId as string,
+        readBy: store.user?.id as string,
       };
       for (let key in data) {
-        // console.log(data[key as keyof typeof data]);
         form.append(key, data[key as keyof typeof data]);
       }
-      // const message = await sendFile(form, data);
+
       const message = await sendFile(form);
       setTimeout(() => {
         socket.emit("send-file", message);
-        // store.updateRooms(store.roomId, message.id);
         setValue("");
         setRows(2);
         setSendingFiles(false);
-
         setFileFromClipboard(null);
         if (isEmojiOpen) {
           setIsEmojiOpen(false);
         }
-
         setIsPopupFileOpen(false);
-        // refTextArea.current?.focus();
       }, 0);
     };
 
     const scrollHander = (e: WheelEvent) => {
-      // console.log("e.deltaY ", e.deltaY);
       refMessages.current && setScroll(refMessages.current?.scrollHeight - refMessages.current?.scrollTop);
-
       const chartHeight = refMessages.current?.scrollHeight;
       const chartBottomPos =
         refMessages.current &&
@@ -786,22 +642,14 @@ const Chart = observer(
       if (e.deltaY < 0 || e.deltaY > 0) {
         setNewMessagesNotification(false);
       }
-      // console.log("chartHeight ", chartHeight);
-      // console.log("chartBottomPos ", chartBottomPos);
-      // console.log("refMessages.current?.scrollTop < 100", refMessages.current && refMessages.current?.scrollTop < 100);
-      // console.log(
-      //   "store.prevMessages[0].id !== store.currentRoom.firstMessageId",
-      //   store.prevMessages[0].id !== store.currentRoom.firstMessageId,
-      // );
-      // console.log("e.deltaY < 0", e.deltaY < 0);
+
       if (
         store.prevMessages.length &&
         refMessages.current &&
         refMessages.current?.scrollTop < 100 &&
-        store.prevMessages[0].id !== store.currentRoom.firstMessageId
+        store.prevMessages[0].id !== store.currentRoom?.firstMessageId
       ) {
         if ((matchesMobile && e.deltaY > 0) || (!matchesMobile && e.deltaY < 0)) {
-          // console.log("set prev");
           setFetchPrev(true);
           setFetchNext(false);
           setFetching(true);
@@ -810,80 +658,35 @@ const Chart = observer(
 
       if (
         store.prevMessages.length &&
-        store.prevMessages[store.prevMessages.length - 1].id !== store.currentRoom.lastMessageId &&
+        store.prevMessages[store.prevMessages.length - 1].id !== store.currentRoom?.lastMessageId &&
         chartBottomPos &&
         chartHeight &&
         chartBottomPos - chartHeight > 0
       ) {
         if ((matchesMobile && e.deltaY < 0) || (!matchesMobile && e.deltaY > 0)) {
-          // console.log("fetch next");
-
           setFetchNext(true);
           setFetchPrev(false);
           setFetching(true);
         }
       }
-      // console.log("fetchNext", fetchNext);
-      // console.log("fetchPrev", fetchPrev);
     };
-
+    const optimizeScrolldHandler = useDebounce(scrollHander, 100);
     useEffect(() => {
       const chart = refMessages.current;
-
-      chart && chart.addEventListener("wheel", scrollHander);
-
+      chart && chart.addEventListener("wheel", optimizeScrolldHandler);
       return function () {
-        chart && chart.removeEventListener("wheel", scrollHander);
+        chart && chart.removeEventListener("wheel", optimizeScrolldHandler);
       };
     }, [store.currentRoom]);
 
     const handlers = useSwipeable({
-      onSwipedDown: (e: any) => {
-        scrollHander(e);
+      onSwipedDown: (e: SwipeEventData) => {
+        optimizeScrolldHandler(e);
       },
-      onSwipedUp: (e: any) => {
-        scrollHander(e);
+      onSwipedUp: (e: SwipeEventData) => {
+        optimizeScrolldHandler(e);
       },
     });
-
-    const fetchMessages = async () => {
-      // console.log("fetchNext", fetchNext);
-      // console.log("fetchPrev", fetchPrev);
-      // console.log("offsetNext", offsetNext);
-      // console.log("offsetPrev", offsetPrev);
-      // console.log(" limit", limit);
-      // console.log("store.prevMessages", toJS(store.prevMessages));
-      if (offsetNext === 0 && offsetPrev === 0) {
-        setIsLoadingMessages(true);
-      }
-      try {
-        // console.log("setNext", offsetNext);
-        // console.log("offsetPrev", offsetPrev);
-        // console.log("limit", limit);
-        const res = await getPrevMessage({
-          limit,
-          offset: fetchNext ? offsetNext : offsetPrev,
-          roomId: store.roomId,
-        });
-        const messages = res.reverse();
-        if (offsetNext === 0 && offsetPrev === 0) {
-          setIsLoadingMessages(false);
-        }
-        if (fetchPrev) {
-          store.setMessages([...messages, ...store.prevMessages]);
-        }
-        if (fetchNext) {
-          store.setMessages([...store.prevMessages, ...messages]);
-        }
-        setTimeout(() => {
-          setFetching(false);
-          setFetchNext(false);
-          setFetchPrev(false);
-        }, 0);
-      } catch (e: any) {
-        console.log(e);
-      }
-    };
 
     useEffect(() => {
       if (fetching) {
@@ -891,7 +694,7 @@ const Chart = observer(
           if (isFirstRender) {
             setOffsetPrev(limit);
           } else
-            setOffsetPrev((prev: any) => {
+            setOffsetPrev((prev) => {
               if (limit > 15) {
                 setLimit(15);
               }
@@ -938,10 +741,9 @@ const Chart = observer(
         }
         if (isPopupFileOpen && e.key === "Enter" && e.ctrlKey) {
           sendFileFromClipboard();
-          // refTextArea.current?.focus();
         }
         if (isPopupAttachFileOpen && e.key === "Enter" && e.ctrlKey) {
-          sendMessageFile(filesToSend);
+          sendMessageFromInputFile(filesToSend as FileList);
         }
         if (isPopupEditMessage && e.key === "Enter" && e.ctrlKey) {
           editMessage();
@@ -960,15 +762,25 @@ const Chart = observer(
       }
     }, [store.parentMessage]);
 
-    const refPassthrough = (el: any) => {
-      handlers.ref(el);
-      refMessages.current = el;
+    const closeAllPopups = (e: React.MouseEvent<HTMLDivElement>) => {
+      const target = e.target as HTMLDivElement;
+      if (target.nodeName === "DIV") {
+        setIsEmojiOpen(false);
+        closeReactionPopup();
+        closeMessageActionsPopup();
+        store.setMessageToForward(null);
+        store.setContactToForward(null);
+        store.clearSelectedUsers();
+        closeEmojiReactionsPopup();
+        closeDetailsPopup();
+        closeForwardContactPopup();
+        closeSearchMessagePopup();
+      }
     };
     return (
       <div
         className={styles.wrapper}
         onClick={closeAllPopups}
-        // {...handlers}
         ref={refChart}
         style={{
           width: matchesMobile ? (!isContactsVisible ? "100%" : 0) : "",
@@ -1034,7 +846,7 @@ const Chart = observer(
           )}
           {newMessagesNotification && <p className={styles.newMessagesNotification}>Новые сообщения</p>}
           {store.prevMessages.length > 0 &&
-            store.prevMessages.map((message: any, i: number, arr: any) => {
+            store.prevMessages.map((message, i: number, arr) => {
               return (
                 <React.Fragment key={message.id}>
                   {i === 0 && <p className={styles.messageDate}>{getDate(message.createdAt)}</p>}
@@ -1056,10 +868,13 @@ const Chart = observer(
                     closeMessageActionsPopup={closeMessageActionsPopup}
                     openPopupEditMessage={openPopupEditMessage}
                     scrollToBottom={scrollToBottom}
-                    // socket={socket}
-                    roomId={store.roomId}
-                    ref={(el) => (itemsRef.current[i] = el)}
-                    scrollIntoView={scrollIntoView}
+                    roomId={store.roomId as string}
+                    ref={(el: HTMLDivElement) => {
+                      if (itemsRef.current) {
+                        return (itemsRef.current[i] = el);
+                      }
+                    }}
+                    scrollIntoView={scrollMessageIntoView}
                     setImageToShow={setImageToShow}
                     setVideoToShow={setVideoToShow}
                   />
@@ -1076,7 +891,6 @@ const Chart = observer(
           <ButtonScrollToBottom onClick={scrollToBottom} />
         )}
 
-        {/* {store.parentMessage && <ReplyToElement {...store.parentMessage} />} */}
         <div style={{ position: "relative" }}>
           <div className={styles.container}>
             <EmojiIcon onClick={emojiToggle} />
@@ -1091,7 +905,7 @@ const Chart = observer(
               !store.chatingWith.email &&
               typingUserData &&
               typingUserData.isTyping &&
-              store.currentRoom.participants.map((user: any) => {
+              store.currentRoom?.participants.map((user) => {
                 if (user.userId === typingUserData.userId) {
                   return (
                     <TypingIndicator
@@ -1103,19 +917,22 @@ const Chart = observer(
                   );
                 }
               })}
-            {/* {store.parentMessage && <ReplyToElement {...store.parentMessage} />} */}
+
             {store.parentMessage && <ReplyToElement {...store.parentMessage} />}
             <Textarea
               ref={refTextArea}
               rows={rows}
               value={value}
-              handleChange={handleChange}
+              handleChange={handleTextAreaChange}
               handleImagePaste={handleImagePaste}
-              onClick={(e: any) => setCaretPos(e.target.selectionStart)}
+              onClick={(e: MouseEvent) => {
+                const target = e.target as HTMLTextAreaElement;
+                setCaretPos(target.selectionStart as number);
+              }}
               setFocused={setFocused}
             />
             <InputFile
-              roomId={store.roomId}
+              roomId={store.roomId as string}
               setFilesToSend={setFilesToSend}
               setFilesToRemove={setFilesToRemove}
               setIsPopupFileOpen={setIsPopupAttachFileOpen}
@@ -1128,12 +945,21 @@ const Chart = observer(
                     ref={refTextArea}
                     rows={rows}
                     value={value}
-                    handleChange={handleChange}
-                    onClick={(e: any) => setCaretPos(e.target.selectionStart)}
+                    handleChange={handleTextAreaChange}
+                    onClick={(e: MouseEvent) => {
+                      const target = e.target as HTMLTextAreaElement;
+                      setCaretPos(target.selectionStart as number);
+                    }}
                     setFocused={setFocused}
                   />
-                  {isSendingFiles && <SendingFilesLoader />}
-                  {!isSendingFiles && <ButtonSend right={5} bottom={4} onClick={() => sendMessageFile(filesToSend)} />}
+                  {isSendingFiles && <HourGlassLoader />}
+                  {!isSendingFiles && (
+                    <ButtonSend
+                      right={5}
+                      bottom={4}
+                      onClick={() => sendMessageFromInputFile(filesToSend as FileList)}
+                    />
+                  )}
                 </div>
               )}
             </InputFile>
@@ -1174,12 +1000,15 @@ const Chart = observer(
                   ref={refTextArea}
                   rows={rows}
                   value={value}
-                  handleChange={handleChange}
+                  handleChange={handleTextAreaChange}
                   // handleImagePaste={handleImagePaste}
-                  onClick={(e: any) => setCaretPos(e.target.selectionStart)}
+                  onClick={(e: MouseEvent) => {
+                    const target = e.target as HTMLTextAreaElement;
+                    setCaretPos(target.selectionStart as number);
+                  }}
                   setFocused={setFocused}
                 />
-                {isSendingFiles && <SendingFilesLoader />}
+                {isSendingFiles && <HourGlassLoader />}
                 {!isSendingFiles && <ButtonSend right={5} bottom={4} onClick={sendFileFromClipboard} />}
               </div>
             </div>
@@ -1198,9 +1027,12 @@ const Chart = observer(
                   ref={refTextArea}
                   rows={10}
                   value={value}
-                  handleChange={handleChange}
+                  handleChange={handleTextAreaChange}
                   // handleImagePaste={handleImagePaste}
-                  onClick={(e: any) => setCaretPos(e.target.selectionStart)}
+                  onClick={(e: MouseEvent) => {
+                    const target = e.target as HTMLTextAreaElement;
+                    setCaretPos(target.selectionStart as number);
+                  }}
                   setFocused={setFocused}
                 />
                 <ButtonSend right={15} bottom={5} onClick={editMessage} />
@@ -1210,7 +1042,7 @@ const Chart = observer(
         )}
         {store.chatingWith && (
           <PopupFoward
-            currentContactId={store.chatingWith.id}
+            currentContactId={store.chatingWith.id as string}
             isPopupForwardContact={isPopupForwardContact}
             messageToForward={store.messageToForward}
             contactToForward={store.contactToForward}
@@ -1228,7 +1060,10 @@ const Chart = observer(
           </OverLay>
         )}
         {isPopupSearchMessageOpen && (
-          <PopupSearchMessage isPopupSearchMessageOpen={isPopupSearchMessageOpen} scrollIntoView={scrollIntoView} />
+          <PopupSearchMessage
+            isPopupSearchMessageOpen={isPopupSearchMessageOpen}
+            scrollIntoView={scrollMessageIntoView}
+          />
         )}
       </div>
     );

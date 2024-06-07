@@ -1,5 +1,3 @@
-import React from "react";
-
 import styles from "./Counter.module.css";
 
 export default function Counter({ messages }: { messages: number }) {

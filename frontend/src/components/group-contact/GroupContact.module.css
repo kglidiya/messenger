@@ -1,35 +1,24 @@
 .wrapper {
+  position: relative;
+
   display: flex;
   flex-direction: row;
   gap: 5px;
+  align-items: center;
+
   width: 95%;
   height: 60px;
   margin: auto;
-  /* border-bottom: 1px solid var(--beige-light); */
+
   border-radius: var(--border-radius);
-  /* cursor: pointer; */
-  position: relative;
-  align-items: center;
-  /* margin-right: 40px; */
 }
-
-/* .avatar {
-  align-self: center;
-
-  width: 50px;
-  height: 50px;
-
-
-  object-fit: cover;
-  border-radius: 50%;
-} */
 
 .details {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  /* width: 50px; */
+
   width: 90%;
 }
 
@@ -38,56 +27,61 @@
 }
 
 .name {
+  overflow: hidden;
   flex: none;
-  overflow: hidden;
 
-  /* margin-top: 17px; */
-  /* font-size: var(--font-size-default); */
+  margin-bottom: 5px;
+
   font-size: var(--font-size-large);
-  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-bottom: 5px;
-  /* /* max-width: 90%; */
-  /* min-width: fit-content;  */
-  /* max-width: 50%; */
 }
-/* .name:first-of-type {
-  font-size: var(--font-size-default);
-} */
+
 .role {
+  margin-left: auto;
   font-size: var(--font-size-defaut);
   font-weight: bold;
   color: #ddd6c7;
-  margin-left: auto;
 }
 
 .addToAdminButton {
-  display: inline-block;
-  background-color: var(--white);
-  border-radius: var(--border-radius);
-  padding: 5px;
-  font-size: var(--font-size-default);
-  font-weight: bold;
-  color: #ddd6c7;
-  border: 1px solid #ddd6c7;
-  margin-left: auto;
-  margin-left: auto;
+  cursor: pointer;
+
   position: absolute;
   top: 7px;
   right: 0;
-  height: auto;
+
+  display: inline-block;
+
   width: 90px;
-  cursor: pointer;
-  word-break: break-word;
-  white-space: pre-line;
-  overflow-wrap: break-word;
+  height: 42px;
+  margin-left: auto;
+  padding: 0 5px;
+
+  font-size: var(--font-size-default);
+  font-weight: bold;
+  hyphens: auto;
+
+  color: #ddd6c7;
   -ms-word-break: break-word;
   word-break: break-word;
-  -ms-hyphens: auto;
-  -moz-hyphens: auto;
-  -webkit-hyphens: auto;
-  hyphens: auto;
+  overflow-wrap: break-word;
+  white-space: pre-line;
+
+  background-color: var(--white);
+  border: 1px solid #ddd6c7;
+  border-radius: var(--border-radius);
+}
+
+.addToAdminButton:disabled {
+  opacity: 0.5;
+  cursor: auto;
+}
+
+.deleteLoader {
+  position: absolute;
+  top: 5px;
+  right: 90px;
 }
 @media (max-width: 576px) {
   .wrapper {
@@ -95,14 +89,18 @@
   }
 
   .addToAdminButton {
-    top: 6px;
+    top: 4px;
     font-size: 12px;
   }
+
   .role {
     font-size: 14px;
   }
 
   .name {
     font-size: var(--font-size-default);
+  }
+  .deleteLoader {
+    top: 1px;
   }
 }

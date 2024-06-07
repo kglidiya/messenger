@@ -7,9 +7,6 @@ interface IButton {
 }
 export default function ButtonScrollToBottom({ onClick }: IButton) {
   return (
-    // <button type='button' aria-label='button' className={styles.button} onClick={onClick}>
-    //   <ArrowUp />
-    // </button>
     <span onClick={onClick} className={styles.button}>
       <ArrowDown />
     </span>

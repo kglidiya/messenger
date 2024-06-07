@@ -1,55 +1,36 @@
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import React, { useContext, useEffect } from "react";
+import { Dispatch, SetStateAction, useContext } from "react";
 
 import styles from "./Contact.module.css";
 
 import { Context } from "../..";
-import { SocketContext } from "../../hoc/SocketProvider";
 import useMediaQuery from "../../hooks/useMediaQuery";
+import AppStore from "../../store/AppStore";
 import Avatar from "../../ui/avatar/Avatar";
 import Counter from "../../ui/counter/Counter";
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
+import { IContact } from "../../utils/types";
 
 interface IContactProps {
-  user: any;
+  user: IContact;
   unread: number;
-  setIsContactsVisible?: any;
-  // id: string;
-  // userName: string;
-  // avatar: string;
-  // message: string;
-  // timeStamp: string;
-  // unread: number;
-  // email: string;
+  setIsContactsVisible?: Dispatch<SetStateAction<boolean>>;
 }
 
-// const Contact = observer(({ id, userName, avatar, message, timeStamp, unread, email }: IContactProps) => {
 const Contact = observer(({ user, unread, setIsContactsVisible }: IContactProps) => {
   const matchesMobile = useMediaQuery("(max-width: 576px)");
-  const store = useContext(Context).user;
+  const store = useContext(Context)?.store as AppStore;
   const handleContactClick = () => {
-    // store.setChatingWith(user);
-    // store.clearMessages();
-    if (store.chatingWith.chatId !== user.chatId) {
+    if (store.chatingWith?.chatId !== user.chatId) {
       store.clearMessages();
       store.setChatingWith(user);
-      // store.getOneRoom({ roomId: store.currentRoom?.id });
-      // store.setCurrentRoom(store.chatingWith.id);
     }
     if (matchesMobile) {
-      setIsContactsVisible(false);
+      setIsContactsVisible?.(false);
     }
-    // if (store.chatingWith.groupId) {
-    //   store.setCurrentRoom(store.chatingWith.id);
-    // } else {
-    //   const userIds = [store.user.id, store.chatingWith.id].sort();
-    //   store.setCurrentRoom(userIds.join());
-    // }
-    // store.getOneRoom({ roomId: store.currentRoom?.id });
   };
-  // console.log(toJS(store.chatingWith));
-  // console.log(user);
+
   return (
     <>
       {user && (
@@ -58,16 +39,10 @@ const Contact = observer(({ user, unread, setIsContactsVisible }: IContactProps)
           <div className={styles.details}>
             <div className={styles.userInfo}>
               <p className={styles.name}>{user.userName ? user.userName : user.email}</p>
-              {user.email && user.isOnline && <p className={styles.isOnline}>В сети</p>}
-              {user.email && !user.isOnline && <p className={styles.isOnline}>Не в сети</p>}
+              {user.email && user.isOnline && <p className={styles.onlineStatus}>В сети</p>}
+              {user.email && !user.isOnline && <p className={styles.onlineStatus}>Не в сети</p>}
             </div>
-
-            {/* <p className={styles.timeStamp}>{timeStamp}</p>
-        <p className={styles.message}> {message}</p> */}
             {unread > 0 && <Counter messages={unread} />}
-            {/* <Counter messages={3} /> */}
-
-            {/* <Counter messages={3} /> */}
           </div>
         </article>
       )}

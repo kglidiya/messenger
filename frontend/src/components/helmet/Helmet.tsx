@@ -1,15 +1,16 @@
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { Helmet } from "react-helmet-async";
 
 import { usePageVisibility } from "react-page-visibility";
 
 import { Context } from "../..";
+import AppStore from "../../store/AppStore";
 
 const HelmetSeo = observer(() => {
-  const store = useContext(Context).user;
+  const store = useContext(Context)?.store as AppStore;
   const isPageVisible = usePageVisibility();
   const [title, setTitle] = useState(store.totalUnread > 0 ? `(${store.totalUnread}) PigeonMailer` : "PigeonMailer");
 

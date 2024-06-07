@@ -33,7 +33,7 @@ export class UsersController {
     if (ver) {
       return this.UsersService.getAllUsers(ver.id);
     } else {
-      throw new UnauthorizedException({ key: 'Invalid token!' });
+      throw new UnauthorizedException({ key: 'E Dfc ytn ' });
     }
   }
 
@@ -46,7 +46,7 @@ export class UsersController {
     if (ver) {
       return this.UsersService.getOneUserData(userId.userId);
     } else {
-      throw new UnauthorizedException({ key: 'Invalid token!' });
+      throw new UnauthorizedException({ key: 'Нет прав' });
     }
   }
 
@@ -56,30 +56,10 @@ export class UsersController {
     @Body() searchedData: SearchedData,
   ): Promise<AuthorizationEntity[]> {
     const { id } = verify(token);
-    // console.log(id);
     if (id) {
       return this.UsersService.searchedUser(searchedData, id);
     } else {
-      throw new UnauthorizedException({ key: 'Invalid token!' });
+      throw new UnauthorizedException({ key: 'Нет прав' });
     }
   }
-
-  // @Post('updateAvatar')
-  // @UseInterceptors(
-  //   LocalFilesInterceptor({
-  //     fieldName: 'file',
-  //     path: '/avatars',
-  //   }),
-  // )
-  // updateUser(
-  //   @Headers() token: object,
-  //   @UploadedFile() file: Express.Multer.File,
-  // ): Promise<AuthorizationEntity> {
-  //   const { id } = verify(token);
-  //   if (id) {
-  //     return this.UsersService.updateAvatar(id, file);
-  //   } else {
-  //     throw new UnauthorizedException({ key: 'Invalid token!' });
-  //   }
-  // }
 }
