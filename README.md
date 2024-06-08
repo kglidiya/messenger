@@ -19,4 +19,3 @@
 - Создание групповых чатов
 - Текстовые сообщения шифруются
 
-  ![alt text](https://github.com/kglidiya/messenger/blob/preview1.jpg)
