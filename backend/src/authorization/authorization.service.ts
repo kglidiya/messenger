@@ -11,19 +11,10 @@ import * as bcrypt from 'bcrypt';
 import { AuthorizationEntity } from './authorization.entity';
 import genTokenPair from '../middleware/genTokenPair';
 import { verifyToken } from '../middleware/jwtMiddleware';
-import { IAvatar } from './interfaces';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
+import { ITokenPair, UserResponse } from './interfaces';
 
-interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  id: string;
-  userName: string;
-  avatar: string | null;
-  email: string;
-  // recoveryCode: null | number;
-}
 let recoveryCode: number;
 
 @Injectable()
@@ -35,31 +26,30 @@ export class AuthorizationService {
     private readonly usersRepository: Repository<AuthorizationEntity>,
   ) {}
 
-  async registration(registerData: AuthorizationEntity): Promise<any> {
+  async registration(registerData: AuthorizationEntity): Promise<UserResponse> {
     const findDuplicateEmail = await this.usersRepository.find({
       where: { email: registerData.email },
     });
 
     if (findDuplicateEmail.length !== 0) {
-      throw new BadRequestException({
-        key: 'User with this email already exist',
-      });
+      throw new BadRequestException(
+        'Такой пользователь уже зарегистрирован. Выполните вход',
+      );
     }
     const hash = await bcrypt.hash(registerData.password, 5);
     const newUser = {
       ...registerData,
+      // createdAt: new Date(),
       email: registerData.email,
       password: hash,
       userName: registerData.userName,
       avatar: registerData.avatar,
     };
-    // console.log(newUser);
+    console.log(newUser);
     const createNewUser = this.usersRepository.create(newUser);
-    // console.log(createNewUser);
     const user = await this.usersRepository.save(createNewUser);
-    // console.log(user);
     const tokenPair = genTokenPair(user.id);
-    const { password, recoveryCode, ...rest } = user;
+    const { password, recoveryCode, createdAt, ...rest } = user;
 
     const { accessToken, refreshToken } = tokenPair;
     return {
@@ -69,12 +59,10 @@ export class AuthorizationService {
     };
   }
 
-  async login(loginData: AuthorizationEntity): Promise<LoginResponse> {
+  async login(loginData: AuthorizationEntity): Promise<UserResponse> {
     const findRegisteredUser = await this.usersRepository.find({
       where: { email: loginData.email },
-      // relations: ['avatar'],
     });
-    // console.log(findRegisteredUser);
     if (findRegisteredUser.length !== 0) {
       const validPassword = bcrypt.compareSync(
         loginData.password,
@@ -90,17 +78,17 @@ export class AuthorizationService {
           userName: findRegisteredUser[0].userName,
           email: findRegisteredUser[0].email,
           avatar: findRegisteredUser[0].avatar,
-          // recoveryCode: findRegisteredUser[0].recoveryCode,
+          isOnline: true,
         };
       } else {
-        throw new BadRequestException({ key: 'Неверный пароль!' });
+        throw new ForbiddenException('Неверный пароль!');
       }
     } else {
       throw new ForbiddenException('Пользователь не зарегистирован');
     }
   }
 
-  async refresh(token: string): Promise<any> {
+  async refresh(token: string): Promise<ITokenPair> {
     const validToken = verifyToken(token);
     if (validToken) {
       const tPair = genTokenPair(validToken.id);
@@ -109,21 +97,21 @@ export class AuthorizationService {
         refreshToken: tPair.refreshToken,
       };
     } else {
-      return ['403'];
+      throw new ForbiddenException();
     }
   }
 
-  async findOneByEmail(email: string): Promise<any> {
+  async findOneByEmail(email: string): Promise<AuthorizationEntity> {
     return await this.usersRepository.findOne({ where: { email } });
   }
 
-  async findOneByRecoveryCode(code: number): Promise<any> {
+  async findOneByRecoveryCode(code: number): Promise<AuthorizationEntity> {
     return await this.usersRepository.findOne({
       where: { recoveryCode: code },
     });
   }
 
-  async forgotpassword(email: string): Promise<any> {
+  async forgotpassword(email: string): Promise<string> {
     const user = await this.findOneByEmail(email);
     recoveryCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
     if (!user) throw new BadRequestException('Пользователь не найден');
@@ -136,26 +124,21 @@ export class AuthorizationService {
         html: `<b>Ваш код для восстановления пароля</b>
                <b>${recoveryCode}</b>`,
       });
-      return await this.usersRepository.update(user.id, { recoveryCode });
-      // return await this.usersRepository.findOne({
-      //   where: { id: user.id },
-      // });
+      await this.usersRepository.update(user.id, { recoveryCode });
+      return 'Код для восстановления пароля напрален на указанную почту';
     } catch (e) {
       console.log(e);
     }
   }
 
-  async resetPassword(recoveryCode: number, password: string): Promise<any> {
+  async resetPassword(recoveryCode: number, password: string): Promise<string> {
     if (recoveryCode) {
       const user = await this.findOneByRecoveryCode(recoveryCode);
       if (!user) {
         throw new BadRequestException('Введен некорректный код');
       }
-      // if (password) {
-      //   const hash = await bcrypt.hash(password, 5);
-      // }
       try {
-        const updatedData = await this.usersRepository
+        await this.usersRepository
           .createQueryBuilder('users')
           .update<AuthorizationEntity>(AuthorizationEntity, {
             ...user,
@@ -165,7 +148,7 @@ export class AuthorizationService {
           .returning('*')
           .updateEntity(true)
           .execute();
-        return updatedData.raw;
+        return 'Пароль успешно обшовлен';
       } catch (error) {
         if (error.code == 23505) {
           throw new ConflictException(

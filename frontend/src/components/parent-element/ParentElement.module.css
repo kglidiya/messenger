@@ -1,0 +1,76 @@
+.wrapper {
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  width: 100%;
+  max-height: 150px;
+  margin: 5px -10px 20px;
+  padding: 10px;
+  background-color: var(--beige-light);
+  border-radius: var(--border-radius);
+  box-shadow: 0 10px 10px -2px var(--beige-light), 0 -6px 10px -4px rgb(0 0 0 / 20%);
+}
+
+.message {
+  overflow: hidden;
+  display: -webkit-box;
+  align-items: center;
+
+  width: 80%;
+  margin: 10px;
+
+  font-size: var(--font-size-default);
+  color: gray;
+  text-align: justify;
+
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.image {
+  display: block;
+
+  width: 10vw;
+  margin: 10px auto;
+
+  object-fit: cover;
+  border-radius: var(--border-radius);
+}
+
+.pdf {
+  margin: 5px auto;
+  border-radius: var(--border-radius);
+}
+
+.file {
+  position: relative;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  width: 7vw;
+  height: 7vw;
+  margin: 5px auto 0;
+  padding: 0 3px 3px;
+
+  background: url("../../images/file.svg"), var(--beige-dark);
+  background-repeat: no-repeat;
+  background-position: 50% 30%;
+  background-size: 70%;
+  border-radius: var(--border-radius);
+}
+
+.fileName {
+  overflow: hidden;
+
+  width: 90%;
+
+  font-size: var(--font-size-small);
+  font-weight: bold;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

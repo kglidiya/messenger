@@ -1,13 +1,12 @@
-import { toJS } from "mobx";
+/* eslint-disable react-hooks/exhaustive-deps */
 import { observer } from "mobx-react-lite";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 
 import styles from "./Signin.module.css";
 
 import { Context } from "../..";
-import { SocketContext } from "../../hoc/SocketProvider";
 import useMediaQuery from "../../hooks/useMediaQuery";
 import Button from "../../ui/button/Button";
 
@@ -16,72 +15,44 @@ import Input from "../../ui/input/Input";
 import { emailRegex } from "../../utils/helpers";
 
 const Signin = observer(() => {
-  const socket = useContext(SocketContext);
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors },
   } = useForm({ values: { email: "", password: "" } });
-  const matches = useMediaQuery("(min-width: 576px)");
-  const userStore = useContext(Context)?.user;
+  const matchesMobile = useMediaQuery("(max-width: 576px)");
+  const store = useContext(Context)?.store;
   const navigate = useNavigate();
-  //   const [status, setStatus] = useState<IStatus<undefined | IUser>>({
-  //     isloading: false,
-  //     data: undefined,
-  //     error: "",
-  //   });
 
-  const onSubmit = (values: any) => {
-    // console.log(values);
-    userStore.login({ ...values, isOnline: true });
-    // setIsLoading(true)
-    // setTimeout(() => {
-    //   console.log(toJS(userStore.user));
-    //   userStore.setAuth(true);
-    //   // userStore.setContacts();
-    //   // const data = {
-    //   //   userId: userStore.user.id,
-    //   //   isOnline: true,
-    //   // };
-    //   // socket && socket.emit("update-userData", data);
-    //   navigate("/");
-    // }, 0);
+  const onSubmit = (values: { email: string; password: string }) => {
+    store?.login({
+      email: values.email.toLowerCase(),
+      password: values.password,
+      isOnline: true,
+    });
   };
   useEffect(() => {
-    if (userStore.user && userStore.user.id) {
-      // console.log(toJS(userStore.user));
-      userStore.setAuth(true);
-      // userStore.setContacts();
-      // const data = {
-      //   userId: userStore.user.id,
-      //   isOnline: true,
-      // };
-      // socket && socket.emit("update-userData", data);
+    if (store?.user && store.user.id) {
+      store.setAuth(true);
+      store.clearError();
       setTimeout(() => {
         navigate("/");
       }, 0);
     }
-  }, [userStore.user]);
-  //   useEffect(() => {
-  //     if (status.data) {
-  //       user.setUser(status.data);
-  //       user.setIsAuth(true);
-  //       navigate("/");
-  //     }
-  //   }, [navigate, status.data, user]);
+  }, [store?.user]);
 
   return (
     <section className={styles.container}>
       <h3 className={styles.title}>Вход</h3>
-      <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-        <Logo top={-115} right={0} color='#eae2cc' />
+      <form className={styles.form} onSubmit={handleSubmit(onSubmit)} id='signin'>
+        <Logo width={100} height={100} top={matchesMobile ? -180 : -115} right={0} color='#eae2cc' />
         <Input
           type='text'
           placeholder='Email'
           name='email'
-          // pattern={emailRegex}
-          required={false}
+          pattern={emailRegex}
+          required={true}
           register={register}
           error={errors}
           errorMessage={errors?.email?.type === "required" ? "Заполните это поле" : "Введите корректный email"}
@@ -93,7 +64,6 @@ const Signin = observer(() => {
           placeholder='Пароль'
           name='password'
           required={false}
-          // pattern={/.{4,}/}
           register={register}
           error={errors}
           errorMessage={
@@ -103,8 +73,13 @@ const Signin = observer(() => {
           setValue={setValue}
         />
 
-        <Button type='submit' text='Войти' width={matches ? "300px" : "95%"} fontSize={matches ? "24px" : "18px"} />
-        {/* {status.error && <p className={styles.error}>{status.error}</p>} */}
+        <Button
+          type='submit'
+          text='Войти'
+          width={!matchesMobile ? "300px" : "95%"}
+          fontSize={!matchesMobile ? "24px" : "18px"}
+        />
+        {store?.error && <p className={styles.error}>{store?.error}</p>}
       </form>
       <div className={styles.singupGroup}>
         <p className={styles.text}>Вы - новый пользователь?</p>

@@ -4,14 +4,17 @@
 
 body {
   box-sizing: border-box;
+  height: 100vh;
+  height: var(--doc-height);
   margin: 0;
 
   font-family: -apple-system, "IBM Plex Sans", BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
     "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 
+  background-color: rgb(38 68 92 / 97%);
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: rgb(38 68 92 / 97%);
 }
 
 code {
@@ -21,5 +24,4 @@ code {
 #root {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  min-height: 100vh;
 }

@@ -3,6 +3,7 @@ import styles from "./CloseIcone.module.css";
 export default function CloseIcon({
   width,
   height,
+  color,
   onClick,
   bottom,
   top,
@@ -11,6 +12,7 @@ export default function CloseIcon({
 }: {
   width: number;
   height: number;
+  color: string;
   onClick: VoidFunction;
   bottom?: number;
   top?: number;
@@ -37,7 +39,7 @@ export default function CloseIcon({
       >
         <path
           d='M19 5L5 19M5.00001 5L19 19'
-          stroke='white'
+          stroke={color}
           strokeWidth='1.5'
           strokeLinecap='round'
           strokeLinejoin='round'

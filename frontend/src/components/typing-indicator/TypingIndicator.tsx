@@ -3,12 +3,12 @@ import { motion } from "framer-motion";
 import styles from "./TypingIndicator.module.css";
 
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
-import LoaderDots from "../../ui/loader-dots/LoaderDots";
+import LoaderDots from "../../ui/loaders/loader-dots/LoaderDots";
 
 interface ITypingIndicator {
   userName: string;
   email: string;
-  avatar: string;
+  avatar: string | null;
 }
 
 export default function TypingIndicator({ userName, email, avatar }: ITypingIndicator) {

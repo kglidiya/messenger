@@ -10,15 +10,7 @@ interface IButton {
 }
 export default function Button({ text, width, fontSize, onClick, disabled, type = "button" }: IButton) {
   return (
-    // eslint-disable-next-line react/button-has-type
-    <button
-      // eslint-disable-next-line react/button-has-type
-      type={type}
-      className={styles.button}
-      style={{ width, fontSize }}
-      onClick={onClick}
-      disabled={disabled}
-    >
+    <button type={type} className={styles.button} style={{ width, fontSize }} onClick={onClick} disabled={disabled}>
       {text}
     </button>
   );

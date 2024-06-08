@@ -1,40 +1,45 @@
-import { motion, useInView } from "framer-motion";
-import { toJS } from "mobx";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
-import React, { useContext, useEffect, useState } from "react";
+import { ChangeEvent, Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 
 import styles from "./SideBar.module.css";
 
 import { Context } from "../..";
 import { SocketContext } from "../../hoc/SocketProvider";
 import useDebounce from "../../hooks/useDebounce";
+import useMediaQuery from "../../hooks/useMediaQuery";
+import AppStore from "../../store/AppStore";
 import Logo from "../../ui/icons/Logo/Logo";
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
 import SearchIcon from "../../ui/icons/search-icon/SearchIcon";
 import ShrugIcon from "../../ui/icons/shrug-icon/ShrugIcon";
-import Loader from "../../ui/loader/Loader";
+import Loader from "../../ui/loaders/loader/Loader";
 import MenuButton from "../../ui/menu-button/MenuButton";
 import { createChat, findUser } from "../../utils/api";
-import { users } from "../../utils/mockData";
+import { IUser } from "../../utils/types";
 import Contact from "../contact/Contact";
 import UserProfile from "../user-profile/UserProfile";
 
-const streamToBlob = require("stream-to-blob");
+interface ISideBar {
+  isLoadingContacts: boolean;
+  isLoadingMessages: boolean;
+  isContactsVisible: boolean;
+  setIsContactsVisible: Dispatch<SetStateAction<boolean>>;
+}
 
-const SideBar = observer(({ isLoading }: { isLoading: boolean }) => {
-  const userStore = useContext(Context).user;
+const SideBar = observer(({ isLoadingContacts, setIsContactsVisible, isContactsVisible }: ISideBar) => {
+  const store = useContext(Context)?.store as AppStore;
   const socket = useContext(SocketContext);
-  const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
-  const [searchResult, setSearchResult] = useState<any>([]);
+  const [searchResult, setSearchResult] = useState<IUser[] | string[]>([]);
   const [value, setValue] = useState("");
-
+  const matchesTablet = useMediaQuery("(min-width: 992px)");
+  const matchesMobile = useMediaQuery("(max-width: 576px)");
   useEffect(() => {
-    if (userStore.contacts.length > 0) {
-      // console.log("unreadCount", toJS(userStore.unreadCount));
-      userStore.setUnreadCount();
+    if (store.contacts.length > 0) {
+      store.setUnreadCount();
     }
-  }, [userStore.contacts.length]);
-  // console.log(toJS(userStore.unreadCount));
+  }, [store.contacts.length]);
 
   const [isMenuOpen, setMenuIsOpen] = useState(false);
 
@@ -45,98 +50,89 @@ const SideBar = observer(({ isLoading }: { isLoading: boolean }) => {
   const searchUser = async (email: string) => {
     const result = await findUser(email);
 
-    // const result = await findUser(email);
-    //console.log(result);
-    if (result.length) {
-      setSearchResult(result);
+    if (result) {
+      setSearchResult([result]);
     } else {
       setSearchResult(["Пользователь не найден"]);
       setTimeout(() => {
         setSearchResult([]);
-        // setValue("");
       }, 2000);
     }
-
-    // setIsSearching(false);
   };
 
   const debouncedSearch = useDebounce(searchUser, 1500);
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const target = e.target;
-    if (target.value !== userStore.user.email) {
+    if (target.value !== store.user?.email) {
       setValue(target.value);
-      debouncedSearch({ email: target.value });
+      const email = target.value.toLowerCase();
+      debouncedSearch({ email: email });
     }
   };
-  // console.log(searchResult);
+
   const createChart = async () => {
-    // createChat({ usersId: [searchResult[0].id, userStore.user.id], groupId: userStore.roomId });
     try {
-      const chat = await createChat({ usersId: [searchResult[0].id, userStore.user.id] });
+      const chat = await createChat({ usersId: [(searchResult[0] as IUser).id, store.user?.id as string] });
 
       setTimeout(() => {
         if (chat) {
           socket && socket.emit("create-chat", chat);
-          // userStore.setContacts();
-          // userStore.setUnreadCount();
         }
-        // userStore.setContacts();
-        // userStore.setUnreadCount();
-        // userStore.setChatingWith(searchResult[0]);
-        // userStore.clearMessages();
         setSearchResult([]);
         setValue("");
       }, 0);
-    } catch (e: any) {
-      console.log(e);
+    } catch (err) {
+      console.error("Произошла ошибка:", err);
     }
   };
 
   useEffect(() => {
-    userStore.setContactToForward(null);
+    store.setContactToForward(null);
   }, []);
-  // console.log(isMenuOpen);
-  // console.log(toJS(userStore.contacts));
   const resetSearchResult = () => {
-    userStore.setChatingWith(userStore.contacts[0]);
-    userStore.clearMessages();
+    store.setChatingWith(store.contacts[0]);
+    store.clearMessages();
     setSearchResult([]);
     setValue("");
   };
-  const onSubmit = (e: any) => {
-    e.preventDefault();
-  };
+
   return (
-    <div className={styles.wrapper}>
+    <div
+      className={styles.wrapper}
+      style={{
+        width: matchesMobile ? (isContactsVisible ? "100%" : 0) : "",
+        visibility: matchesMobile ? (isContactsVisible ? "visible" : "hidden") : "visible",
+      }}
+    >
       <UserProfile isMenuOpen={isMenuOpen} setMenuIsOpen={setMenuIsOpen} />
       <div className={styles.menu}>
-        {userStore.user.avatar ? (
-          <img
-            // src={`http://localhost:3001/avatar/${userStore.user.avatar.id}`}
-            src={userStore.user.avatar}
-            alt='Мой аватар'
-            className={styles.avatar}
-          />
+        {store.user?.avatar ? (
+          <img src={store.user?.avatar} alt='Мой аватар' className={styles.avatar} />
         ) : (
           <NoAvatar width={44} height={44} />
         )}
         <MenuButton onClick={toggle} open={isMenuOpen} />
       </div>
       <div className={styles.content}>
-        {isLoading && !userStore.contacts.length && (
+        {isLoadingContacts && (
           <div style={{ marginTop: "30vh" }}>
             <Loader color='white' />
           </div>
         )}
         {searchResult.length === 0 &&
-          userStore.unreadCount.length === userStore.contacts.length &&
-          userStore.contacts.map((user: any, i: number) => (
-            <Contact key={user.chatId} user={user} unread={userStore.unreadCount[i].unread} />
+          store.unreadCount.length === store.contacts.length &&
+          store.contacts.map((user, i) => (
+            <Contact
+              key={user.chatId}
+              user={user}
+              unread={store.unreadCount[i].unread}
+              setIsContactsVisible={setIsContactsVisible}
+            />
           ))}
         {searchResult.length > 0 && (
           <>
-            {searchResult.map((el: any) => {
+            {searchResult.map((el) => {
               if (typeof el === "string") {
                 return (
                   <motion.div
@@ -145,6 +141,10 @@ const SideBar = observer(({ isLoading }: { isLoading: boolean }) => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1, transition: { duration: 0.5 } }}
                     exit={{ opacity: 0, transition: { duration: 0.5 } }}
+                    style={{
+                      height: matchesMobile ? "90%" : "100%",
+                      justifyContent: matchesMobile ? "flex-end" : "center",
+                    }}
                   >
                     <p className={styles.notification}>{el}</p>
                     <ShrugIcon color={"white"} />
@@ -158,9 +158,13 @@ const SideBar = observer(({ isLoading }: { isLoading: boolean }) => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1, transition: { duration: 0.5 } }}
                     exit={{ opacity: 0, transition: { duration: 0.5 } }}
+                    style={{
+                      height: matchesMobile ? "90%" : "auto",
+                      justifyContent: matchesMobile ? "flex-end" : "",
+                    }}
                   >
-                    <Contact user={el} unread={0} />
-                    {userStore.contacts.findIndex((user: any) => user.id === searchResult[0].id) === -1 && (
+                    <Contact user={{ ...el, chatId: "" }} unread={0} setIsContactsVisible={setIsContactsVisible} />
+                    {store.contacts.findIndex((user) => user.id === (searchResult[0] as IUser).id) === -1 && (
                       <button onClick={createChart} className={styles.addContactBtn}>
                         Добавить в контакты
                       </button>
@@ -174,7 +178,7 @@ const SideBar = observer(({ isLoading }: { isLoading: boolean }) => {
           </>
         )}
       </div>
-      <form className={styles.searchContainer} onSubmit={onSubmit}>
+      <div className={styles.searchContainer}>
         <input
           autoComplete='off'
           type='text'
@@ -184,8 +188,8 @@ const SideBar = observer(({ isLoading }: { isLoading: boolean }) => {
           onChange={handleChange}
           value={value}
         />
-      </form>
-      <Logo bottom={5} left={5} color='#23425a' />
+      </div>
+      <Logo width={matchesTablet ? 100 : 70} height={matchesTablet ? 100 : 70} bottom={15} left={3} color='#23425a' />
       <span className={styles.searchIcon}>
         <SearchIcon color='#ddd6c7' />
       </span>

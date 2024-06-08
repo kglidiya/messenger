@@ -6,7 +6,6 @@ interface ICheckbox {
   name: string;
   isPopupForwardContact: boolean;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
-  //   label?: string;
 }
 const InputCheckbox = forwardRef<HTMLInputElement, ICheckbox>(({ name, isPopupForwardContact, onChange }, ref) => {
   const innerRef = useRef<HTMLInputElement>(null);
@@ -26,8 +25,6 @@ const InputCheckbox = forwardRef<HTMLInputElement, ICheckbox>(({ name, isPopupFo
         onChange={onChange}
         value={name}
         ref={innerRef}
-        // checked={true}
-        // checked={checked}
       />
       <label htmlFor={name} className={styles.label}></label>
     </div>

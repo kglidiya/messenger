@@ -1,14 +1,12 @@
-import React from "react";
-
 export default function PlaneIcon() {
   return (
     <svg
       version='1.1'
       id='Uploaded to svgrepo.com'
       xmlns='http://www.w3.org/2000/svg'
-      width='38px'
-      height='38px'
-      viewBox='0 0 32 32'
+      width='36px'
+      height='36px'
+      viewBox='0 0 34 34'
       fill='#ddd6c7'
     >
       <g id='SVGRepo_bgCarrier' strokeWidth='0' />

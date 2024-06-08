@@ -1,120 +1,78 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import imageCompression from "browser-image-compression";
 import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
-import React, { Dispatch, MouseEventHandler, SetStateAction, useContext, useEffect } from "react";
+import { ChangeEvent, MouseEventHandler, useContext, useEffect } from "react";
 import { FC, useState, useCallback, useMemo } from "react";
 
-import styles from "./ProfilePhoto.module.scss";
+import styles from "./ProfilePhoto.module.css";
 
 import { Context } from "../..";
 import { SocketContext } from "../../hoc/SocketProvider";
+import useMediaQuery from "../../hooks/useMediaQuery";
 import EditIcon from "../../ui/icons/edit-icon/EditIcon";
 import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
-
-// import { Camera } from "../../icons/Camera/Camera";
-// import { TForm } from "../../utils/types";
+import Loader from "../../ui/loaders/loader/Loader";
+import { readFiles } from "../../utils/helpers";
 
 interface IProfilePhoto {
-  // id: string | string[];
   setValue: any;
   values: any;
-  avatar: any;
+  avatar: string | null;
   isProfileEditOpen?: boolean;
   isGroupEditOpen?: boolean;
 }
 
 const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileEditOpen, isGroupEditOpen, values }) => {
-  const userStore = useContext(Context).user;
+  const store = useContext(Context)?.store;
   const socket = useContext(SocketContext);
   const [hover, setHover] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [img, setImg] = useState<any>("");
-  const [sizeLimit, setSizelimit] = useState(false);
-
+  const [img, setImg] = useState<string>("");
+  const [loaded, setLoaded] = useState(true);
+  const matchesMobile = useMediaQuery("(max-width: 576px)");
   const handleInputHover: MouseEventHandler<HTMLLabelElement> = (e) => {
     if (e.type === "mouseenter") {
       setHover(true);
     } else setHover(false);
   };
-  const readFiles = (file: any) => {
-    return new Promise((res, rej) => {
-      const reader = new FileReader();
-      reader.onload = (e) => res(e.target?.result);
-      reader.onerror = (e) => rej(e);
-      reader.readAsDataURL(file);
-    });
-  };
-  // console.log(isProfileEditOpen);
-  // console.log(isGroupEditOpen);
-  const handleImageChange = async (e: any) => {
-    // console.log("handleImageChange");
-    let imageFile = e.target.files[0];
+
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement;
+    const files = target.files as FileList;
+    setLoaded(false);
+    let imageFile = files[0];
     const options = {
-      maxSizeMB: 0.2,
-      maxWidthOrHeight: 450,
+      maxSizeMB: 0.1,
+      maxWidthOrHeight: 350,
       useWebWorker: true,
     };
     try {
       const compressedFile = await imageCompression(imageFile, options);
-      // console.log(await readFiles(compressedFile));
-      // setValue({ ...values, avatar: await readFiles(compressedFile) });
       setImg(await readFiles(compressedFile));
-      // const data = {
-      //   roomId: userStore.currentRoom.id,
-      //   avatar: await readFiles(compressedFile),
-      // };
-      // console.log("edit-group avatarr");
-      // socket && socket.emit("edit-group", data);
     } catch (error) {
-      console.log(error);
+      console.error("Произошла ошибка:", error);
     }
-
-    // const form = new FormData();
-    // form.append("file", file);
-    // userStore.updateAvatar(form);
-
-    // // setImg(file);
-    // console.log(form.get(file));
-    // if (e.target.files[0]) {
-
-    // const data = {
-    //   userId: userStore.user.id,
-    //   // userName: values.userName,
-    //   // avatar: "",
-    // };
-    // // socket && socket.emit("update-userData", data);
-    setTimeout(() => {
-      // console.log(values);
-      // const data = {
-      //   userId: userStore.user.id,
-      //   avatar: values.avatar,
-      // };
-      // socket && socket.emit("update-userData", data);
-    }, 0);
   };
-  // console.log(values);
+
   useEffect(() => {
     if (img) {
       setValue({ ...values, avatar: img });
       if (isProfileEditOpen) {
         const data = {
-          userId: userStore.user.id,
+          userId: store?.user?.id,
           avatar: img,
         };
         socket && socket.emit("update-userData", data);
       }
       if (isGroupEditOpen) {
         const data = {
-          roomId: userStore.currentRoom.id,
+          roomId: store?.currentRoom?.id,
           avatar: img,
         };
-        // console.log("edit-group avatarr");
         socket && socket.emit("edit-group", data);
       }
     }
-    // setValue({ ...values, avatar: img });
-
-    // console.log(img);
   }, [img]);
 
   const handleButtonVisibility = useCallback(() => {
@@ -129,7 +87,7 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
   useMemo(() => {
     handleButtonVisibility();
   }, [handleButtonVisibility]);
-  // console.log(avatar);
+
   return (
     <motion.div
       className={styles.avatar}
@@ -140,7 +98,6 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
       }}
       transition={{ duration: 0.3 }}
     >
-      {/* {sizeLimit && <p className={styles.avatar__requirements_size}>(Размер файла должен быть менее 2 мб)</p>} */}
       <input
         type='file'
         name='avatar'
@@ -156,14 +113,19 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
           onMouseEnter={handleInputHover}
           onMouseLeave={handleInputHover}
         >
+          {!loaded && (
+            <div className={styles.loader}>
+              <Loader color='white' />
+            </div>
+          )}
           {avatar ? (
-            <img src={avatar} alt={"Аватар"} className={styles.label__image}></img>
+            <img src={avatar} alt={"Аватар"} className={styles.image} onLoad={() => setLoaded(true)}></img>
           ) : (
             <NoAvatar width={180} height={180} />
           )}
           <span
-            className={`${styles.label__button} 
-            ${isVisible ? styles.label__button_status_default : styles.label__button_status_active}`}
+            className={`${styles.button} 
+            ${isVisible || matchesMobile ? styles.button_default : styles.button_active}`}
           >
             <EditIcon color='white' />
           </span>

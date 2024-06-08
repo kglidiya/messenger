@@ -1,20 +1,23 @@
 .wrapper {
   position: relative;
 
+  width: fit-content;
+
   /* z-index: 2; */
 
   /* max-width: 60%; */
-  min-width: 100px;
-  padding: 10px 10px 25px 10px;
+  min-width: 115px;
+  padding: 10px 10px 25px;
 
   background-color: var(--white);
   border-radius: var(--border-radius);
 
-  width: fit-content;
   /* box-shadow: -1px -4px 18px 0 rgb(102 105 82 / 40%); */
   box-shadow: -6px 4px 18px 0 rgb(102 105 82 / 30%);
+
   /* max-height: 200px;
   overflow: hidden; */
+
   /* display: -webkit-box;
 	-webkit-line-clamp:8;
 	-webkit-box-orient: vertical;
@@ -22,27 +25,35 @@
 }
 
 .text {
-  font-size: var(--font-size-default);
-  line-height: 18px;
   cursor: pointer;
-  /* max-height: 70px; */
-  overflow-y: hidden;
+
   position: relative;
-  transition: all 0.1s linear;
-  word-wrap: break-word;
+
   /* white-space: pre; */
+
   /* display: -webkit-box;
   -webkit-line-clamp: 8;
   -webkit-box-orient: vertical; */
   overflow: hidden;
+
+  /* max-height: 70px; */
+  overflow-y: hidden;
+
+  font-size: var(--font-size-default);
+  line-height: 18px;
+  word-wrap: break-word;
   white-space: pre-wrap;
+
+  transition: all 0.1s linear;
 }
+
 .timeStamp {
   position: absolute;
   bottom: 7px;
   font-size: var(--font-size-small);
   color: gray;
 }
+
 .reaction {
   cursor: pointer;
 
@@ -75,28 +86,34 @@
 
 .popup {
   cursor: default;
+
   position: absolute;
   z-index: 300;
   top: 50%;
+
   width: 300px;
   height: auto;
   max-height: 400px;
+
   background-color: var(--white);
   border-radius: var(--border-radius);
   box-shadow: 4px 3px 20px -1px rgb(34 60 80 / 20%);
+
   /* transform-origin: right top; */
 }
 
 .summary_list {
-  display: flex;
-  flex-direction: column;
-  margin: 0 0 0 7px;
-  max-height: 250px;
-  padding: 0;
-  list-style: none;
-  overflow-y: scroll;
   --moz-scrollbar-color: #eae2cc #fff;
   --moz-scrollbar-width: thin;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+
+  max-height: 250px;
+  margin: 0 0 0 7px;
+  padding: 0;
+
+  list-style: none;
 }
 
 .summary_list::-webkit-scrollbar-track {
@@ -115,8 +132,10 @@
 }
 
 .summary_item {
-  flex: none;
+  position: relative;
+
   display: flex;
+  flex: none;
   flex-direction: row;
   gap: 10px;
   align-items: center;
@@ -126,7 +145,7 @@
   margin: auto;
 
   border-bottom: 1px solid var(--beige-dark);
-  position: relative;
+
   /* text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden; */
@@ -159,52 +178,64 @@
 }
 
 .actions {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  background-color: var(--white);
   cursor: pointer;
+
   position: absolute;
   z-index: 3000;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+
+  display: flex;
+  flex-direction: column;
+
   width: fit-content;
+  margin: 0;
+  padding: 0;
+
+  white-space: nowrap;
+  list-style: none;
+
   background-color: var(--white);
   border-radius: var(--border-radius);
   box-shadow: 4px 3px 20px -1px rgb(34 60 80 / 20%);
-  white-space: nowrap;
 }
 
 .action {
   display: flex;
   align-items: center;
+
   height: 40px;
-  border-bottom: 1px solid var(--beige-dark);
-  padding-left: 10px;
   padding-right: 10px;
+  padding-left: 10px;
+
+  border-bottom: 1px solid var(--beige-dark);
 }
 
 .emoji {
   z-index: 100;
   top: 50%;
+
   /* left: 50%; */
   transform: translate(0, -50%);
   box-shadow: var(--box-shadow-up);
+
   /* box-shadow: -10px -7px 13px 0 rgb(5 6 6 / 20%);
   box-shadow: -10px -7px 13px 0 rgb(5 6 6 / 20%); */
 }
 
 .hideButton {
-  display: block;
+  cursor: pointer;
+
   position: absolute;
   bottom: 5px;
-  cursor: pointer;
+
+  display: block;
+
+  padding: 2px 5px;
+
   font-size: var(--font-size-default);
   font-weight: bold;
-  padding: 2px 5px;
   color: gray;
 }
 
@@ -223,8 +254,11 @@
 }
 
 .author_avatar {
+  flex: none;
+
   width: 24px;
   height: 24px;
+
   /* margin-left: auto; */
 
   object-fit: cover;
@@ -232,30 +266,58 @@
 }
 
 .author_name {
+  overflow: hidden;
+
+  width: fit-content;
+  max-width: 120px;
+
   font-size: var(--font-size-small);
   color: gray;
-  width: 80%;
-  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .delete_reaction {
+  cursor: pointer;
+
   position: absolute;
   top: 10px;
   right: 75px;
+
+  width: 20px;
+
   font-size: var(--font-size-small);
   color: gray;
-  width: 20px;
-  cursor: pointer;
 }
 
 .deletedMessage {
   display: block;
-  height: 24px;
+
   width: 24px;
-  padding: 3px;
+  height: 24px;
   margin: auto;
+  padding: 3px;
+
   background-color: var(--white);
   border-radius: var(--border-radius);
+}
+
+@media (max-width: 768px) {
+  .popup {
+    width: 240px;
+  }
+
+  .summary_name {
+    width: 30%;
+  }
+}
+
+@media (max-width: 576px) {
+  .popup {
+    width: 70vw;
+  }
+
+  /* .summary_name {
+    width: 50%;
+  } */
 }

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React, { ChangeEventHandler, useContext, useState } from "react";
+import { ChangeEventHandler, useContext, useState } from "react";
 
 import { useForm } from "react-hook-form";
 
@@ -7,61 +7,42 @@ import styles from "./PopupSearchMessage.module.css";
 
 import { Context } from "../..";
 import useDebounce from "../../hooks/useDebounce";
-import useMediaQuery from "../../hooks/useMediaQuery";
-import ButtonSend from "../../ui/button-send/ButtonSend";
-import NoAvatar from "../../ui/icons/no-avatar/NoAvatar";
-import ShareIcon from "../../ui/icons/share-icon/ShareIcon";
+
 import ShrugIcon from "../../ui/icons/shrug-icon/ShrugIcon";
-import TrashIcon from "../../ui/icons/trash-icon/TrashIcon";
 
 import Input from "../../ui/input/Input";
 import { findMessages } from "../../utils/api";
-import { getDate } from "../../utils/helpers";
+import { decrypt, getDate } from "../../utils/helpers";
+import { IMessage } from "../../utils/types";
 interface IContactDetailsProps {
-  // id: string;
-  scrollIntoView: any;
-  onClick?: VoidFunction;
+  scrollIntoView: (id: string) => void;
   isPopupSearchMessageOpen: boolean;
 }
-export default function PopupSearchMessage({
-  // id,
-  scrollIntoView,
-  onClick,
-  isPopupSearchMessageOpen,
-}: IContactDetailsProps) {
-  const userStore = useContext(Context).user;
-  const { register, handleSubmit, setValue, watch } = useForm({ values: { query: "" } });
-  const [searchResult, setSearchResult] = useState<any>([]);
-  const matches = useMediaQuery("(min-width: 576px)");
-  //   const [status, setStatus] = useState<IStatus<any>>({
-  //     isloading: false,
-  //     data: undefined,
-  //     error: "",
-  //   });
+export default function PopupSearchMessage({ scrollIntoView, isPopupSearchMessageOpen }: IContactDetailsProps) {
+  const store = useContext(Context)?.store;
+  const { register, setValue, watch } = useForm({ values: { query: "" } });
+  const [searchResult, setSearchResult] = useState<IMessage[] | string>([]);
 
   const searchMessages = async (query: string) => {
-    //navigate("/reset-password");
-    // console.log(query);
     try {
       if (query.length > 1) {
         const res = await findMessages({
           query: query,
-          roomId: userStore.roomId,
+          roomId: store?.roomId as string,
         });
         if (res.length) {
           setSearchResult(res);
         } else setSearchResult("Поиск не дал результата");
       }
-    } catch (e: any) {
-      console.log(e);
+    } catch (err) {
+      console.error("Произошла ошибка:", err);
     }
-    // handleRequest(status, setStatus, `${FORGOT_PASSWORD_URL}`, "POST", values);
   };
   const debouncedSearch = useDebounce(searchMessages, 1000);
   const handleInputChange: ChangeEventHandler<HTMLInputElement> = () => {
     debouncedSearch(watch("query"));
   };
-  // console.log(searchResult);
+
   return (
     <motion.section
       className={styles.wrapper}
@@ -77,19 +58,15 @@ export default function PopupSearchMessage({
           required
           register={register}
           onChange={handleInputChange}
-          // errorMessage='Введите корректный email'
           clearButton
           setValue={setValue}
         />
       </div>
-
-      {/* <ButtonSend onClick={undefined} top={15} right={10} /> */}
-
       <ul className={styles.list}>
         {" "}
         {Array.isArray(searchResult) &&
           searchResult.length > 0 &&
-          searchResult.map((el: any, i: number) => {
+          searchResult.map((el, i) => {
             return (
               <motion.li
                 initial={{ opacity: 0 }}
@@ -102,7 +79,7 @@ export default function PopupSearchMessage({
                 }}
               >
                 <p className={styles.date}>{getDate(el.createdAt)}</p>
-                {el.message && <p className={styles.message}> {el.message}</p>}
+                {el.message && <p className={styles.message}> {decrypt(el.message)}</p>}
                 {el.contact && <p className={styles.message}> {el.contact.email}</p>}
                 {el.contact && <p className={styles.message}> {el.contact.userName}</p>}
               </motion.li>

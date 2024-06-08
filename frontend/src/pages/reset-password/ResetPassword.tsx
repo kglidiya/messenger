@@ -1,4 +1,3 @@
-import { useEffect, useState, ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -30,17 +29,13 @@ const ResetPassword = () => {
   });
 
   const navigate = useNavigate();
-  const matches = useMediaQuery("(min-width: 576px)");
+  const matchesMobile = useMediaQuery("(max-width: 576px)");
 
   const onSubmit = (values: FormValues) => {
     resetPassword({
       recoveryCode: Number(values.code),
       password: values.password,
     });
-    // handleRequest(status, setStatus, `${RESET_PASSWORD_URL}`, "POST", {
-    //   recoveryCode: Number(values.code),
-    //   password: values.password,
-    // });
     navigate("/signin");
   };
 
@@ -48,9 +43,7 @@ const ResetPassword = () => {
     <main className={styles.container}>
       <h3 className={styles.title}>Восстановление пароля</h3>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-        <Logo top={-115} right={0} color='#eae2cc' />
-        {/* <h3 className={styles.title}>Восстановление пароля</h3> */}
-
+        <Logo width={100} height={100} top={matchesMobile ? -180 : -115} right={0} color='#eae2cc' />
         <Input
           type='password'
           placeholder='Введите новый пароль'
@@ -65,7 +58,6 @@ const ResetPassword = () => {
           clearButton
           setValue={setValue}
         />
-
         <Input
           type='password'
           placeholder='Повторите пароль'
@@ -78,7 +70,6 @@ const ResetPassword = () => {
           clearButton
           setValue={setValue}
         />
-
         <p className={styles.subtitle}>Введите код восстановления</p>
         <Input
           type='number'
@@ -91,8 +82,12 @@ const ResetPassword = () => {
           clearButton
           setValue={setValue}
         />
-        <Button type='submit' text='Отправить' width={matches ? "300px" : "95%"} fontSize={matches ? "24px" : "18px"} />
-        {/* {status.error && <p className={styles.error}>{status.error}</p>} */}
+        <Button
+          type='submit'
+          text='Отправить'
+          width={!matchesMobile ? "300px" : "95%"}
+          fontSize={!matchesMobile ? "24px" : "18px"}
+        />
       </form>
     </main>
   );

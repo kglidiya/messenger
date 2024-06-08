@@ -6,7 +6,6 @@ import {
   Headers,
   Param,
   Post,
-  Query,
   UnauthorizedException,
   UploadedFile,
   UseInterceptors,
@@ -25,17 +24,14 @@ export class MessagesController {
   getAllMessages(
     @Param('query') query: string,
     @Param('roomId') roomId: string,
-    // param: { limit: number; offset: number; roomId: RoomId },
-    // @Body() roomId: RoomId,
-    @Headers() token: any,
+    @Headers() token: string,
   ): Promise<MessagesEntity[]> {
-    // console.log('roomId', roomId);
-
     const ver = verify(token);
     if (ver) {
-      return this.messageService.getAllMessages(roomId, query);
+      const userId = ver.id;
+      return this.messageService.getAllMessages(roomId, query, userId);
     } else {
-      throw new UnauthorizedException({ key: 'Invalid token!' });
+      throw new UnauthorizedException({ key: 'Доступ запрещен' });
     }
   }
 
@@ -43,17 +39,13 @@ export class MessagesController {
   getMessageIndex(
     @Param('id') id: string,
     @Param('roomId') roomId: string,
-    // param: { limit: number; offset: number; roomId: RoomId },
-    // @Body() roomId: RoomId,
-    @Headers() token: any,
+    @Headers() token: string,
   ): Promise<number> {
-    // console.log('roomId', roomId);
-
     const ver = verify(token);
     if (ver) {
       return this.messageService.getMessageIndex(id, roomId);
     } else {
-      throw new UnauthorizedException({ key: 'Invalid token!' });
+      throw new UnauthorizedException({ key: 'Доступ запрещен' });
     }
   }
 
@@ -62,38 +54,16 @@ export class MessagesController {
     @Param('limit') limit: number,
     @Param('offset') offset: number,
     @Param('id') roomId: RoomId,
-    // param: { limit: number; offset: number; roomId: RoomId },
-    // @Body() roomId: RoomId,
-    @Headers() token: any,
+    @Headers() token: string,
   ): Promise<MessagesEntity[]> {
-    // console.log('roomId', roomId);
-    // console.log('limit,', limit);
-    // console.log('offset', offset);
     const ver = verify(token);
     if (ver) {
-      // console.log(ver);
       const userId = ver.id;
-      // console.log('userId', ver);
       return this.messageService.getPrevMessage(limit, offset, roomId, userId);
     } else {
-      throw new UnauthorizedException({ key: 'Invalid token!' });
+      throw new UnauthorizedException({ key: 'Доступ запрещен' });
     }
   }
-
-  // @Delete('/delete')
-  // deleteMessage(
-  //   // @Param('id') roomId: RoomId,
-  //   // @Body() roomId: RoomId,
-  //   @Headers() token: any,
-  // ): Promise<any> {
-  //   // console.log(roomId);
-  //   const ver = verify(token);
-  //   if (ver) {
-  //     return this.messageService.delete('messages');
-  //   } else {
-  //     throw new UnauthorizedException({ key: 'Invalid token!' });
-  //   }
-  // }
 
   @Post('/uploadFile')
   @UseInterceptors(
@@ -102,22 +72,20 @@ export class MessagesController {
       path: '/files',
     }),
   )
-  updateUser(
-    @Headers() token: object,
+  uploadFile(
+    @Headers() token: string,
     @UploadedFile() file: Express.Multer.File,
-    @Body() data: any,
-    // @Query() data: any,
-  ): Promise<any> {
+    @Body() data: FormData,
+  ): Promise<MessagesEntity> {
     const { id } = verify(token);
-    // console.log(data);
     if (id) {
       return this.messageService.uploadFile(file, data);
     } else {
-      throw new UnauthorizedException({ key: 'Invalid token!' });
+      throw new UnauthorizedException({ key: 'Доступ запрещен' });
     }
   }
 
-  @Delete()
+  @Delete('/delete')
   remove(@Body('id') id: string): Promise<any> {
     return this.messageService.delete(id);
   }

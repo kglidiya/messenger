@@ -1,21 +1,21 @@
+.wrapper,
+.content,
+.map,
+.sphere {
+  overflow: hidden;
+  display: block;
+
+  width: calc(var(--chat-width) * 0.85);
+  height: calc(var(--chat-width) * 0.85);
+
+  border-radius: 50%;
+}
+
 .wrapper {
   position: absolute;
   top: 30%;
   left: 50%;
-
-  /* position: absolute;   */
-
-  /* display: inline-block; */
-
-  /* margin: 30px; */
-  transform: scale(1.1);
   transform: translate(-50%, -30%);
-
-  aspect-ratio: 1/1;
-  width: 83%;
-  max-width: 83vh;
-
-  /* overflow: hidden; */
 }
 
 .content {
@@ -23,45 +23,25 @@
   top: 0;
   left: 0;
 
-  display: block;
-
-  aspect-ratio: 1/1;
-  width: 100%;
   margin: 0;
   padding: 0;
 }
 
-.map,
-.sphere {
+.map {
   position: absolute;
-  display: block;
   margin: 0;
+  background-color: #ddd6c7;
 }
 
 .sphere {
+  position: absolute;
   top: 0;
   left: 0;
 
-  aspect-ratio: 1/1;
-  width: 100%;
+  margin: 0;
 
   background-repeat: no-repeat;
   background-position: 0 0;
-}
-
-.map {
-  overflow: hidden;
-
-  aspect-ratio: 1/1;
-
-  /* left: 0; 
-    top: 0;  */
-  width: 100%;
-
-  background-color: #ddd6c7;
-  border-radius: 50%;
-
-  /* background: radial-gradient(circle at 65% 10%, #eeebe4, #ddd6c7); */
 }
 
 .map_front {
@@ -74,10 +54,10 @@
   width: 500%;
   height: 100%;
   margin: 0;
-  background-position: 5% 50%;
-  /* overflow: visible; */
-  background-image: url("./map_front.svg");
+
+  background-image: url("../../images/mapfront.svg");
   background-repeat: repeat-x;
+  background-position: 5% 50%;
   background-size: contain;
 
   animation: textureSpinreverse 200s linear infinite;
@@ -89,13 +69,10 @@
   width: 500%;
   height: 100%;
   margin: 0;
-  /* margin-left: 5%; */
-  opacity: 0.3;
 
-  /* overflow: visible; */
-  background-image: url("./map_back.svg");
+  opacity: 0.3;
+  background-image: url("../../images/mapback.svg");
   background-repeat: repeat-x;
-  /* background-position: -50% 50%; */
   background-position: -50% 50%;
   background-size: contain;
 
@@ -118,5 +95,11 @@
 
   to {
     transform: translateX(0);
+  }
+}
+
+@media (max-width: 576px) {
+  .wrapper {
+    top: 38%;
   }
 }

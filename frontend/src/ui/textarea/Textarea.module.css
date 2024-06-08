@@ -1,4 +1,6 @@
 .textarea {
+  --moz-scrollbar-color: #eae2cc #fff;
+  --moz-scrollbar-width: thin;
   resize: none;
 
   overflow-y: scroll;
@@ -6,26 +8,18 @@
 
   box-sizing: border-box;
   width: 100%;
-  /* min-height: 50px;
-
-  max-height: 200px; */
   padding: 0 65px 0 70px;
 
   font-size: 16px;
   text-align: justify;
 
   border: none;
-
   border-radius: var(--border-radius);
   outline: none;
-  --moz-scrollbar-color: #eae2cc #fff;
-  --moz-scrollbar-width: thin;
 }
 
 .textarea::-webkit-scrollbar-track {
   background-color: transparent;
-
-  /* height: 90%; */
 }
 
 .textarea::-webkit-scrollbar {

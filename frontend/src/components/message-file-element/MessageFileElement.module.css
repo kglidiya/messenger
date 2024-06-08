@@ -1,13 +1,15 @@
-.image {
-  max-width: 90%;
-  min-width: 10vw;
-  object-fit: contain;
-  max-height: 30vh;
-  border-radius: var(--border-radius);
-  margin: 15px auto;
-  display: block;
+.imageVisible {
   cursor: pointer;
 
+  display: block;
+
+  min-width: 10vw;
+  max-width: 90%;
+  max-height: 30vh;
+  margin: 15px auto;
+
+  object-fit: contain;
+  border-radius: var(--border-radius);
 }
 
 .imageHidden {
@@ -15,73 +17,90 @@
 }
 
 .imageLoader {
-  background: transparent;
-  height: 20vw;
+  display: flex;
+  align-items: center;
+
   width: 15vw;
+  height: 20vw;
+  margin: auto;
+  background: transparent;
 }
 
 .video {
-  max-width: 100%;
-  min-width: 10vw;
-  /* object-fit: contain; */
-  border-radius: var(--border-radius);
-  margin: 15px auto;
   cursor: pointer;
-  /* margin-left: auto;
-  margin-right: auto; */
+
+  min-width: 10vw;
+  max-width: 100%;
+  margin: 15px auto;
+
+  border-radius: var(--border-radius);
 }
 
 .pdf {
-  border-radius: var(--border-radius);
-  justify-self: center;
-  max-width: 20vh;
-  margin: 25px auto 15px auto;
   cursor: pointer;
-  /* overflow: hidden; */
-  /* border: none; */
+
+  justify-self: center;
+
+  max-width: 20vw;
+  margin: 25px auto 15px;
+
+  border-radius: var(--border-radius);
 }
 
 .file {
+  cursor: pointer;
+
   position: relative;
+
+  display: flex;
+  display: block;
+  align-items: flex-end;
+  justify-content: center;
+
   width: 10vh;
   height: 10vh;
-  border-radius: var(--border-radius);
-  background-color: var(--beige-light);
-  display: flex;
-  align-items: end;
-  justify-content: center;
+  margin: 25px auto 15px;
+
   background: url("../../images/file.svg"), var(--beige-light);
+  background-color: var(--beige-light);
   background-repeat: no-repeat;
-  background-size: 70%;
   background-position: 50% 30%;
-  margin: 25px auto 15px auto;
-  cursor: pointer;
-  display: block;
-  /* z-index: 10; */
+  background-size: 70%;
+  border-radius: var(--border-radius);
 }
 
 .fileName {
-  padding: 70px 0 0 0;
+  overflow: hidden;
+
   width: 95%;
+  padding: 70px 0 0;
+
   font-size: var(--font-size-default);
   font-weight: bold;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
-  overflow: hidden;
-  /* cursor: pointer; */
 }
 
-.icon {
+.downLoad {
+  cursor: pointer;
   position: absolute;
   bottom: 0;
-  cursor: pointer;
   transition: all 0.3s linear;
-  /* width: 20px;
-  height: 20px; */
 }
 
-/* .image:hover span {
-  display: block;
-  scale: 2;
-} */
+@media (max-width: 576px) {
+  .image {
+    max-height: 50vh;
+  }
+
+  .file {
+    width: 15vh;
+    height: 15vh;
+  }
+
+  .imageLoader {
+    width: 40vw;
+    height: 40vw;
+  }
+}

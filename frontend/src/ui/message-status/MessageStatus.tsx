@@ -1,5 +1,3 @@
-import React from "react";
-
 import styles from "./MessageStatus.module.css";
 
 import { IMessageStatus } from "../../utils/types";
@@ -11,7 +9,6 @@ interface IMessageStatusProps {
 }
 
 export default function MessageStatus({ status, user, creator }: IMessageStatusProps) {
-  // console.log(status);
   return (
     <div
       className={styles.wrapper}

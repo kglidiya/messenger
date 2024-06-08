@@ -1,5 +1,3 @@
-import React from "react";
-
 import styles from "./DetailsButton.module.css";
 
 export default function DetailsButton({ onClick }: { onClick: VoidFunction }) {

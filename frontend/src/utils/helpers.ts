@@ -1,33 +1,53 @@
-import { IContact } from "./types";
+/* eslint-disable array-callback-return */
+import { IContact, IMessage, IReactions } from "./types";
 
-export const chunkFile = (str: any, size: any) => {
-  const numChunks = Math.ceil(str.length / size);
-  const chunks = new Array(numChunks);
+var CryptoJS = require("crypto-js");
 
-  for (let i = 0, o = 0; i < numChunks; ++i, o += size) {
-    chunks[i] = str.substr(o, size);
-  }
+export const encrypt = (message: string) => {
+  return CryptoJS.AES.encrypt(JSON.stringify(message), process.env.REACT_APP_CRYPTO_KEY).toString();
+};
 
-  return chunks;
+export const decrypt = (message: string) => {
+  const bytes = CryptoJS.AES.decrypt(message, process.env.REACT_APP_CRYPTO_KEY);
+  const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+  return decryptedData;
+};
+
+export const decryptOneMessage = (msg: IMessage) => {
+  return {
+    ...msg,
+    message: msg.message ? decrypt(msg.message) : "",
+    parentMessage:
+      msg.parentMessage && msg.parentMessage.message
+        ? { ...msg.parentMessage, message: decrypt(msg.parentMessage.message) }
+        : msg.parentMessage,
+  };
+};
+
+export const decryptAllMessages = (msg: IMessage[]) => {
+  return msg.map((m) => {
+    return decryptOneMessage(m);
+  });
 };
 
 export const isAllContactsInTheGroup = (arr: IContact[], userId: string, usersId: string) => {
-  const res = arr.filter((user: any) => {
-    if (user.id !== userId && user.email !== "" && !usersId.includes(user.id)) return user;
+  const res = arr.filter((user) => {
+    if (user.id !== userId && user.email && !usersId.includes(user.id)) {
+      return user;
+    }
   });
-  // console.log(res);
   if (res.length === 0) {
     return true;
   } else return false;
 };
 
-export const findItemById = (arr: any, id: any) => {
-  return arr.filter((user: any) => user.id === id);
+export const findItemById = (arr: any, id: string) => {
+  return arr.filter((item: any) => item.id === id);
 };
 
-export const countArrayItems = (arr: any) => {
-  const output = [] as any;
-  const reactions = arr.reduce((acc: any, el: any) => {
+export const countArrayItems = (arr: IReactions[]) => {
+  const output = [] as { reaction: string; count: number }[];
+  const reactions = arr.reduce((acc: any, el) => {
     acc[el.reaction] = (acc[el.reaction] || 0) + 1;
     return acc;
   }, {});
@@ -37,28 +57,14 @@ export const countArrayItems = (arr: any) => {
   return output;
 };
 
-const getDiffDays = (date: Date) => Math.floor((new Date().getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-
 export const getFormattedTime = (createdAt: string) => {
   const date = new Date(createdAt);
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 };
-// export const isToday = (date: Date): boolean => getDiffDays(date) === 0;
-// export const isYesterday = (date: Date): boolean => getDiffDays(date) === 1;
-// export const getDay = (date: Date) => {
-//   if (getDiffDays(date) === 0) {
-//     return "Сегодня";
-//   }
-//   if (getDiffDays(date) === 1) {
-//     return "Вчера";
-//   }
-// };
 
-const isToday = (createdAt: any) => {
+const isToday = (createdAt: string) => {
   const today = new Date();
   const dateToCheck = new Date(createdAt);
-  // 👇️ Today's date
-  // console.log(today.toDateString());
 
   if (today.toDateString() === dateToCheck.toDateString()) {
     return true;
@@ -67,11 +73,10 @@ const isToday = (createdAt: any) => {
   return false;
 };
 
-const isYesterday = (createdAt: any) => {
+const isYesterday = (createdAt: string) => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const dateToCheck = new Date(createdAt);
-  // 👇️ Yesterday's date
 
   if (yesterday.toDateString() === dateToCheck.toDateString()) {
     return true;
@@ -79,13 +84,8 @@ const isYesterday = (createdAt: any) => {
 
   return false;
 };
-export const getDate = (createdAt: any) => {
+export const getDate = (createdAt: string) => {
   const date = new Date(createdAt);
-  // if (getDiffDays(date) === 0) {
-  //   return "Сегодня";
-  // }
-  // const t = new Date("2024-05-17T06:14:42.727Z");
-  // console.log(isYesterday(t));
   if (isToday(createdAt)) {
     return "Сегодня";
   }
@@ -100,22 +100,12 @@ export const getDate = (createdAt: any) => {
       String(date.getFullYear())
     );
 };
-// import plural from 'plural-ru';
 
-// const getDiffDays = (date: Date) =>
-//     Math.floor((new Date().getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+export const creactFileToSend = (fileData: File | Blob, type: string) => {
+  return new File([fileData], "image.png", { type: type });
+};
 
-// export const getFormattedTime = (date: Date): string =>
-//     `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-
-// export const getFormattedDate = (date: Date): string => {
-//     const diffDays = getDiffDays(date);
-//     return `${plural(diffDays, '%d день', '%d дня', '%d дней')} назад, ${getFormattedTime(date)}`;
-// };
-
-// export const isToday = (date: Date): boolean => getDiffDays(date) === 0;
-// export const isYesterday = (date: Date): boolean => getDiffDays(date) === 1;
-export const countLines = (textarea: any) => {
+export const countLines = (textarea: HTMLTextAreaElement) => {
   let _buffer: any;
   if (_buffer == null) {
     _buffer = document.createElement("textarea");
@@ -159,16 +149,16 @@ export const countLines = (textarea: any) => {
 
 export const emailRegex = /^\S+@\S+\.\S+$/;
 
-function saveFile(url: string) {
+function saveFile(url: string, name: string) {
   const a = document.createElement("a");
   a.href = url;
-  a.download = "file-name";
+  a.download = name;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
 }
 
-export async function downloadFile(url: string) {
+export async function downloadFile(url: string, name: string) {
   try {
     const response = await fetch(url, {
       headers: {
@@ -180,9 +170,18 @@ export async function downloadFile(url: string) {
     }
     const blob = await response.blob();
     const blobUrl = URL.createObjectURL(blob);
-    saveFile(blobUrl);
+    saveFile(blobUrl, name);
     URL.revokeObjectURL(blobUrl);
   } catch (err) {
-    console.error("Error in fetching and downloading file:", err);
+    console.error("Произошлп ошибка:", err);
   }
 }
+
+export const readFiles = (file: File): Promise<string> => {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = (e) => res(e.target?.result as string);
+    reader.onerror = (e) => rej(e);
+    reader.readAsDataURL(file);
+  });
+};

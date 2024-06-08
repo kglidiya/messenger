@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function ShrugIcon({ color }: { color: string }) {
   return (
     <svg xmlns='http://www.w3.org/2000/svg' width='62' height='62' viewBox='0 0 192 171' version='1.1'>

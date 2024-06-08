@@ -1,12 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { observer } from "mobx-react-lite";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 
 import styles from "./Signup.module.css";
 
 import { Context } from "../..";
-import { SocketContext } from "../../hoc/SocketProvider";
+
 import useMediaQuery from "../../hooks/useMediaQuery";
 import Button from "../../ui/button/Button";
 import Logo from "../../ui/icons/Logo/Logo";
@@ -14,58 +15,39 @@ import Input from "../../ui/input/Input";
 import { emailRegex } from "../../utils/helpers";
 
 const Signup = observer(() => {
-  const socket = useContext(SocketContext);
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors },
   } = useForm({ values: { email: "", password: "" } });
-  const userStore = useContext(Context).user;
-  const matches = useMediaQuery("(min-width: 576px)");
+  const store = useContext(Context)?.store;
+  const matchesMobile = useMediaQuery("(max-width: 576px)");
   const navigate = useNavigate();
-  //   const [status, setStatus] = useState<IStatus<undefined | IUser>>({
-  //     isloading: false,
-  //     data: undefined,
-  //     error: "",
-  //   });
 
-  const onSubmit = (values: any) => {
-    // console.log(values);
-    userStore.registerUser({ ...values, isOnline: true });
-
-    // setTimeout(() => {
-    //   userStore.setAuth(true);
-    //   // const data = {
-    //   //   userId: userStore.user.id,
-    //   //   isOnline: true,
-    //   // };
-    //   // socket && socket.emit("update-userData", data);
-    //   navigate("/");
-    // }, 0);
+  const onSubmit = (values: { email: string; password: string }) => {
+    store?.registerUser({
+      email: values.email.toLowerCase(),
+      password: values.password,
+      isOnline: true,
+    });
   };
 
   useEffect(() => {
-    if (userStore.user && userStore.user.id) {
-      // console.log(toJS(userStore.user));
-      userStore.setAuth(true);
-      // userStore.setContacts();
-      // const data = {
-      //   userId: userStore.user.id,
-      //   isOnline: true,
-      // };
-      // socket && socket.emit("update-userData", data);
+    if (store?.user && store.user.id) {
+      store.setAuth(true);
+      store.clearError();
       setTimeout(() => {
         navigate("/");
       }, 0);
     }
-  }, [userStore.user]);
+  }, [store?.user]);
 
   return (
     <main className={styles.container}>
       <h3 className={styles.title}>Регистрация</h3>
-      <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-        <Logo top={-115} right={0} color='#eae2cc' />
+      <form className={styles.form} onSubmit={handleSubmit(onSubmit)} id='signup'>
+        <Logo width={100} height={100} top={matchesMobile ? -180 : -115} right={0} color='#eae2cc' />
         <Input
           type='text'
           placeholder='Email'
@@ -95,14 +77,20 @@ const Signup = observer(() => {
         <Button
           type='submit'
           text='Зарегистрироваться'
-          width={matches ? "300px" : "95%"}
-          fontSize={matches ? "24px" : "18px"}
+          width={!matchesMobile ? "300px" : "95%"}
+          fontSize={!matchesMobile ? "24px" : "18px"}
         />
+        {store?.error && <p className={styles.error}>{store?.error}</p>}
       </form>
-      {/* {status.error && <p className={styles.error}>{status.error}</p>} */}
       <div className={styles.singupGroup}>
         <p className={styles.text}>Вы уже зарегистированы?</p>
-        <Link to='/signin' className={styles.link}>
+        <Link
+          to='/signin'
+          className={styles.link}
+          onClick={() => {
+            store?.clearError();
+          }}
+        >
           Войти
         </Link>
       </div>
