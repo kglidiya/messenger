@@ -50,7 +50,6 @@ export default function InputFile({
   const handleInputFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = (e.target as HTMLInputElement).files;
     setFilesToSend(files as FileList);
-    console.log(files);
     const validFiles = [];
     if (files && files.length) {
       for (let i = 0; i < files.length; i++) {
@@ -78,7 +77,7 @@ export default function InputFile({
       }
     }
   };
-  // console.log(files);
+
   const removeFile = (i: number) => {
     setFiles((prev) => prev.filter((_, index) => index !== i));
     setFilesToRemove((prev) => prev.concat(files[i].fileName));

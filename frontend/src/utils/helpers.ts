@@ -1,3 +1,4 @@
+/* eslint-disable array-callback-return */
 import { IContact, IMessage, IReactions } from "./types";
 
 var CryptoJS = require("crypto-js");
@@ -100,7 +101,7 @@ export const getDate = (createdAt: string) => {
     );
 };
 
-export const creactFileToSend = (fileData: any, type: string) => {
+export const creactFileToSend = (fileData: File | Blob, type: string) => {
   return new File([fileData], "image.png", { type: type });
 };
 
@@ -172,7 +173,7 @@ export async function downloadFile(url: string, name: string) {
     saveFile(blobUrl, name);
     URL.revokeObjectURL(blobUrl);
   } catch (err) {
-    console.error("Error in fetching and downloading file:", err);
+    console.error("Произошлп ошибка:", err);
   }
 }
 

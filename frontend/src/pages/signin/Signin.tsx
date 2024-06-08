@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -46,7 +45,7 @@ const Signin = observer(() => {
   return (
     <section className={styles.container}>
       <h3 className={styles.title}>Вход</h3>
-      <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+      <form className={styles.form} onSubmit={handleSubmit(onSubmit)} id='signin'>
         <Logo width={100} height={100} top={matchesMobile ? -180 : -115} right={0} color='#eae2cc' />
         <Input
           type='text'

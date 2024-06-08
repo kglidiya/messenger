@@ -34,8 +34,8 @@ export default function PopupSearchMessage({ scrollIntoView, isPopupSearchMessag
           setSearchResult(res);
         } else setSearchResult("Поиск не дал результата");
       }
-    } catch (e: any) {
-      console.log(e);
+    } catch (err) {
+      console.error("Произошла ошибка:", err);
     }
   };
   const debouncedSearch = useDebounce(searchMessages, 1000);

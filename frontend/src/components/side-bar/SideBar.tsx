@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { motion } from "framer-motion";
-import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 
@@ -83,8 +82,8 @@ const SideBar = observer(({ isLoadingContacts, setIsContactsVisible, isContactsV
         setSearchResult([]);
         setValue("");
       }, 0);
-    } catch (e: any) {
-      console.log(e);
+    } catch (err) {
+      console.error("Произошла ошибка:", err);
     }
   };
 

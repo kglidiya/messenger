@@ -7,7 +7,7 @@ import styles from "./ReplyToElement.module.css";
 import { Context } from "../..";
 import AppStore from "../../store/AppStore";
 import { IContact, IMessageFile } from "../../utils/types";
-import MessageContactElement from "../messageContactElement/MessageContactElement";
+import MessageContactElement from "../message-contact-element/MessageContactElement";
 
 interface IReplyToElementProps {
   message: string;

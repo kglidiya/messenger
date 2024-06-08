@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction, toJS } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 
 import { Dispatch, SetStateAction } from "react";
 
@@ -148,7 +148,7 @@ export default class AppStore {
 
   incrementUnreadCount(message: IMessage) {
     const room = this._roomAll.filter((room) => room.id === message.roomId)[0];
-    // console.log(room, this._roomAll);
+
     if (room) {
       const isPrivate = room.name === "private";
       if (isPrivate) {
@@ -332,17 +332,14 @@ export default class AppStore {
   }
 
   get user() {
-    // console.log("this._user", toJS(this._user));
     return this._user;
   }
 
   get contacts() {
-    // console.log("this._contacts", toJS(this._contacts));
     return this._contacts;
   }
 
   get chatingWith() {
-    // console.log("this._chatingWith", toJS(this._chatingWith));
     return this._chatingWith;
   }
 
@@ -351,60 +348,47 @@ export default class AppStore {
   }
 
   get prevMessages() {
-    // console.log("this._prevMessages", toJS(this._prevMessages));
     return this._prevMessages;
   }
 
   get messageToForward() {
-    // console.log(toJS(this._messageToForward));
     return this._messageToForward;
   }
 
   get messageToEdit() {
-    // console.log("this._messageToEdit", toJS(this._messageToEdit));
     return this._messageToEdit;
   }
   get parentMessage() {
-    // console.log("this._parentMessage", toJS(this._parentMessage));
     return this._parentMessage;
   }
 
   get contactToForward() {
-    // console.log(toJS(this._contactToForward));
     return this._contactToForward;
   }
   get selectedUsers() {
-    // console.log("toJS(this._selectedUsers)", toJS(this._selectedUsers));
     return this._selectedUsers;
   }
 
   get roomId() {
-    // console.log("this._roomId", toJS(this._roomId));
     return this._roomId;
   }
   get roomAll() {
-    // console.log("roomAll", toJS(this._roomAll));
     return this._roomAll;
   }
   get unreadCount() {
-    // console.log(toJS(this._unreadCount));
     return this._unreadCount;
   }
   get totalUnread() {
-    // console.log("this._totalUnread", toJS(this._totalUnread));
     return this._totalUnread;
   }
   get currentRoom() {
-    // console.log("this._currentRoom", toJS(this._currentRoom));
     return this._currentRoom;
   }
   get filesCounter() {
-    // console.log("this._filesCounter", toJS(this._filesCounter));
     return this._filesCounter;
   }
 
   get error() {
-    // console.log("this._error", toJS(this._error));
     return this._error;
   }
 }

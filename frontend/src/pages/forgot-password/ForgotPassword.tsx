@@ -28,7 +28,7 @@ const ForgotPassword = () => {
   return (
     <main className={styles.container}>
       <h3 className={styles.title}>Восстановление пароля</h3>
-      <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate id='resetPass'>
         <Logo width={100} height={100} top={matchesMobile ? -180 : -115} right={0} color='#eae2cc' />
         <Input
           type='email'

@@ -46,7 +46,7 @@ const Signup = observer(() => {
   return (
     <main className={styles.container}>
       <h3 className={styles.title}>Регистрация</h3>
-      <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+      <form className={styles.form} onSubmit={handleSubmit(onSubmit)} id='signup'>
         <Logo width={100} height={100} top={matchesMobile ? -180 : -115} right={0} color='#eae2cc' />
         <Input
           type='text'

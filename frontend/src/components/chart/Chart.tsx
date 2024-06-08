@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import { findIndex } from "lodash";
-import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import React, {
   ChangeEvent,
@@ -55,7 +54,7 @@ import PopupFoward from "../popup-foward/PopupFoward";
 import PopupGroupDetails from "../popup-group-details/PopupGroupDetails";
 import PopupImage from "../popup-image/PopupImage";
 import PopupSearchMessage from "../popup-search-message/PopupSearchMessage";
-import ReplyToElement from "../replyToElement/ReplyToElement";
+import ReplyToElement from "../reply-to-element/ReplyToElement";
 import TypingIndicator from "../typing-indicator/TypingIndicator";
 
 const { v4: uuidv4 } = require("uuid");
@@ -161,8 +160,8 @@ const Chart = observer(
           setFetchNext(false);
           setFetchPrev(false);
         }, 0);
-      } catch (e: any) {
-        console.log(e);
+      } catch (err) {
+        console.error("Произошла ошибка:", err);
       }
     };
     useEffect(() => {
@@ -299,7 +298,6 @@ const Chart = observer(
       socket.on("meeting", () => {});
 
       socket.on("receive-message", (message: IMessage) => {
-        console.log("receive-message");
         if (message.roomId === store.roomId) {
           if (store.prevMessages.length) {
             const lastMessage = store.prevMessages[store.prevMessages.length - 1].id;
@@ -377,16 +375,13 @@ const Chart = observer(
         const participant = groupData.participants.filter((el) => el.userId === store.user?.id)[0];
         const isGroupInContacts = store.contacts.findIndex((el) => el.chatId === groupData.id) !== -1;
         if (participant && !participant.isDeleted && isGroupInContacts) {
-          console.log("1");
           store.updateGroup(groupData);
         }
         if (participant && !participant.isDeleted && !isGroupInContacts) {
-          console.log("2");
           store.clearMessages();
           store.setContacts();
         }
         if (participant && participant.isDeleted && isGroupInContacts) {
-          console.log("3");
           store.clearMessages();
           store.setContacts();
           store.setChatingWith(null);
@@ -523,7 +518,9 @@ const Chart = observer(
     }, [value, focused]);
 
     useEffect(() => {
-      socket.emit("update-typingState", { roomId: store.roomId, userId: store.user?.id, isTyping: isTyping });
+      if (store.roomId) {
+        socket.emit("update-typingState", { roomId: store.roomId, userId: store.user?.id, isTyping: isTyping });
+      }
     }, [isTyping]);
 
     const onEmojiClick = (emoji: string) => {
@@ -537,8 +534,6 @@ const Chart = observer(
     const sendMessageFromInputFile = async (files: FileList) => {
       for (let index = 0; index < files.length; index++) {
         const form = new FormData();
-        console.log("files[index]", files[index].size, files[index].size < 104857600);
-        // console.log(value);
         if (
           (!(filesToRemove.indexOf(files[index].name) !== -1) || filesToRemove.length === 0) &&
           files[index].size < 104857600
@@ -604,7 +599,7 @@ const Chart = observer(
 
     const sendFileFromClipboard = async () => {
       setSendingFiles(true);
-      const file = creactFileToSend(fileFromClipboard, "image/png");
+      const file = creactFileToSend(fileFromClipboard as File, "image/png");
       const form = new FormData();
       form.append("file", file);
       const data = {
@@ -705,17 +700,14 @@ const Chart = observer(
             });
         }
         if (fetchNext) {
-          // console.log("fetchNext", fetchNext);
           if (offsetNext === 0) {
             setLimit(15);
           }
           if (offsetNext > 0 && offsetNext < 15) {
-            // console.log("offsetNext > 0 && offsetNext < 15");
             setLimit(offsetNext);
             setOffsetNext(0);
           }
           if (offsetNext >= 15) {
-            // console.log("offsetNext >= 15");
             setLimit(15);
             setOffsetNext(offsetNext - 15);
           }
@@ -970,7 +962,6 @@ const Chart = observer(
 
         <EmojiPicker
           onEmojiClick={(emojiData) => {
-            // console.log(emojiData);
             onEmojiClick(emojiData.emoji);
           }}
           key={caretPos}

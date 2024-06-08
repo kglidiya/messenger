@@ -1,6 +1,5 @@
 /* eslint-disable array-callback-return */
 import { motion } from "framer-motion";
-import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, FormEvent, useContext, useEffect, useRef, useState } from "react";
 
@@ -43,6 +42,7 @@ const PopupGroupDetails = observer(({ isPopupDetailsOpen, closeDetailsPopup }: I
   };
   const handleSubmitGroupName = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     const data = {
       roomId: store.currentRoom?.id,
       groupName: values.groupName,
@@ -66,7 +66,8 @@ const PopupGroupDetails = observer(({ isPopupDetailsOpen, closeDetailsPopup }: I
     store.setSelectedUsers(target.value, target.checked);
   };
 
-  const addParticipants = () => {
+  const addParticipants = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setIsAddingParticipants(true);
     const participants = store.selectedUsers.join();
     const users = store.contacts.filter((user) => participants.includes(user.id));
@@ -141,7 +142,7 @@ const PopupGroupDetails = observer(({ isPopupDetailsOpen, closeDetailsPopup }: I
         <CloseIcon onClick={closeDetailsPopup} width={36} height={36} top={15} right={15} color='#ddd6c7' />
       )}
       {isAdmin ? (
-        <form onSubmit={handleSubmitGroupName}>
+        <form onSubmit={handleSubmitGroupName} id='groupChart'>
           <ProfilePhoto
             avatar={values.avatar as string | null}
             setValue={setValues}
@@ -219,7 +220,7 @@ const PopupGroupDetails = observer(({ isPopupDetailsOpen, closeDetailsPopup }: I
       {isAddUserOpen && (
         <div className={styles.addUserPopup}>
           <CloseIcon onClick={closePopup} width={34} height={34} top={10} right={10} color='white' />
-          <form className={styles.contacts}>
+          <form className={styles.contacts} id='selectedUsers' onSubmit={addParticipants}>
             {store.contacts.map((user) => {
               if (user.id !== store.user?.id && user.email && !store.currentRoom?.usersId.includes(user.id)) {
                 return (
@@ -243,8 +244,8 @@ const PopupGroupDetails = observer(({ isPopupDetailsOpen, closeDetailsPopup }: I
                 );
               }
             })}
+            <ButtonSend right={15} bottom={10} />
           </form>
-          <ButtonSend onClick={addParticipants} right={15} bottom={10} />
         </div>
       )}
     </motion.aside>

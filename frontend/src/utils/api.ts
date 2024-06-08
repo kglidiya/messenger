@@ -119,7 +119,6 @@ export const findUser = async (data: string) => {
 };
 
 export const createChat = async (data: ICreateChatDto) => {
-  // console.log(data);
   await checkToken();
   const res = await axios(`${ROOMS_URL}/createGroupChat`, {
     method: "POST",
@@ -158,21 +157,7 @@ export const getOneRoom = async (data: { roomId: string }) => {
   return checkResponse<IRoom>(res);
 };
 
-// export const connectToChat = async (data: { currentUserId: string; recipientUserId: string }) => {
-//   await checkToken();
-//   const res = await axios(`${ROOMS_URL}/connectToRoom`, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `Bearer ${getCookie("token")}`,
-//     },
-//     data,
-//   });
-//   return checkResponse<string>(res);
-// };
-
 export const getPrevMessage = async (param: IGetMessagesRequest) => {
-  // console.log(param);
   await checkToken();
   const res = await axios(`${MESSAGES_URL}/getPrevMessage/${param.limit}/${param.offset}/${param.roomId}`, {
     method: "GET",
@@ -180,13 +165,11 @@ export const getPrevMessage = async (param: IGetMessagesRequest) => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${getCookie("token")}`,
     },
-    // data,
   });
   return checkResponse<IMessage[]>(res);
 };
 
 export const findMessages = async (param: { query: string; roomId: string }) => {
-  // console.log(param);
   await checkToken();
   const res = await axios(`${MESSAGES_URL}/getAllMessages/${param.query}/${param.roomId}`, {
     method: "GET",
@@ -194,13 +177,11 @@ export const findMessages = async (param: { query: string; roomId: string }) => 
       "Content-Type": "application/json",
       Authorization: `Bearer ${getCookie("token")}`,
     },
-    // data,
   });
   return checkResponse<IMessage[]>(res);
 };
 
 export const getMessageIndex = async (param: { id: string; roomId: string }) => {
-  // console.log(param);
   await checkToken();
   const res = await axios(`${MESSAGES_URL}/getMessageIndex/${param.id}/${param.roomId}`, {
     method: "GET",
@@ -208,31 +189,15 @@ export const getMessageIndex = async (param: { id: string; roomId: string }) => 
       "Content-Type": "application/json",
       Authorization: `Bearer ${getCookie("token")}`,
     },
-    // data,
   });
   return checkResponse<number>(res);
 };
 
-// export const getOneUser = async (data: any) => {
-//   await checkToken();
-//   const res = await axios(`${USERS_URL}/getOneUserData`, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `Bearer ${getCookie("token")}`,
-//     },
-//     data,
-//   });
-//   return checkResponse<any>(res);
-// };
-
 export const sendFile = async (data: FormData) => {
   await checkToken();
-  // console.log(data);
   const res = await axios(`${MESSAGES_URL}/uploadFile`, {
     method: "POST",
     headers: {
-      // "Content-Type": "application/json",
       Authorization: `Bearer ${getCookie("token")}`,
     },
     data,
@@ -241,7 +206,6 @@ export const sendFile = async (data: FormData) => {
 };
 
 export const getRecoveryCode = async (data: { email: string }) => {
-  // console.log(data);
   await checkToken();
   const res = await axios(FORGOT_PASSWORD_URL, {
     method: "POST",
@@ -255,7 +219,6 @@ export const getRecoveryCode = async (data: { email: string }) => {
 };
 
 export const resetPassword = async (data: IResetPasswordDto) => {
-  // console.log(data);
   await checkToken();
   const res = await axios(RESET_PASSWORD_URL, {
     method: "POST",

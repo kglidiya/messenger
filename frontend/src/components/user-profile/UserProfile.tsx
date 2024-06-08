@@ -2,7 +2,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { motion } from "framer-motion";
 import { findIndex } from "lodash";
-import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useContext, useEffect, useRef, useState } from "react";
 
@@ -162,8 +161,8 @@ const UserProfile = observer(
             store.setContacts(undefined);
             setMenuIsOpen(false);
           }, 0);
-        } catch (e: any) {
-          console.log(e);
+        } catch (err) {
+          console.error("Произошла ошибка:", err);
         }
       }
     };
@@ -239,7 +238,7 @@ const UserProfile = observer(
               transition={{ duration: 0.3 }}
               className={styles.list__item}
             >
-              <form onSubmit={handleSubmitGroupData} className={styles.form}>
+              <form onSubmit={handleSubmitGroupData} className={styles.form} id='groupData'>
                 <p className={styles.warning}>Выберите не менее 2 участников</p>
                 <motion.ul
                   className={styles.contacts}

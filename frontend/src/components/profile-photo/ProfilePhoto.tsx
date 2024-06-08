@@ -47,13 +47,11 @@ const ProfilePhoto: FC<IProfilePhoto> = observer(({ avatar, setValue, isProfileE
       maxWidthOrHeight: 350,
       useWebWorker: true,
     };
-    console.log("imageFile", imageFile);
     try {
       const compressedFile = await imageCompression(imageFile, options);
-      console.log("compressedFile", compressedFile);
       setImg(await readFiles(compressedFile));
     } catch (error) {
-      console.log(error);
+      console.error("Произошла ошибка:", error);
     }
   };
 

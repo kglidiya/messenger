@@ -5,7 +5,7 @@ import { Document, Page, pdfjs } from "react-pdf";
 import styles from "./ParentElement.module.css";
 
 import { IContact, IMessageFile } from "../../utils/types";
-import MessageContactElement from "../messageContactElement/MessageContactElement";
+import MessageContactElement from "../message-contact-element/MessageContactElement";
 
 interface IParentElementProps {
   id: string;

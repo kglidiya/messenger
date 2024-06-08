@@ -2,7 +2,6 @@
 import Picker, { EmojiStyle } from "emoji-picker-react";
 import { motion, useInView } from "framer-motion";
 import { findIndex } from "lodash";
-import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
 
 import {
@@ -39,8 +38,8 @@ import {
   IRoomParticipant,
   IUser,
 } from "../../utils/types";
+import MessageContactElement from "../message-contact-element/MessageContactElement";
 import MessageFileElement from "../message-file-element/MessageFileElement";
-import MessageContactElement from "../messageContactElement/MessageContactElement";
 import ParentElement from "../parent-element/ParentElement";
 
 const messageFromMe = {
@@ -226,8 +225,8 @@ const MessageWithForwardRef = forwardRef<HTMLDivElement | null, IMessageElement>
             socket && socket.emit("create-chat", chat);
           }
         }, 0);
-      } catch (e: any) {
-        console.log(e);
+      } catch (err) {
+        console.error("Произошла ошибка:", err);
       }
     };
 
