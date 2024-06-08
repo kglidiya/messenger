@@ -18,3 +18,5 @@
 - Редактирование профиля
 - Создание групповых чатов
 - Текстовые сообщения шифруются
+
+  ![alt text](https://github.com/kglidiya/messenger/preview1.jpg)
