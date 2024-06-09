@@ -171,13 +171,8 @@
   border-radius: var(--border-radius);
 }
 
-/* .addContactBtn:disabled {
-  opacity: 0.5;
-  cursor: auto;
-} */
-
 @media (max-width: 576px) {
-  .list {
+  .container {
     top: 0;
     right: 0;
     width: 100%;

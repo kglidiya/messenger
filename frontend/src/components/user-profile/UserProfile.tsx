@@ -257,7 +257,7 @@ const UserProfile = observer(
                             name={user.id}
                             onChange={handleChangeInputCheckbox}
                             ref={refInput}
-                            isPopupForwardContact={isGroupEditOpen}
+                            isPopupForwardOpen={isGroupEditOpen}
                           />
                           {user.avatar ? (
                             <Avatar avatar={user.avatar} width={50} height={50} />

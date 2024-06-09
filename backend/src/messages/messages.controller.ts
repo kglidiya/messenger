@@ -11,9 +11,9 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
-import { verify } from '../middleware/virifyToken';
+import { verify } from '../middleware/verifyToken';
 import { MessagesEntity } from './messages.entity';
-import { RoomId } from '../interfaces';
+import { IMessage, RoomId } from '../interfaces';
 import LocalFilesInterceptor from 'src/localFiles.interceptor';
 
 @Controller('messages')
@@ -75,7 +75,7 @@ export class MessagesController {
   uploadFile(
     @Headers() token: string,
     @UploadedFile() file: Express.Multer.File,
-    @Body() data: FormData,
+    @Body() data: IMessage,
   ): Promise<MessagesEntity> {
     const { id } = verify(token);
     if (id) {
@@ -86,7 +86,7 @@ export class MessagesController {
   }
 
   @Delete('/delete')
-  remove(@Body('id') id: string): Promise<any> {
+  remove(@Body('id') id: string) {
     return this.messageService.delete(id);
   }
 }

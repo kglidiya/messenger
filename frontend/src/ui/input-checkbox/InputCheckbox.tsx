@@ -4,17 +4,17 @@ import styles from "./InputCkeckbox.module.css";
 
 interface ICheckbox {
   name: string;
-  isPopupForwardContact: boolean;
+  isPopupForwardOpen: boolean;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
 }
-const InputCheckbox = forwardRef<HTMLInputElement, ICheckbox>(({ name, isPopupForwardContact, onChange }, ref) => {
+const InputCheckbox = forwardRef<HTMLInputElement, ICheckbox>(({ name, isPopupForwardOpen, onChange }, ref) => {
   const innerRef = useRef<HTMLInputElement>(null);
   useImperativeHandle(ref, () => innerRef.current!, []);
   useEffect(() => {
-    if (!isPopupForwardContact) {
+    if (!isPopupForwardOpen) {
       innerRef.current!.checked = false;
     }
-  }, [isPopupForwardContact]);
+  }, [isPopupForwardOpen]);
   return (
     <div className={styles.container}>
       <input

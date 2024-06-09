@@ -97,7 +97,7 @@ export class AppGateway
   }
 
   @SubscribeMessage('send-file')
-  async handleFile(client: Socket, payload: any): Promise<void> {
+  async handleFile(client: Socket, payload: IMessage): Promise<void> {
     const result = await this.msgRepository.findOne({
       where: { id: payload.id },
     });
@@ -117,7 +117,7 @@ export class AppGateway
       from: payload.from,
     };
 
-    const findDuplicateReaction = message.reactions.filter((reaction: any) => {
+    const findDuplicateReaction = message.reactions.filter((reaction) => {
       return reaction.from === payload.from;
     });
     if (!findDuplicateReaction) {
@@ -130,7 +130,7 @@ export class AppGateway
         .where({ id: payload.messageId })
         .execute();
     } else {
-      const otherUsersReaction = message.reactions.filter((reaction: any) => {
+      const otherUsersReaction = message.reactions.filter((reaction) => {
         return reaction.from !== payload.from;
       });
       await this.msgRepository
@@ -181,7 +181,7 @@ export class AppGateway
     const message = await this.msgRepository.findOne({
       where: { id: payload.messageId },
     });
-    const reactionsUpdated = message.reactions.filter((reaction: any) => {
+    const reactionsUpdated = message.reactions.filter((reaction) => {
       return reaction.from !== payload.from;
     });
     await this.msgRepository
@@ -338,7 +338,6 @@ export class AppGateway
       .where({ id: payload.roomId })
       .execute();
 
-    // const groupUpdated = { participants: [] };
     const result = (await this.roomsRepository.findOne({
       where: { id: payload.roomId },
     })) as any;
@@ -350,7 +349,7 @@ export class AppGateway
       result.participants[i].userName = userData.userName;
       result.participants[i].email = userData.email;
     }
-    // console.log(result);
+
     this.server.emit('receive-groupData', result);
   }
 

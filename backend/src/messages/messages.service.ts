@@ -3,12 +3,13 @@ import { Between, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { MessagesEntity } from './messages.entity';
-import { IMessageStatus, RoomId } from '../interfaces';
+import { IMessage, IMessageStatus, RoomId } from '../interfaces';
 import LocalFilesService from 'src/localFile/localFiles.service';
 import { v4 as uuidv4 } from 'uuid';
 import { AuthorizationEntity } from 'src/authorization/authorization.entity';
 import { RoomsEntity } from 'src/rooms/rooms.entity';
 import { decrypt } from 'src/helpers/crypto';
+import { IParticipants } from 'src/rooms/interfaces';
 
 @Injectable()
 export class MessagesService {
@@ -27,7 +28,7 @@ export class MessagesService {
       where: { roomId: roomId },
       order: { createdAt: 'DESC' },
     });
-    const index = messages.findIndex((msg: any) => msg.id === id);
+    const index = messages.findIndex((msg: MessagesEntity) => msg.id === id);
     if (index >= 0) {
       return index;
     } else return 0;
@@ -53,7 +54,7 @@ export class MessagesService {
             where: { id: roomId },
           });
 
-          addedToGroupChartOn = room.participants.filter((user: any) => {
+          addedToGroupChartOn = room.participants.filter((user) => {
             return user.userId === userId;
           })[0].addedOn;
         }
@@ -115,7 +116,7 @@ export class MessagesService {
           where: { id: roomId },
         });
 
-        addedToGroupChartOn = room.participants.filter((user: any) => {
+        addedToGroupChartOn = room.participants.filter((user) => {
           return user.userId === userId;
         })[0].addedOn;
       }
@@ -157,7 +158,7 @@ export class MessagesService {
 
   async uploadFile(
     file: Express.Multer.File,
-    data: any,
+    data: IMessage,
   ): Promise<MessagesEntity> {
     const uploadedFile = await this.localFilesService.saveLocalFileData(file);
     const id = uuidv4();

@@ -229,7 +229,7 @@ const PopupGroupDetails = observer(({ isPopupDetailsOpen, closeDetailsPopup }: I
                       name={user.id}
                       onChange={handleChangeInputCheckbox}
                       ref={refInput}
-                      isPopupForwardContact={isAddUserOpen}
+                      isPopupForwardOpen={isAddUserOpen}
                     />
                     {user.avatar ? (
                       <Avatar avatar={user.avatar} width={50} height={50} />

@@ -93,7 +93,7 @@ const Chart = observer(
     const [isPopupMessageActionsOpen, setIsPopupMessageActionsOpen] = useState(false);
     const [isPopupEmojiReactionsOpen, setIsPopupEmojiReactionsOpen] = useState(false);
     const [isPopupDetailsOpen, setIsPopupDetailsOpen] = useState(false);
-    const [isPopupForwardContact, setIsPopupForwardContact] = useState(false);
+    const [isPopupForwardOpen, setIsPopupForwardOpen] = useState(false);
     const [isPopupSearchMessageOpen, setIsPopupSearchMessageOpen] = useState(false);
     const [isPopupEditMessage, setIsPopupEditMessage] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
@@ -411,7 +411,6 @@ const Chart = observer(
           setValue("");
           setRows(2);
           refTextArea.current?.focus();
-          // scrollToBottom();
           if (store.parentMessage) {
             store.setParentMessage(null);
           }
@@ -476,12 +475,12 @@ const Chart = observer(
     };
 
     const openForwardContactPopup = () => {
-      setIsPopupForwardContact(true);
+      setIsPopupForwardOpen(true);
       closeMessageActionsPopup();
       closeDetailsPopup();
     };
     const closeForwardContactPopup = () => {
-      setIsPopupForwardContact(false);
+      setIsPopupForwardOpen(false);
     };
     const openSearchMessagePopup = () => {
       setIsPopupSearchMessageOpen(true);
@@ -715,7 +714,6 @@ const Chart = observer(
         setTimeout(() => {
           fetchMessages();
         }, 0);
-        // fetchMessages();
       }
     }, [fetching]);
 
@@ -826,7 +824,6 @@ const Chart = observer(
           className={styles.content}
           style={{
             height: `calc(100% - 200px - ${rows * 18}px)`,
-            // marginTop: store.contacts.length === 0 ? "80px" : "0",
           }}
           {...handlers}
           ref={refPassthrough}
@@ -981,18 +978,13 @@ const Chart = observer(
           <OverLay closePopup={closePopupFile}>
             <div className={styles.popupWrapper}>
               <PopupImage image={imageSrc} />
-              <div
-                // onSubmit={(e) => sendFileFromClipboard(e)}
-                className={styles.container}
-                style={{ width: "100%", marginLeft: "0" }}
-              >
+              <div className={styles.container} style={{ width: "100%", marginLeft: "0" }}>
                 <EmojiIcon onClick={emojiToggle} />
                 <Textarea
                   ref={refTextArea}
                   rows={rows}
                   value={value}
                   handleChange={handleTextAreaChange}
-                  // handleImagePaste={handleImagePaste}
                   onClick={(e: MouseEvent) => {
                     const target = e.target as HTMLTextAreaElement;
                     setCaretPos(target.selectionStart as number);
@@ -1008,18 +1000,13 @@ const Chart = observer(
         {isPopupEditMessage && (
           <OverLay closePopup={closePopupEditMessage}>
             <div className={styles.popupWrapper} style={{ width: matchesMobile ? "90vw" : "45vw" }}>
-              <div
-                // onSubmit={(e) => sendFileFromClipboard(e)}
-                className={styles.container}
-                style={{ width: "100%", marginLeft: "0" }}
-              >
+              <div className={styles.container} style={{ width: "100%", marginLeft: "0" }}>
                 <EmojiIcon onClick={emojiToggle} />
                 <Textarea
                   ref={refTextArea}
                   rows={10}
                   value={value}
                   handleChange={handleTextAreaChange}
-                  // handleImagePaste={handleImagePaste}
                   onClick={(e: MouseEvent) => {
                     const target = e.target as HTMLTextAreaElement;
                     setCaretPos(target.selectionStart as number);
@@ -1034,7 +1021,7 @@ const Chart = observer(
         {store.chatingWith && (
           <PopupFoward
             currentContactId={store.chatingWith.id as string}
-            isPopupForwardContact={isPopupForwardContact}
+            isPopupForwardOpen={isPopupForwardOpen}
             messageToForward={store.messageToForward}
             contactToForward={store.contactToForward}
             closeForwardContactPopup={closeForwardContactPopup}
