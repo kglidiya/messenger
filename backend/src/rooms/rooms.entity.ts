@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 interface IParticipants {
   userId: string;
-  addedOn: Date;
+  addedOn: number;
   isDeleted: boolean;
 }
 @Entity({ name: 'rooms' })

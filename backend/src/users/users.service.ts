@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { AuthorizationEntity } from '../authorization/authorization.entity';
 import { UserData } from '../interfaces';
 import { SearchedData } from './interfaces';
-import LocalFilesService from 'src/localFile/localFiles.service';
+import { UserResponse } from 'src/authorization/interfaces';
 
 @Injectable()
 export class UsersService {
@@ -31,7 +31,10 @@ export class UsersService {
     return userData;
   }
 
-  async searchedUser(searchedData: SearchedData, id: string): Promise<any> {
+  async searchedUser(
+    searchedData: SearchedData,
+    id: string,
+  ): Promise<UserResponse> {
     const searchedUser = await this.usersRepository
       .createQueryBuilder('users')
       .where({ email: searchedData.email })
@@ -45,7 +48,7 @@ export class UsersService {
     }
   }
 
-  async getUserById(userId: string): Promise<any> {
+  async getUserById(userId: string): Promise<UserResponse> {
     const user = await this.usersRepository
       .createQueryBuilder('users')
       .select(['*'])

@@ -6,28 +6,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
-import { verify } from '../middleware/virifyToken';
+import { verify } from '../middleware/verifyToken';
 import { RoomsService } from './rooms.service';
-import { GroupData, IAllGroupsResponse, IRoom, RoomData } from './interfaces';
+import { GroupData, IAllGroupsResponse, IRoom } from './interfaces';
 import { UserId } from '../interfaces';
 import { RoomsEntity } from './rooms.entity';
 
 @Controller('rooms')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
-
-  // @Post('connectToRoom')
-  // connectToRoom(
-  //   @Body() roomData: RoomData,
-  //   @Headers() token: object,
-  // ): Promise<any> {
-  //   const ver = verify(token);
-  //   if (ver) {
-  //     return this.roomsService.connectToRoom(roomData);
-  //   } else {
-  //     throw new UnauthorizedException({ key: 'Invalid token!' });
-  //   }
-  // }
 
   @Post('createGroupChat')
   createGroupChat(
@@ -38,7 +25,7 @@ export class RoomsController {
     if (ver) {
       return this.roomsService.createGroupChat(groupData);
     } else {
-      throw new UnauthorizedException({ key: 'Invalid token!' });
+      throw new UnauthorizedException({ key: 'У Вас недостаточно прав' });
     }
   }
 

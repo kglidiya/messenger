@@ -22,7 +22,7 @@ const { v4: uuidv4 } = require("uuid");
 
 interface IPopupFowardProps {
   currentContactId: string;
-  isPopupForwardContact: boolean;
+  isPopupForwardOpen: boolean;
   messageToForward: IMessage | null;
   contactToForward: IContact | null;
   closeForwardContactPopup: VoidFunction;
@@ -30,7 +30,7 @@ interface IPopupFowardProps {
 
 export default function PopupFoward({
   currentContactId,
-  isPopupForwardContact,
+  isPopupForwardOpen,
   messageToForward,
   contactToForward,
   closeForwardContactPopup,
@@ -98,9 +98,9 @@ export default function PopupFoward({
       className={styles.wrapper}
       initial={{ height: 0, opacity: 0 }}
       animate={{
-        height: isPopupForwardContact ? "auto" : 0,
-        opacity: isPopupForwardContact ? 1 : 0,
-        transform: isPopupForwardContact ? "translate(-50%, -50%)" : "translate(-50%, -50%)",
+        height: isPopupForwardOpen ? "auto" : 0,
+        opacity: isPopupForwardOpen ? 1 : 0,
+        transform: isPopupForwardOpen ? "translate(-50%, -50%)" : "translate(-50%, -50%)",
       }}
       transition={{ duration: 0.3 }}
     >
@@ -118,7 +118,7 @@ export default function PopupFoward({
                   name={contact.chatId}
                   onChange={handleChange}
                   ref={refInput}
-                  isPopupForwardContact={isPopupForwardContact}
+                  isPopupForwardOpen={isPopupForwardOpen}
                 />
                 {contact.avatar ? (
                   <Avatar avatar={contact.avatar} width={50} height={50} />

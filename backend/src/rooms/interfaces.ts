@@ -1,8 +1,8 @@
 import { AuthorizationEntity } from 'src/authorization/authorization.entity';
-import { UserData } from '../interfaces';
-interface IParticipants {
-  user: AuthorizationEntity;
-  addedOn: Date;
+
+export interface IParticipants {
+  userId: string;
+  addedOn: number;
   isDeleted: boolean;
 }
 export interface GroupData {
@@ -10,13 +10,6 @@ export interface GroupData {
   name: string;
   admin?: string[];
   participants?: IParticipants[];
-}
-
-export interface RoomData {
-  // currentUserId?: string;
-  // recipientUserId?: string;
-  // groupId?: string;
-  // unreadCount: number;
 }
 
 export interface IRoomParticipant {

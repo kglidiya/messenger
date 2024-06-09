@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { RoomsEntity } from './rooms.entity';
-import { GroupData, IAllGroupsResponse, IRoom, RoomData } from './interfaces';
+import { GroupData, IAllGroupsResponse, IRoom } from './interfaces';
 import { AuthorizationEntity } from '../authorization/authorization.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { MessagesEntity } from 'src/messages/messages.entity';
@@ -20,25 +20,7 @@ export class RoomsService {
     private readonly messageRepository: Repository<MessagesEntity>,
   ) {}
 
-  // async connectToRoom(roomData: RoomData): Promise<any> {
-  //   if (roomData.currentUserId && roomData.recipientUserId) {
-  //     const ids = roomData.currentUserId
-  //       .concat(',' + roomData.recipientUserId)
-  //       .split(',');
-
-  //     const uniqueChars = [...new Set(ids)];
-  //     const room = await this.roomsRepository
-  //       .createQueryBuilder('rooms')
-  //       .where('rooms.usersId = :ids', {
-  //         ids: uniqueChars.sort().join(),
-  //       })
-  //       .getOne();
-  //     return room.id;
-  //   }
-  // }
-
   async createGroupChat(groupData: GroupData): Promise<RoomsEntity> {
-    console.log(groupData);
     const ids = groupData.usersId.sort();
     if (!groupData.name) {
       const id = uuidv4();
@@ -191,7 +173,7 @@ export class RoomsService {
     } else if (group.name !== 'private') {
       const addedToGroupChartOn = group.participants.filter((el) => {
         return el.userId === userId;
-      })[0].addedOn as any;
+      })[0].addedOn;
 
       const unread = msg.filter((m) => {
         if (new Date(m.createdAt).getTime() > addedToGroupChartOn) {

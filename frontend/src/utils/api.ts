@@ -54,7 +54,6 @@ const checkToken = async () => {
         localStorage.setItem("token", res.data.refreshToken);
         localStorage.setItem("expires_on", String(Date.now() + 600000 * 1000));
         setCookie("token", res.data.accessToken, { path: "/", expires: 6000 * 7200 });
-        // return res.status;
       } catch (e: any) {
         deleteCookie("token");
         deleteCookie("expires_on");

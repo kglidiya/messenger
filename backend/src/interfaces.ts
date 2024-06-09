@@ -52,7 +52,7 @@ export interface UserId {
 export interface UserData {
   id: string;
   userName: string;
-  avatar?: any | null;
+  avatar?: string | null;
   avatarId?: number;
   email: string;
 }

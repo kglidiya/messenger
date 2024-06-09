@@ -10,13 +10,7 @@ class LocalFilesService {
     private localFilesRepository: Repository<LocalFile>,
   ) {}
 
-  async saveLocalFileData(file: any): Promise<any> {
-    // console.log('file', file);
-
-    // const t = await imagemin(['images/*.jpg'], {
-    //   plugins: [imageminMozjpeg()],
-    // });
-    // console.log('t', t);
+  async saveLocalFileData(file: Express.Multer.File): Promise<LocalFile> {
     const newFile = this.localFilesRepository.create(file);
     const fileData = await this.localFilesRepository.save(newFile);
     return fileData;

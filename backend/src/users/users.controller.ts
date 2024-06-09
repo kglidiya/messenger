@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 
 import { UsersService } from './users.service';
-import { verify } from '../middleware/virifyToken';
+import { verify } from '../middleware/verifyToken';
 import { UserData, UserId } from '../interfaces';
 import { AuthorizationEntity } from '../authorization/authorization.entity';
 import { SearchedData } from './interfaces';
@@ -19,6 +19,7 @@ import LocalFilesInterceptor from '../localFiles.interceptor';
 import { ConfigService } from '@nestjs/config';
 import LocalFilesService from 'src/localFile/localFiles.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UserResponse } from 'src/authorization/interfaces';
 
 @Controller('users')
 export class UsersController {
@@ -54,7 +55,7 @@ export class UsersController {
   searchedUser(
     @Headers() token: object,
     @Body() searchedData: SearchedData,
-  ): Promise<AuthorizationEntity[]> {
+  ): Promise<UserResponse> {
     const { id } = verify(token);
     if (id) {
       return this.UsersService.searchedUser(searchedData, id);

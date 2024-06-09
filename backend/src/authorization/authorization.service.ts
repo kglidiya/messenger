@@ -39,13 +39,12 @@ export class AuthorizationService {
     const hash = await bcrypt.hash(registerData.password, 5);
     const newUser = {
       ...registerData,
-      // createdAt: new Date(),
       email: registerData.email,
       password: hash,
       userName: registerData.userName,
       avatar: registerData.avatar,
     };
-    console.log(newUser);
+
     const createNewUser = this.usersRepository.create(newUser);
     const user = await this.usersRepository.save(createNewUser);
     const tokenPair = genTokenPair(user.id);
@@ -79,6 +78,7 @@ export class AuthorizationService {
           email: findRegisteredUser[0].email,
           avatar: findRegisteredUser[0].avatar,
           isOnline: true,
+          bannedBy: findRegisteredUser[0].bannedBy,
         };
       } else {
         throw new ForbiddenException('Неверный пароль!');
