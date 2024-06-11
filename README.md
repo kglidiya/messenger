@@ -1,6 +1,6 @@
-# Pegion Mailer
+# Pigeon Mailer
 #### Мессенджер
-#### https://pegion-mailer.ru/
+#### https://pigeon-mailer.ru/
 Для тестирования можно использовать пользователей 1@test.ru (пароль 1@test.ru), 2@test.ru (пароль 2@test.ru)
 ### Tech stack:
 -	React
