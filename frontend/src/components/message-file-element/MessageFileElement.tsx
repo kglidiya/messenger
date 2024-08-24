@@ -9,8 +9,8 @@ import DownLoadIcon from "../../ui/icons/download-icon/DownLoadIcon";
 import Loader from "../../ui/loaders/loader/Loader";
 import PdfLoader from "../../ui/loaders/pdf-loader/PdfLoader";
 import { downloadFile } from "../../utils/helpers";
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-
+// pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 interface IMessageFileElementProps {
   hover: boolean;
   path: string;
@@ -51,7 +51,14 @@ export default function MessageFileElement({
         </>
       )}
       {type.includes("video") && (
-        <video src={path} className={styles.video} controls muted onClick={openMessageActionsPopup}></video>
+        <video
+          src={path}
+          className={styles.video}
+          controls
+          muted
+          onClick={openMessageActionsPopup}
+          style={{ maxHeight: "40vh" }}
+        ></video>
       )}
       {isPageVisible && type.includes("pdf") && (
         <div onClick={openMessageActionsPopup} style={{ zIndex: 5, position: "relative", cursor: "pointer" }}>

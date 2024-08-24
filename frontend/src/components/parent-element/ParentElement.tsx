@@ -15,8 +15,8 @@ interface IParentElementProps {
 
   onClick: (id: string) => void;
 }
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-
+// pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const ParentElement = observer(({ id, message, file, contact, onClick }: IParentElementProps) => {
   return (
     <div className={styles.wrapper} onClick={() => onClick(id)}>

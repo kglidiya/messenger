@@ -20,6 +20,7 @@ import { Socket } from "socket.io-client";
 import styles from "./Chart.module.css";
 
 import { Context } from "../..";
+import audio from "../../audio/audio.mp3";
 import { SocketContext } from "../../hoc/SocketProvider";
 import useDebounce from "../../hooks/useDebounce";
 import { useIsFirstRender } from "../../hooks/useIsFirstRender";
@@ -45,6 +46,7 @@ import {
   decryptOneMessage,
   encrypt,
   getDate,
+  playSound,
 } from "../../utils/helpers";
 import { IMessage, IRoom, IUser, IWhoIsTyping } from "../../utils/types";
 import Message from "../message/Message";
@@ -444,6 +446,14 @@ const Chart = observer(
       }
     }, [store.messageToEdit]);
 
+    useEffect(() => {
+      setTimeout(() => {
+        if (store.totalUnread > 0) {
+          playSound(audio);
+        }
+      }, 1000);
+    }, [store.totalUnread]);
+
     const openReactionPopup = () => {
       setIsPopupReactionOpen(true);
       closeMessageActionsPopup();
@@ -626,7 +636,7 @@ const Chart = observer(
       }, 0);
     };
 
-    const scrollHander = (e: WheelEvent) => {
+    const scrollHandler = (e: WheelEvent) => {
       refMessages.current && setScroll(refMessages.current?.scrollHeight - refMessages.current?.scrollTop);
       const chartHeight = refMessages.current?.scrollHeight;
       const chartBottomPos =
@@ -664,7 +674,7 @@ const Chart = observer(
         }
       }
     };
-    const optimizeScrolldHandler = useDebounce(scrollHander, 100);
+    const optimizeScrolldHandler = useDebounce(scrollHandler, 100);
     useEffect(() => {
       const chart = refMessages.current;
       chart && chart.addEventListener("wheel", optimizeScrolldHandler);
@@ -725,17 +735,17 @@ const Chart = observer(
           !isPopupEditMessage &&
           value &&
           e.key === "Enter" &&
-          e.ctrlKey
+          !e.ctrlKey
         ) {
           sendMessage();
         }
-        if (isPopupFileOpen && e.key === "Enter" && e.ctrlKey) {
+        if (isPopupFileOpen && e.key === "Enter" && !e.ctrlKey) {
           sendFileFromClipboard();
         }
-        if (isPopupAttachFileOpen && e.key === "Enter" && e.ctrlKey) {
+        if (isPopupAttachFileOpen && e.key === "Enter" && !e.ctrlKey) {
           sendMessageFromInputFile(filesToSend as FileList);
         }
-        if (isPopupEditMessage && e.key === "Enter" && e.ctrlKey) {
+        if (isPopupEditMessage && e.key === "Enter" && !e.ctrlKey) {
           editMessage();
         }
       };
@@ -745,6 +755,21 @@ const Chart = observer(
         document.removeEventListener("keydown", sendMsgWithHotKeys);
       };
     }, [value, isPopupAttachFileOpen, isPopupFileOpen]);
+
+    useEffect(() => {
+      const newLineHandler = (e: KeyboardEvent) => {
+        if (value && e.key === "Enter" && e.ctrlKey) {
+          setValue((value) => (value += "\r\n"));
+          if (rows < 10) setRows(rows + 1);
+          else setRows(10);
+        }
+      };
+
+      document.addEventListener("keydown", newLineHandler);
+      return () => {
+        document.removeEventListener("keydown", newLineHandler);
+      };
+    }, [value]);
 
     useEffect(() => {
       if (store.parentMessage) {
