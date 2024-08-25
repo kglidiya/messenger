@@ -34,6 +34,10 @@ const Signup = observer(() => {
   };
 
   useEffect(() => {
+    store?.clearError();
+  }, []);
+
+  useEffect(() => {
     if (store?.user && store.user.id) {
       store.setAuth(true);
       store.clearError();

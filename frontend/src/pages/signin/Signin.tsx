@@ -32,6 +32,11 @@ const Signin = observer(() => {
       isOnline: true,
     });
   };
+
+  useEffect(() => {
+    store?.clearError();
+  }, []);
+
   useEffect(() => {
     if (store?.user && store.user.id) {
       store.setAuth(true);

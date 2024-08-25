@@ -13,6 +13,7 @@ import React, {
   useState,
 } from "react";
 
+import { usePageVisibility } from "react-page-visibility";
 import { SwipeEventData, useSwipeable } from "react-swipeable";
 
 import { Socket } from "socket.io-client";
@@ -114,6 +115,7 @@ const Chart = observer(
     const itemsRef = useRef<HTMLDivElement[] | null>([]);
     const [scroll, setScroll] = useState<number | undefined>();
     const [focused, setFocused] = React.useState(false);
+    const isPageVisible = usePageVisibility();
     const matchesMobile = useMediaQuery("(max-width: 576px)");
     // const matchesTablet = useMediaQuery("(max-width: 768px)");
     const isFirstRender = useIsFirstRender();
@@ -447,11 +449,9 @@ const Chart = observer(
     }, [store.messageToEdit]);
 
     useEffect(() => {
-      setTimeout(() => {
-        if (store.totalUnread > 0) {
-          playSound(audio);
-        }
-      }, 1000);
+      if (store.totalUnread > 0 && !isPageVisible) {
+        playSound(audio);
+      }
     }, [store.totalUnread]);
 
     const openReactionPopup = () => {
@@ -574,12 +574,10 @@ const Chart = observer(
           }, 0);
         }
       }
-      //setIsPopupAttachFileOpen(false);
       setFilesToRemove([]);
       store.setFilesCounter(0);
       setSendingFiles(false);
       setIsPopupAttachFileOpen(false);
-      //setFilesCounter(0);
     };
 
     const handleImagePaste = async () => {
