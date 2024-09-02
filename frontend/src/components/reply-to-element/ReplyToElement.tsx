@@ -14,7 +14,8 @@ interface IReplyToElementProps {
   file: IMessageFile | null;
   contact: IContact | null;
 }
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+// pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 export default function ReplyToElement({ message, file, contact }: IReplyToElementProps) {
   const store = useContext(Context)?.store as AppStore;

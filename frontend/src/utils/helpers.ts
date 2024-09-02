@@ -185,3 +185,8 @@ export const readFiles = (file: File): Promise<string> => {
     reader.readAsDataURL(file);
   });
 };
+
+export const playSound = (url: string) => {
+  const audio = new Audio(url);
+  audio.play();
+};
